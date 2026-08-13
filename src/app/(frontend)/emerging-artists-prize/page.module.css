@@ -1,0 +1,14 @@
+.page {
+  padding: 3rem 0 0;
+}
+
+.columns {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 800px) {
+  .columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}

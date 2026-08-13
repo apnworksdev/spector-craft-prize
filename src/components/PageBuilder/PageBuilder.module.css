@@ -1,0 +1,8 @@
+.sections {
+  display: grid;
+  gap: 3rem;
+}
+
+.section {
+  max-width: 42rem;
+}
