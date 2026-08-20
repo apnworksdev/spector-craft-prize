@@ -1,12 +1,16 @@
 import type { GlobalConfig } from 'payload'
 
 import { publicRead } from '@/access/publicRead'
+import { revalidateGlobal } from '@/hooks/revalidate'
 
 export const About: GlobalConfig = {
   slug: 'about',
   label: 'About',
   access: {
     read: publicRead,
+  },
+  hooks: {
+    afterChange: [revalidateGlobal('about')],
   },
   fields: [
     {

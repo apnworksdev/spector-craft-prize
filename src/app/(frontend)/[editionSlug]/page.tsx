@@ -1,17 +1,23 @@
 import { notFound } from 'next/navigation'
 
 import { PageBuilder } from '@/components/PageBuilder/PageBuilder'
-import { parseEditionSlug } from '@/lib/editions'
-import { getPayloadClient } from '@/lib/payload'
+import { getCachedEdition, listEditions } from '@/lib/cms'
+import { editionPath, parseEditionSlug } from '@/lib/editions'
 
 import styles from './page.module.css'
-
-export const dynamic = 'force-dynamic'
 
 type EditionPageProps = {
   params: Promise<{
     editionSlug: string
   }>
+}
+
+export async function generateStaticParams() {
+  const editions = await listEditions()
+
+  return editions.docs.map((edition) => ({
+    editionSlug: editionPath(edition.year).slice(1),
+  }))
 }
 
 export async function generateMetadata({ params }: EditionPageProps) {
@@ -48,16 +54,5 @@ async function findEdition(editionSlug: string) {
     return null
   }
 
-  const payload = await getPayloadClient()
-  const result = await payload.find({
-    collection: 'editions',
-    where: {
-      year: {
-        equals: year,
-      },
-    },
-    limit: 1,
-  })
-
-  return result.docs[0] ?? null
+  return getCachedEdition(year)
 }

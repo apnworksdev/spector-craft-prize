@@ -157,12 +157,17 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Images or short compressed videos. Max 30 MB. Videos should be H.264 MP4 around 1080p — not camera originals.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
-  alt: string;
+  /**
+   * Optional. Used for accessibility when there is no title next to the image. Leave empty if the image is decorative.
+   */
+  alt?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -174,6 +179,32 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * One edition per year. Public URL is /{year}-prize-recipients.
@@ -189,17 +220,33 @@ export interface Edition {
   year: number;
   title: string;
   /**
-   * Ordered sections. More section types will be added later.
+   * Ordered homepage (and edition) sections.
    */
-  layout?: RichTextBlock[] | null;
+  layout?: (BannerBlock | RichTextBlock | MediaColumnsBlock | QuoteBlock)[] | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock".
+ */
+export interface BannerBlock {
+  /**
+   * Image or compressed video (H.264 MP4 around 1080p, max 30 MB).
+   */
+  media: number | Media;
+  title?: string | null;
+  subtitle?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'banner';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "RichTextBlock".
  */
 export interface RichTextBlock {
+  width?: ('narrow' | 'wide') | null;
   content: {
     root: {
       type: string;
@@ -218,6 +265,61 @@ export interface RichTextBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'richText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaColumnsBlock".
+ */
+export interface MediaColumnsBlock {
+  /**
+   * Crop for images and videos in this section.
+   */
+  aspectRatio?: ('horizontal' | 'vertical') | null;
+  /**
+   * Two or three columns. Each needs an image/video, text, or both.
+   */
+  columns: {
+    /**
+     * Optional image or compressed video (max 30 MB).
+     */
+    media?: (number | null) | Media;
+    /**
+     * Optional. Leave empty if this column is media-only.
+     */
+    content?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaColumns';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuoteBlock".
+ */
+export interface QuoteBlock {
+  quote: string;
+  /**
+   * Attribution, e.g. the speaker or author.
+   */
+  writer: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'quote';
 }
 /**
  * Individual recipients. More layout fields will be added later.
@@ -373,6 +475,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -384,17 +520,58 @@ export interface EditionsSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        banner?: T | BannerBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
+        mediaColumns?: T | MediaColumnsBlockSelect<T>;
+        quote?: T | QuoteBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock_select".
+ */
+export interface BannerBlockSelect<T extends boolean = true> {
+  media?: T;
+  title?: T;
+  subtitle?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "RichTextBlock_select".
  */
 export interface RichTextBlockSelect<T extends boolean = true> {
+  width?: T;
   content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaColumnsBlock_select".
+ */
+export interface MediaColumnsBlockSelect<T extends boolean = true> {
+  aspectRatio?: T;
+  columns?:
+    | T
+    | {
+        media?: T;
+        content?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "QuoteBlock_select".
+ */
+export interface QuoteBlockSelect<T extends boolean = true> {
+  quote?: T;
+  writer?: T;
   id?: T;
   blockName?: T;
 }
@@ -458,9 +635,9 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Home {
   id: number;
   /**
-   * Ordered sections. More section types will be added later.
+   * Ordered homepage (and edition) sections.
    */
-  layout?: RichTextBlock[] | null;
+  layout?: (BannerBlock | RichTextBlock | MediaColumnsBlock | QuoteBlock)[] | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -571,7 +748,10 @@ export interface HomeSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        banner?: T | BannerBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
+        mediaColumns?: T | MediaColumnsBlockSelect<T>;
+        quote?: T | QuoteBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;

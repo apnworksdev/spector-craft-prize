@@ -1,0 +1,32 @@
+@font-face {
+  font-family: 'Zeist';  src:
+    url('../fonts/ZeistL1Web-Book.woff2') format('woff2'),
+    url('../fonts/ZeistL1Web-Book.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --white: #fff;
+  --teal: #3A6573;
+  --bg-color: var(--white);
+  --fg-color: var(--teal);
+
+  --side-margin: 30px;
+  --max-width-rich-text: 750px;
+  --max-width-quote: 850px;
+
+  --font: 'Zeist', sans-serif;
+  --font-serif: 'Georgia', serif;
+  --font-size: 16px;
+  --line-height: 1.2;
+  --letter-spacing: 4%;
+
+  --font-s: 12px;
+  --font-l: 24px;
+  --font-xxl: 38px;
+
+  --vertical-aspect-ratio: 133.33%;
+  --horizontal-aspect-ratio: 76.38%;
+}

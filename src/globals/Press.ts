@@ -1,12 +1,16 @@
 import type { GlobalConfig } from 'payload'
 
 import { publicRead } from '@/access/publicRead'
+import { revalidateGlobal } from '@/hooks/revalidate'
 
 export const Press: GlobalConfig = {
   slug: 'press',
   label: 'Press',
   access: {
     read: publicRead,
+  },
+  hooks: {
+    afterChange: [revalidateGlobal('press')],
   },
   fields: [
     {

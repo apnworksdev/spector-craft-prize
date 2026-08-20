@@ -1,0 +1,21 @@
+.richText {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.richText :global(h1),
+.richText :global(h2),
+.richText :global(h3),
+.richText :global(h4),
+.richText :global(h5),
+.richText :global(h6) {
+  font-family: var(--font-serif);
+  font-size: var(--font-l);
+}
+
+.richText :global(a) {
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

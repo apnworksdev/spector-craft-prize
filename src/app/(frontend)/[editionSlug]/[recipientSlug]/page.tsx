@@ -1,19 +1,36 @@
 import { notFound } from 'next/navigation'
 
+import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import { getCachedRecipient, listRecipients } from '@/lib/cms'
 import { parseEditionSlug } from '@/lib/editions'
-import { mediaAlt, mediaUrl } from '@/lib/media'
-import { getPayloadClient } from '@/lib/payload'
 
 import styles from './page.module.css'
-
-export const dynamic = 'force-dynamic'
 
 type RecipientPageProps = {
   params: Promise<{
     editionSlug: string
     recipientSlug: string
   }>
+}
+
+export async function generateStaticParams() {
+  const recipients = await listRecipients()
+
+  return recipients.docs.flatMap((recipient) => {
+    const edition = recipient.edition
+
+    if (typeof edition !== 'object' || !edition?.year) {
+      return []
+    }
+
+    return [
+      {
+        editionSlug: `${edition.year}-prize-recipients`,
+        recipientSlug: recipient.slug,
+      },
+    ]
+  })
 }
 
 export async function generateMetadata({ params }: RecipientPageProps) {
@@ -35,15 +52,16 @@ export default async function RecipientPage({ params }: RecipientPageProps) {
     notFound()
   }
 
-  const src = mediaUrl(recipient.image)
-
   return (
     <article className={styles.page}>
       <h1>{recipient.name}</h1>
-      {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img alt={mediaAlt(recipient.image, recipient.name)} className={styles.image} src={src} />
-      ) : null}
+      <CmsImage
+        className={styles.image}
+        fallbackAlt={recipient.name}
+        size="hero"
+        sizes="(max-width: 42rem) 100vw, 672px"
+        value={recipient.image}
+      />
       <CmsRichText data={recipient.content} />
     </article>
   )
@@ -56,41 +74,5 @@ async function findRecipient(editionSlug: string, recipientSlug: string) {
     return null
   }
 
-  const payload = await getPayloadClient()
-  const editions = await payload.find({
-    collection: 'editions',
-    where: {
-      year: {
-        equals: year,
-      },
-    },
-    limit: 1,
-  })
-  const edition = editions.docs[0]
-
-  if (!edition) {
-    return null
-  }
-
-  const recipients = await payload.find({
-    collection: 'prize-recipients',
-    depth: 1,
-    where: {
-      and: [
-        {
-          edition: {
-            equals: edition.id,
-          },
-        },
-        {
-          slug: {
-            equals: recipientSlug,
-          },
-        },
-      ],
-    },
-    limit: 1,
-  })
-
-  return recipients.docs[0] ?? null
+  return getCachedRecipient(year, recipientSlug)
 }

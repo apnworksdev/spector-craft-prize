@@ -2,8 +2,9 @@ import type { ReactNode } from 'react'
 
 import { SiteFooter } from '@/components/SiteFooter/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader/SiteHeader'
-import { PageShell } from '@/components/PageShell/PageShell'
+import '@/css/variables.css'
 import '@/css/global.css'
+import '@/css/main.css'
 
 export const metadata = {
   description: 'Spector Craft Prize',
@@ -14,11 +15,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <PageShell>
-          <SiteHeader />
-          <main>{children}</main>
-          <SiteFooter />
-        </PageShell>
+        <SiteHeader />
+        <main>{children}</main>
+        <SiteFooter />
       </body>
     </html>
   )

@@ -1,36 +1,35 @@
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 1rem 2rem;
-  padding: 1.5rem 0 2.5rem;
-  border-bottom: 1px solid var(--color-line);
+  padding: var(--side-margin);
+  padding-bottom: 120px;
+  gap: var(--side-margin);
+  pointer-events: none;
 }
 
 .mark {
-  font-size: 1.15rem;
-  letter-spacing: 0.02em;
-  text-decoration: none;
+  flex: 1;
+  pointer-events: auto;
 }
 
 .nav {
+  flex: 1;
+}
+
+.navList {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.25rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
   text-transform: uppercase;
+  font-size: var(--font-s);
+  letter-spacing: 10%;
 }
 
-.nav a {
-  text-decoration: none;
-}
-
-.nav a:hover {
-  text-decoration: underline;
+.navLink {
+  pointer-events: auto;
 }

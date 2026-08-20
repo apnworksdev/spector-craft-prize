@@ -1,13 +1,10 @@
 import { PageBuilder } from '@/components/PageBuilder/PageBuilder'
-import { getPayloadClient } from '@/lib/payload'
+import { getCachedGlobal } from '@/lib/cms'
 
 import styles from './page.module.css'
 
-export const dynamic = 'force-dynamic'
-
 export default async function HomePage() {
-  const payload = await getPayloadClient()
-  const home = await payload.findGlobal({ slug: 'home' })
+  const home = await getCachedGlobal('home', 2)
 
   return (
     <article className={styles.page}>

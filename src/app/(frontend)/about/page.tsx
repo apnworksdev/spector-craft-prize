@@ -1,17 +1,14 @@
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
-import { getPayloadClient } from '@/lib/payload'
+import { getCachedGlobal } from '@/lib/cms'
 
 import styles from './page.module.css'
-
-export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'About — Spector Craft Prize',
 }
 
 export default async function AboutPage() {
-  const payload = await getPayloadClient()
-  const about = await payload.findGlobal({ slug: 'about' })
+  const about = await getCachedGlobal('about')
 
   return (
     <article className={styles.page}>

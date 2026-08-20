@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { publicRead } from '@/access/publicRead'
 import { pageBuilderField } from '@/blocks'
+import { revalidateDeletedEdition, revalidateEdition } from '@/hooks/revalidate'
 
 export const Editions: CollectionConfig = {
   slug: 'editions',
@@ -12,6 +13,10 @@ export const Editions: CollectionConfig = {
   },
   access: {
     read: publicRead,
+  },
+  hooks: {
+    afterChange: [revalidateEdition],
+    afterDelete: [revalidateDeletedEdition],
   },
   fields: [
     {

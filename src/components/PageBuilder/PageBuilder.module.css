@@ -1,8 +1,138 @@
-.sections {
-  display: grid;
-  gap: 3rem;
+/* Banner */
+
+.banner {
+  position: relative;
+  height: 0;
+  width: 100%;
+  padding-bottom: 50%;
+  overflow: hidden;
 }
 
-.section {
-  max-width: 42rem;
+.banner .media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bannerCopy {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--side-margin);
+  color: var(--white);
+}
+
+.bannerCopy .bannerTitle {
+  font-family: var(--font-serif);
+  font-size: var(--font-xxl);
+}
+
+.bannerCopy .bannerSubtitle {
+  font-size: var(--font-l);
+}
+
+/* Rich Text */
+
+.richText {
+  padding: 0 var(--side-margin);
+  padding-bottom: 140px;
+  padding-top: 40px;
+}
+
+.richText.narrow  {
+  max-width: var(--max-width-rich-text);
+  margin: 0 auto;
+}
+
+.richText.wide {
+  max-width: 100%;
+}
+
+/* Media Columns */
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.columns[data-cols="3"] {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.columnNoMedia {
+  width: 100%;
+  height: 0;
+  padding-bottom: var(--vertical-aspect-ratio);
+  position: relative;
+}
+
+.columnMediaWrapper {
+  width: 100%;
+  height: 0;
+  padding-bottom: var(--vertical-aspect-ratio);
+  overflow: hidden;
+  position: relative;
+}
+
+.columnMediaWrapper.horizontal,
+.columnNoMedia.horizontal {
+  padding-bottom: var(--horizontal-aspect-ratio);
+}
+
+.columnMedia {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.columnRichText {
+  padding-top: var(--side-margin);
+  padding-right: var(--side-margin);
+  padding-bottom: calc(var(--side-margin) * 2);
+}
+
+.columnNoMedia .columnRichText {
+  width: 100%;
+  padding: var(--side-margin);
+  top: 50%;
+  transform: translateY(-50%);
+  position: absolute;
+}
+
+.columns[data-cols="2"] .columnNoMedia .columnRichText {
+  padding-right: 20%;
+}
+
+/* Quote */
+
+.quote {
+  padding: 0 var(--side-margin);
+  padding-bottom: 140px;
+  padding-top: 80px;
+  max-width: var(--max-width-quote);
+  margin: 0 auto;
+}
+
+.quote .quoteText {
+  font-family: var(--font-serif);
+  font-size: var(--font-xxl);
+  line-height: 1.4;
+  letter-spacing: 4%;
+}
+
+.quote .quoteWriter {
+  margin-top: 16px;
 }

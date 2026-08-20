@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { publicRead } from '@/access/publicRead'
+import { revalidateDeletedRecipient, revalidateRecipient } from '@/hooks/revalidate'
 
 export const PrizeRecipients: CollectionConfig = {
   slug: 'prize-recipients',
@@ -11,6 +12,10 @@ export const PrizeRecipients: CollectionConfig = {
   },
   access: {
     read: publicRead,
+  },
+  hooks: {
+    afterChange: [revalidateRecipient],
+    afterDelete: [revalidateDeletedRecipient],
   },
   indexes: [
     {

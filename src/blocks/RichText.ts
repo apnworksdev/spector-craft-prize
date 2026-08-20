@@ -9,6 +9,15 @@ export const RichTextBlock: Block = {
   },
   fields: [
     {
+      name: 'width',
+      type: 'select',
+      defaultValue: 'narrow',
+      options: [
+        { label: 'Narrow', value: 'narrow' },
+        { label: 'Wide', value: 'wide' },
+      ],
+    },
+    {
       name: 'content',
       type: 'richText',
       required: true,
