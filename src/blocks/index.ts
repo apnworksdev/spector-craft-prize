@@ -12,6 +12,6 @@ export const pageBuilderField = (): BlocksField => ({
   type: 'blocks',
   blocks: pageBuilderBlocks,
   admin: {
-    description: 'Ordered homepage (and edition) sections.',
+    description: 'Ordered page sections (banner, rich text, media columns, quote).',
   },
 })

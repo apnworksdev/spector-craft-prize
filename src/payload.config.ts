@@ -37,7 +37,7 @@ export default buildConfig({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures.filter((feature) => feature.key !== 'link'),
       LinkFeature({
-        disabledCollections: ['users'],
+        enabledCollections: ['editions', 'prize-recipients'],
         maxDepth: 2,
       }),
       FixedToolbarFeature(),

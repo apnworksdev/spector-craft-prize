@@ -1,0 +1,79 @@
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: 160px;
+}
+
+.main,
+.secondary,
+.article {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  align-items: start;
+}
+
+.main {
+  align-items: center;
+}
+
+.article[data-layout='copy'],
+.article[data-layout='media'] {
+  grid-template-columns: 1fr;
+}
+
+.copy {
+  padding-left: var(--side-margin);
+  max-width: var(--max-width-rich-text);
+  padding-right: 100px;
+}
+
+.mediaColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.mediaStack {
+  display: flex;
+  flex-direction: column;
+}
+
+.media {
+  width: 100%;
+  height: 0;
+  padding-bottom: var(--vertical-aspect-ratio);
+  overflow: hidden;
+  position: relative;
+}
+
+.image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 50rem) {
+  .profile {
+    gap: 80px;
+  }
+
+  .main,
+  .secondary,
+  .article {
+    grid-template-columns: 1fr;
+    gap: var(--side-margin);
+  }
+
+  .copy {
+    max-width: none;
+  }
+
+  /* Media first on mobile for intro portrait */
+  .main .media {
+    order: -1;
+  }
+}

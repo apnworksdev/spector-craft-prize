@@ -220,7 +220,7 @@ export interface Edition {
   year: number;
   title: string;
   /**
-   * Ordered homepage (and edition) sections.
+   * Ordered page sections (banner, rich text, media columns, quote).
    */
   layout?: (BannerBlock | RichTextBlock | MediaColumnsBlock | QuoteBlock)[] | null;
   updatedAt: string;
@@ -322,7 +322,7 @@ export interface QuoteBlock {
   blockType: 'quote';
 }
 /**
- * Individual recipients. More layout fields will be added later.
+ * Individual recipients. Layout: intro (text + portrait), featured work, then body text beside a stacked gallery.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "prize-recipients".
@@ -332,10 +332,69 @@ export interface PrizeRecipient {
   edition: number | Edition;
   name: string;
   /**
+   * Shown under the name, e.g. Babson Park, USA.
+   */
+  location?: string | null;
+  /**
    * URL segment under the edition, e.g. /2026-prize-recipients/this-slug.
    */
   slug: string;
-  image?: (number | null) | Media;
+  /**
+   * Intro: text on the left, portrait on the right.
+   */
+  main?: {
+    image?: (number | null) | Media;
+    /**
+     * Bio text under the name and location.
+     */
+    content?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  /**
+   * Featured work: text on the left, one or two images on the right.
+   */
+  secondary?: {
+    images?:
+      | {
+          image: number | Media;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Project title, materials/year, and short description.
+     */
+    content?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  /**
+   * Long-form text on the left, beside the gallery.
+   */
   content?: {
     root: {
       type: string;
@@ -351,6 +410,15 @@ export interface PrizeRecipient {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Stacked images on the right of the body content.
+   */
+  gallery?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -582,9 +650,32 @@ export interface QuoteBlockSelect<T extends boolean = true> {
 export interface PrizeRecipientsSelect<T extends boolean = true> {
   edition?: T;
   name?: T;
+  location?: T;
   slug?: T;
-  image?: T;
+  main?:
+    | T
+    | {
+        image?: T;
+        content?: T;
+      };
+  secondary?:
+    | T
+    | {
+        images?:
+          | T
+          | {
+              image?: T;
+              id?: T;
+            };
+        content?: T;
+      };
   content?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -635,7 +726,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Home {
   id: number;
   /**
-   * Ordered homepage (and edition) sections.
+   * Ordered page sections (banner, rich text, media columns, quote).
    */
   layout?: (BannerBlock | RichTextBlock | MediaColumnsBlock | QuoteBlock)[] | null;
   updatedAt?: string | null;

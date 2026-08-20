@@ -1,11 +1,8 @@
 import { notFound } from 'next/navigation'
 
-import { CmsImage } from '@/components/CmsImage/CmsImage'
-import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import { RecipientProfile } from '@/components/RecipientProfile/RecipientProfile'
 import { getCachedRecipient, listRecipients } from '@/lib/cms'
 import { parseEditionSlug } from '@/lib/editions'
-
-import styles from './page.module.css'
 
 type RecipientPageProps = {
   params: Promise<{
@@ -52,19 +49,7 @@ export default async function RecipientPage({ params }: RecipientPageProps) {
     notFound()
   }
 
-  return (
-    <article className={styles.page}>
-      <h1>{recipient.name}</h1>
-      <CmsImage
-        className={styles.image}
-        fallbackAlt={recipient.name}
-        size="hero"
-        sizes="(max-width: 42rem) 100vw, 672px"
-        value={recipient.image}
-      />
-      <CmsRichText data={recipient.content} />
-    </article>
-  )
+  return <RecipientProfile recipient={recipient} />
 }
 
 async function findRecipient(editionSlug: string, recipientSlug: string) {

@@ -2,6 +2,10 @@
 
 .banner {
   position: relative;
+}
+
+.bannerWrapper {
+  position: relative;
   height: 0;
   width: 100%;
   padding-bottom: 50%;
@@ -44,13 +48,12 @@
 
 .richText {
   padding: 0 var(--side-margin);
-  padding-bottom: 140px;
-  padding-top: 40px;
 }
 
-.richText.narrow  {
+.richText.narrow {
   max-width: var(--max-width-rich-text);
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .richText.wide {
@@ -65,8 +68,11 @@
   gap: 0;
 }
 
-.columns[data-cols="3"] {
+.columns[data-cols='3'] {
   grid-template-columns: 1fr 1fr 1fr;
+}
+
+.noMediaAndContent {
 }
 
 .columnNoMedia {
@@ -101,7 +107,6 @@
 .columnRichText {
   padding-top: var(--side-margin);
   padding-right: var(--side-margin);
-  padding-bottom: calc(var(--side-margin) * 2);
 }
 
 .columnNoMedia .columnRichText {
@@ -112,7 +117,7 @@
   position: absolute;
 }
 
-.columns[data-cols="2"] .columnNoMedia .columnRichText {
+.columns[data-cols='2'] .columnNoMedia .columnRichText {
   padding-right: 20%;
 }
 
@@ -120,10 +125,9 @@
 
 .quote {
   padding: 0 var(--side-margin);
-  padding-bottom: 140px;
-  padding-top: 80px;
   max-width: var(--max-width-quote);
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .quote .quoteText {
@@ -135,4 +139,34 @@
 
 .quote .quoteWriter {
   margin-top: 16px;
+}
+
+/* Section spacing */
+
+.banner + .richText,
+.columns + .richText {
+  padding-top: 40px;
+}
+
+.columns + .columns {
+  padding-top: 60px;
+}
+
+.banner + .quote {
+  padding-top: 80px;
+}
+
+.richText + .quote,
+.richText + .columns,
+.richText + .banner,
+.quote + .richText,
+.quote + .banner,
+.quote + .columns,
+.quote + .quote,
+.columns + .quote {
+  padding-top: 140px;
+}
+
+.columns.noMediaAndContent + .columns {
+  padding-top: 200px;
 }

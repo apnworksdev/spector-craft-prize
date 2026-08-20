@@ -1,5 +1,6 @@
 import { CmsMedia } from '@/components/CmsMedia/CmsMedia'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import { hasLexicalText } from '@/lib/richText'
 import type { BannerBlock, Home, MediaColumnsBlock, QuoteBlock, RichTextBlock } from '@/payload-types'
 
 import styles from './PageBuilder.module.css'
@@ -36,20 +37,22 @@ export function PageBuilder({ layout }: PageBuilderProps) {
 function BannerSection({ block }: { block: BannerBlock }) {
   return (
     <section className={styles.banner}>
-      <CmsMedia
-        className={styles.media}
-        fallbackAlt={block.title ?? undefined}
-        priority
-        size="hero"
-        sizes="100vw"
-        value={block.media}
-      />
-      {block.title || block.subtitle ? (
-        <div className={styles.bannerCopy}>
-          {block.title ? <h1 className={styles.bannerTitle}>{block.title}</h1> : null}
-          {block.subtitle ? <p className={styles.bannerSubtitle}>{block.subtitle}</p> : null}
-        </div>
-      ) : null}
+      <div className={styles.bannerWrapper}>
+        <CmsMedia
+          className={styles.media}
+          fallbackAlt={block.title ?? undefined}
+          priority
+          size="hero"
+          sizes="100vw"
+          value={block.media}
+        />
+        {block.title || block.subtitle ? (
+          <div className={styles.bannerCopy}>
+            {block.title ? <h1 className={styles.bannerTitle}>{block.title}</h1> : null}
+            {block.subtitle ? <p className={styles.bannerSubtitle}>{block.subtitle}</p> : null}
+          </div>
+        ) : null}
+      </div>
     </section>
   )
 }
@@ -67,9 +70,15 @@ function RichTextSection({ block }: { block: RichTextBlock }) {
 function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
   const count = block.columns.length
   const aspect = block.aspectRatio || 'horizontal'
+  const hasMediaAndContent = block.columns.some(
+    (column) => column.media && hasLexicalText(column.content),
+  )
 
   return (
-    <section className={`${styles.columns} ${styles[aspect]}`} data-cols={count}>
+    <section
+      className={`${styles.columns} ${styles[aspect]}${hasMediaAndContent ? '' : ` ${styles.noMediaAndContent}`}`}
+      data-cols={count}
+    >
       {block.columns.map((column) => (
         <div
           className={`${styles.column}${column.media ? '' : ` ${styles.columnNoMedia}`}`}

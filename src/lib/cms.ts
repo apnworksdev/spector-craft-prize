@@ -48,7 +48,7 @@ export function getCachedRecipient(year: number, recipientSlug: string) {
       const payload = await getPayloadClient()
       const recipients = await payload.find({
         collection: 'prize-recipients',
-        depth: 1,
+        depth: 2,
         where: {
           and: [
             {

@@ -8,7 +8,8 @@ export const PrizeRecipients: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'edition', 'slug', 'updatedAt'],
-    description: 'Individual recipients. More layout fields will be added later.',
+    description:
+      'Individual recipients. Layout: intro (text + portrait), featured work, then body text beside a stacked gallery.',
   },
   access: {
     read: publicRead,
@@ -36,6 +37,13 @@ export const PrizeRecipients: CollectionConfig = {
       required: true,
     },
     {
+      name: 'location',
+      type: 'text',
+      admin: {
+        description: 'Shown under the name, e.g. Babson Park, USA.',
+      },
+    },
+    {
       name: 'slug',
       type: 'text',
       required: true,
@@ -45,13 +53,97 @@ export const PrizeRecipients: CollectionConfig = {
       },
     },
     {
-      name: 'image',
-      type: 'upload',
-      relationTo: 'media',
+      type: 'group',
+      name: 'main',
+      label: 'Main',
+      admin: {
+        description: 'Intro: text on the left, portrait on the right.',
+      },
+      fields: [
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          filterOptions: {
+            mimeType: { contains: 'image' },
+          },
+        },
+        {
+          name: 'content',
+          type: 'richText',
+          admin: {
+            description: 'Bio text under the name and location.',
+          },
+        },
+      ],
+    },
+    {
+      type: 'group',
+      name: 'secondary',
+      label: 'Secondary',
+      admin: {
+        description: 'Featured work: text on the left, one or two images on the right.',
+      },
+      fields: [
+        {
+          name: 'images',
+          type: 'array',
+          labels: {
+            singular: 'Image',
+            plural: 'Images',
+          },
+          minRows: 0,
+          maxRows: 2,
+          fields: [
+            {
+              name: 'image',
+              type: 'upload',
+              relationTo: 'media',
+              required: true,
+              filterOptions: {
+                mimeType: { contains: 'image' },
+              },
+            },
+          ],
+        },
+        {
+          name: 'content',
+          type: 'richText',
+          admin: {
+            description: 'Project title, materials/year, and short description.',
+          },
+        },
+      ],
     },
     {
       name: 'content',
       type: 'richText',
+      label: 'Body content',
+      admin: {
+        description: 'Long-form text on the left, beside the gallery.',
+      },
+    },
+    {
+      name: 'gallery',
+      type: 'array',
+      labels: {
+        singular: 'Image',
+        plural: 'Gallery images',
+      },
+      admin: {
+        description: 'Stacked images on the right of the body content.',
+      },
+      fields: [
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          required: true,
+          filterOptions: {
+            mimeType: { contains: 'image' },
+          },
+        },
+      ],
     },
   ],
 }

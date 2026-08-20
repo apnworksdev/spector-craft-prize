@@ -41,8 +41,7 @@ export default async function EditionPage({ params }: EditionPageProps) {
 
   return (
     <article className={styles.page}>
-      <h1>{edition.title}</h1>
-      <PageBuilder layout={edition.layout} />
+      {!edition.layout?.length ? <h1>{edition.title}</h1> : <PageBuilder layout={edition.layout} />}
     </article>
   )
 }

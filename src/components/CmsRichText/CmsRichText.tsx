@@ -4,12 +4,19 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import { internalDocToHref } from '@/lib/links'
-import type { MediaColumnsBlock, RichTextBlock } from '@/payload-types'
+import type { MediaColumnsBlock, PrizeRecipient, RichTextBlock } from '@/payload-types'
 
 import styles from './CmsRichText.module.css'
 
+type LexicalRichText =
+  | RichTextBlock['content']
+  | MediaColumnsBlock['columns'][number]['content']
+  | NonNullable<PrizeRecipient['main']>['content']
+  | NonNullable<PrizeRecipient['secondary']>['content']
+  | PrizeRecipient['content']
+
 type CmsRichTextProps = {
-  data?: RichTextBlock['content'] | MediaColumnsBlock['columns'][number]['content'] | null
+  data?: LexicalRichText | null
   className?: string
 }
 
