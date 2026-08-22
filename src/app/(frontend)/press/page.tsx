@@ -8,7 +8,7 @@ export const metadata = {
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat('en-GB', {
+  return new Intl.DateTimeFormat('en-US', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -20,24 +20,35 @@ export default async function PressPage() {
 
   return (
     <article className={styles.page}>
-      <h1>Press</h1>
-      <ul className={styles.list}>
-        {press.items?.map((item) => (
-          <li className={styles.item} key={item.id}>
-            <CmsImage
-              fallbackAlt={item.title}
-              size="card"
-              sizes="(max-width: 42rem) 100vw, 672px"
-              value={item.image}
-            />
-            <div>
-              <h2>{item.title}</h2>
-              {item.subtitle ? <p className={styles.subtitle}>{item.subtitle}</p> : null}
-              <p className={styles.date}>{formatDate(item.date)}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <h1 className="sr-only">Press</h1>
+      {press.items?.length ? (
+        <ul className={styles.list}>
+          {press.items.map((item) => (
+            <li className={styles.item} key={item.id}>
+              <a
+                className={styles.link}
+                href={item.url}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <div className={styles.media}>
+                  <CmsImage
+                    className={styles.image}
+                    fallbackAlt={item.title}
+                    sizes="(max-width: 50rem) 50vw, 20vw"
+                    value={item.image}
+                  />
+                </div>
+                <div className={styles.copy}>
+                  <h2 className={styles.title}>{item.title}</h2>
+                  {item.subtitle ? <p className={styles.source}>{item.subtitle}</p> : null}
+                  <p className={styles.date}>{formatDate(item.date)}</p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </article>
   )
 }

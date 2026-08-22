@@ -26,6 +26,9 @@ export const Press: GlobalConfig = {
           type: 'upload',
           relationTo: 'media',
           required: true,
+          filterOptions: {
+            mimeType: { contains: 'image' },
+          },
         },
         {
           name: 'title',
@@ -35,6 +38,10 @@ export const Press: GlobalConfig = {
         {
           name: 'subtitle',
           type: 'text',
+          label: 'Source',
+          admin: {
+            description: 'Publication and/or author, e.g. “Cultured, Mokshaa Shivlani”.',
+          },
         },
         {
           name: 'date',
@@ -43,8 +50,16 @@ export const Press: GlobalConfig = {
           admin: {
             date: {
               pickerAppearance: 'dayOnly',
-              displayFormat: 'd MMM yyyy',
+              displayFormat: 'd MMMM yyyy',
             },
+          },
+        },
+        {
+          name: 'url',
+          type: 'text',
+          required: true,
+          admin: {
+            description: 'External article URL. The whole item links here.',
           },
         },
       ],

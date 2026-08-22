@@ -852,8 +852,15 @@ export interface Press {
     | {
         image: number | Media;
         title: string;
+        /**
+         * Publication and/or author, e.g. “Cultured, Mokshaa Shivlani”.
+         */
         subtitle?: string | null;
         date: string;
+        /**
+         * External article URL. The whole item links here.
+         */
+        url: string;
         id?: string | null;
       }[]
     | null;
@@ -984,6 +991,7 @@ export interface PressSelect<T extends boolean = true> {
         title?: T;
         subtitle?: T;
         date?: T;
+        url?: T;
         id?: T;
       };
   updatedAt?: T;
