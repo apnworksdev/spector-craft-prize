@@ -1,7 +1,6 @@
 import { AboutSections } from '@/components/AboutSections/AboutSections'
+import columns from '@/components/ContentColumns/ContentColumns.module.css'
 import { getCachedGlobal } from '@/lib/cms'
-
-import styles from './page.module.css'
 
 export const metadata = {
   title: 'About — Spector Craft Prize',
@@ -15,7 +14,7 @@ export default async function AboutPage() {
   }
 
   return (
-    <article className={styles.page}>
+    <article className={columns.page}>
       <AboutSections groups={about.groups} />
     </article>
   )

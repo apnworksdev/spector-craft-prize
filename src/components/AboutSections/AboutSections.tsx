@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import columns from '@/components/ContentColumns/ContentColumns.module.css'
 import type { About, AboutPersonSubBlock, AboutTextSubBlock } from '@/payload-types'
 
 import styles from './AboutSections.module.css'
@@ -56,7 +57,7 @@ export function AboutSections({ groups }: AboutSectionsProps) {
   }
 
   return (
-    <div className={styles.layout}>
+    <div className={columns.columns}>
       <nav aria-label="About sections" className={styles.nav}>
         {groups.map((group, groupIndex) => {
           const blocks = group.blocks ?? []
@@ -97,7 +98,7 @@ export function AboutSections({ groups }: AboutSectionsProps) {
       </nav>
 
       <div className={styles.panel}>
-        <CmsRichText data={active.content} className={styles.richText} />
+        <CmsRichText data={active.content} className={columns.richText} />
         {active.subBlocks.length ? (
           <div className={styles.subBlocks}>
             {active.subBlocks.map((subBlock) => {
@@ -118,7 +119,7 @@ export function AboutSections({ groups }: AboutSectionsProps) {
 }
 
 function TextSubBlock({ block }: { block: AboutTextSubBlock }) {
-  return <CmsRichText data={block.content} className={styles.richText} />
+  return <CmsRichText data={block.content} className={columns.richText} />
 }
 
 function PersonSubBlock({ block }: { block: AboutPersonSubBlock }) {
