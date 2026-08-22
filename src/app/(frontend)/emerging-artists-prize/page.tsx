@@ -8,17 +8,16 @@ export const metadata = {
 }
 
 export default async function EmergingArtistsPrizePage() {
-  const page = await getCachedGlobal('emerging-artists-prize')
+  const page = await getCachedGlobal('emerging-artists-prize', 2)
 
   return (
     <article className={styles.page}>
-      <h1>Emerging Artists Prize</h1>
       <div className={styles.columns}>
-        <div>
-          <CmsRichText data={page.primary} />
+        <div className={styles.primary}>
+          <CmsRichText data={page.primary} className={styles.richText} />
         </div>
-        <div>
-          <CmsRichText data={page.secondary} />
+        <div className={styles.secondary}>
+          <CmsRichText data={page.secondary} className={styles.richText} />
         </div>
       </div>
     </article>

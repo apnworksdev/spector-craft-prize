@@ -739,7 +739,7 @@ export interface Home {
 export interface About {
   id: number;
   /**
-   * Parent groups. Each group can contain title + rich text blocks.
+   * Sidebar groups. Optional heading is a non-clickable label (e.g. “Three Interconnected Programs”); blocks under a heading are numbered. Groups without a heading are plain links.
    */
   groups?:
     | {
@@ -749,8 +749,14 @@ export interface About {
         heading?: string | null;
         blocks?:
           | {
+              /**
+               * Sidebar label for this section.
+               */
               title: string;
-              content: {
+              /**
+               * Intro text at the top of the panel.
+               */
+              content?: {
                 root: {
                   type: string;
                   children: {
@@ -764,7 +770,11 @@ export interface About {
                   version: number;
                 };
                 [k: string]: unknown;
-              };
+              } | null;
+              /**
+               * Optional content below the intro: plain text or people.
+               */
+              subBlocks?: (AboutTextSubBlock | AboutPersonSubBlock)[] | null;
               id?: string | null;
             }[]
           | null;
@@ -773,6 +783,64 @@ export interface About {
     | null;
   updatedAt?: string | null;
   createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutTextSubBlock".
+ */
+export interface AboutTextSubBlock {
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'text';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutPersonSubBlock".
+ */
+export interface AboutPersonSubBlock {
+  /**
+   * Inline for Advisory Board / Jury; stacked for Foundation profiles.
+   */
+  layout: 'inline' | 'stacked';
+  image?: (number | null) | Media;
+  name: string;
+  /**
+   * Role or title under the name.
+   */
+  title?: string | null;
+  bio?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'person';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -798,6 +866,9 @@ export interface Press {
  */
 export interface EmergingArtistsPrize {
   id: number;
+  /**
+   * Intro heading, body copy, and links (e.g. Rules of Entry, FAQ).
+   */
   primary?: {
     root: {
       type: string;
@@ -813,6 +884,9 @@ export interface EmergingArtistsPrize {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Timeline, selection criteria, eligibility, and related sections.
+   */
   secondary?: {
     root: {
       type: string;
@@ -862,6 +936,12 @@ export interface AboutSelect<T extends boolean = true> {
           | {
               title?: T;
               content?: T;
+              subBlocks?:
+                | T
+                | {
+                    text?: T | AboutTextSubBlockSelect<T>;
+                    person?: T | AboutPersonSubBlockSelect<T>;
+                  };
               id?: T;
             };
         id?: T;
@@ -869,6 +949,28 @@ export interface AboutSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutTextSubBlock_select".
+ */
+export interface AboutTextSubBlockSelect<T extends boolean = true> {
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AboutPersonSubBlock_select".
+ */
+export interface AboutPersonSubBlockSelect<T extends boolean = true> {
+  layout?: T;
+  image?: T;
+  name?: T;
+  title?: T;
+  bio?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

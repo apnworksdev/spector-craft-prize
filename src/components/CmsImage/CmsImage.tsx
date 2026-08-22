@@ -14,7 +14,7 @@ type CmsImageProps = {
 
 export function CmsImage({
   value,
-  size = 'card',
+  size,
   fallbackAlt = '',
   className,
   sizes,

@@ -47,14 +47,12 @@ export const Media: CollectionConfig = {
       {
         name: 'thumbnail',
         width: 400,
-        height: 400,
-        position: 'centre',
+        withoutEnlargement: true,
       },
       {
         name: 'card',
         width: 960,
-        height: 720,
-        position: 'centre',
+        withoutEnlargement: true,
       },
       {
         name: 'hero',

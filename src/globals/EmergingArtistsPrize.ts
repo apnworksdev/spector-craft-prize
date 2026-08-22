@@ -16,12 +16,18 @@ export const EmergingArtistsPrize: GlobalConfig = {
     {
       name: 'primary',
       type: 'richText',
-      label: 'Primary',
+      label: 'Left column',
+      admin: {
+        description: 'Intro heading, body copy, and links (e.g. Rules of Entry, FAQ).',
+      },
     },
     {
       name: 'secondary',
       type: 'richText',
-      label: 'Secondary',
+      label: 'Right column',
+      admin: {
+        description: 'Timeline, selection criteria, eligibility, and related sections.',
+      },
     },
   ],
 }

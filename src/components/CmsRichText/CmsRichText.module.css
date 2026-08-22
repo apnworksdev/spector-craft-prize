@@ -23,3 +23,30 @@
 .richText :global(strong) {
   font-family: var(--font-serif);
 }
+
+.richText :global(ul),
+.richText :global(ol) {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.richText :global(ul) :global(li) {
+  list-style: none;
+  display: inline-flex;
+  gap: 10px;
+}
+
+.richText :global(ul) :global(li):before {
+  content: "·";
+  vertical-align: middle;
+  font-size: 32px;
+  line-height: 32px;
+  position: relative;
+  top: 2px;
+}
+
+.richText :global(ol) :global(li) {
+  list-style: decimal;
+  list-style-position: inside;
+}

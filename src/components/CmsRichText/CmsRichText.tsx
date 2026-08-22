@@ -4,7 +4,15 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import { internalDocToHref } from '@/lib/links'
-import type { MediaColumnsBlock, PrizeRecipient, RichTextBlock } from '@/payload-types'
+import type {
+  About,
+  AboutPersonSubBlock,
+  AboutTextSubBlock,
+  EmergingArtistsPrize,
+  MediaColumnsBlock,
+  PrizeRecipient,
+  RichTextBlock,
+} from '@/payload-types'
 
 import styles from './CmsRichText.module.css'
 
@@ -14,6 +22,11 @@ type LexicalRichText =
   | NonNullable<PrizeRecipient['main']>['content']
   | NonNullable<PrizeRecipient['secondary']>['content']
   | PrizeRecipient['content']
+  | EmergingArtistsPrize['primary']
+  | EmergingArtistsPrize['secondary']
+  | NonNullable<NonNullable<About['groups']>[number]['blocks']>[number]['content']
+  | AboutTextSubBlock['content']
+  | AboutPersonSubBlock['bio']
 
 type CmsRichTextProps = {
   data?: LexicalRichText | null
