@@ -35,7 +35,7 @@ export function RecipientProfile({ recipient }: RecipientProfileProps) {
                 fallbackAlt={recipient.name}
                 priority
                 size="hero"
-                sizes="(max-width: 50rem) 100vw, 50vw"
+                sizes="(max-width: 800px) 100vw, 50vw"
                 value={recipient.main.image}
               />
             </div>
@@ -56,7 +56,7 @@ export function RecipientProfile({ recipient }: RecipientProfileProps) {
                     className={styles.image}
                     fallbackAlt={recipient.name}
                     size="card"
-                    sizes="(max-width: 50rem) 100vw, 50vw"
+                    sizes="(max-width: 800px) 100vw, 50vw"
                     value={item.image}
                   />
                 </div>
@@ -84,7 +84,7 @@ export function RecipientProfile({ recipient }: RecipientProfileProps) {
                     className={styles.image}
                     fallbackAlt={recipient.name}
                     size="card"
-                    sizes="(max-width: 50rem) 100vw, 50vw"
+                    sizes="(max-width: 800px) 100vw, 50vw"
                     value={item.image}
                   />
                 </div>

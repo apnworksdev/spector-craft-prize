@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
@@ -40,6 +40,27 @@ function firstBlockKey(groups: NonNullable<About['groups']>) {
 
 export function AboutSections({ groups }: AboutSectionsProps) {
   const [activeKey, setActiveKey] = useState(() => firstBlockKey(groups))
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  function selectSection(key: string) {
+    setActiveKey(key)
+
+    if (typeof window === 'undefined' || window.innerWidth > 800) {
+      return
+    }
+
+    window.requestAnimationFrame(() => {
+      const panel = panelRef.current
+      if (!panel) {
+        return
+      }
+
+      const header = document.querySelector('header')
+      const offset = header ? header.offsetHeight + 16 : 96
+      const top = panel.getBoundingClientRect().top + (window.pageYOffset || window.scrollY) - offset
+      window.scrollTo(0, top)
+    })
+  }
 
   const items: NavItem[] = groups.flatMap((group, groupIndex) =>
     (group.blocks ?? []).map((block, blockIndex) => ({
@@ -81,7 +102,7 @@ export function AboutSections({ groups }: AboutSectionsProps) {
                         type="button"
                         className={`${styles.link}${isActive ? ` ${styles.active}` : ''}`}
                         aria-current={isActive ? 'true' : undefined}
-                        onClick={() => setActiveKey(key)}
+                        onClick={() => selectSection(key)}
                       >
                         {numbered ? (
                           <span className={styles.index}>{blockIndex + 1}.</span>
@@ -97,7 +118,7 @@ export function AboutSections({ groups }: AboutSectionsProps) {
         })}
       </nav>
 
-      <div className={styles.panel}>
+      <div className={styles.panel} ref={panelRef}>
         <CmsRichText data={active.content} className={columns.richText} />
         {active.subBlocks.length ? (
           <div className={styles.subBlocks}>

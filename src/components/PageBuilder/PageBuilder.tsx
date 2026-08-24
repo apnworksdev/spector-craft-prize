@@ -88,7 +88,7 @@ function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
             <div className={styles.columnMediaWrapper}>
               <CmsMedia
                 size="card"
-                sizes="(max-width: 50rem) 100vw, 50vw"
+                sizes="(max-width: 800px) 100vw, 50vw"
                 value={column.media}
                 className={styles.columnMedia}
               />

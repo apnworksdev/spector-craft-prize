@@ -35,7 +35,7 @@ export default async function PressPage() {
                   <CmsImage
                     className={styles.image}
                     fallbackAlt={item.title}
-                    sizes="(max-width: 50rem) 50vw, 20vw"
+                    sizes="(max-width: 800px) 50vw, 20vw"
                     value={item.image}
                   />
                 </div>

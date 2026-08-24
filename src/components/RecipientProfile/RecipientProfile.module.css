@@ -56,24 +56,35 @@
   object-fit: cover;
 }
 
-@media (max-width: 50rem) {
+@media (max-width: 1120px) {
+  .copy {
+    padding-right: var(--side-margin);
+  }
+}
+
+@media (max-width: 800px) {
   .profile {
-    gap: 80px;
+    gap: 64px;
   }
 
   .main,
   .secondary,
   .article {
     grid-template-columns: 1fr;
-    gap: var(--side-margin);
+    gap: 24px;
   }
 
   .copy {
     max-width: none;
+    padding-right: var(--side-margin);
   }
 
-  /* Media first on mobile for intro portrait */
-  .main .media {
+  .mediaColumns {
+    grid-template-columns: 1fr;
+  }
+
+  .main .media,
+  .secondary .mediaColumns {
     order: -1;
   }
 }

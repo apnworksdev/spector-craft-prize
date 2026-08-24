@@ -170,3 +170,77 @@
 .columns.noMediaAndContent + .columns {
   padding-top: 200px;
 }
+
+@media (max-width: 800px) {
+  .bannerWrapper {
+    padding-bottom: 75%;
+  }
+
+  .bannerCopy {
+    padding: var(--side-margin);
+    gap: 16px;
+    text-align: center;
+  }
+
+  .bannerCopy .bannerTitle {
+    font-size: 28px;
+    max-width: 280px;
+  }
+
+  .bannerCopy .bannerSubtitle {
+    font-size: var(--font-size);
+  }
+
+  .columns,
+  .columns[data-cols='3'] {
+    grid-template-columns: 1fr;
+  }
+
+  .columnNoMedia {
+    height: auto;
+    padding-bottom: 0;
+  }
+
+  .columnRichText {
+    padding-right: var(--side-margin);
+    padding-left: var(--side-margin);
+    padding-bottom: var(--side-margin);
+  }
+
+  .columnNoMedia .columnRichText {
+    position: static;
+    top: auto;
+    transform: none;
+    padding: var(--side-margin);
+  }
+
+  .columns[data-cols='2'] .columnNoMedia .columnRichText {
+    padding-right: var(--side-margin);
+  }
+
+  .quote .quoteText {
+    font-size: 28px;
+  }
+
+  .banner + .richText,
+  .columns + .richText {
+    padding-top: 32px;
+  }
+
+  .columns + .columns {
+    padding-top: 32px;
+  }
+
+  .banner + .quote,
+  .richText + .quote,
+  .richText + .columns,
+  .richText + .banner,
+  .quote + .richText,
+  .quote + .banner,
+  .quote + .columns,
+  .quote + .quote,
+  .columns + .quote,
+  .columns.noMediaAndContent + .columns {
+    padding-top: 64px;
+  }
+}

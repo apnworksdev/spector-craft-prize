@@ -112,12 +112,43 @@
   margin-top: 62px;
 }
 
-@media (max-width: 50rem) {
+@media (max-width: 800px) {
   .nav {
+    gap: 20px;
     font-size: var(--font-size);
+    line-height: 1.35;
+    padding-bottom: 8px;
+  }
+
+  .list,
+  .numberedList {
+    gap: 8px;
+  }
+
+  .panel {
+    gap: 32px;
+  }
+
+  .subBlocks {
+    gap: 28px;
   }
 
   .person {
     max-width: none;
+  }
+
+  .personMedia {
+    width: 140px;
+    padding-bottom: calc(140px * 4 / 3);
+  }
+
+  .inline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .stacked + .stacked {
+    margin-top: 40px;
   }
 }

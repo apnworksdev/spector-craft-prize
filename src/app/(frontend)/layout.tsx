@@ -11,6 +11,11 @@ export const metadata = {
   title: 'Spector Craft Prize',
 }
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">

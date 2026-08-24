@@ -33,3 +33,69 @@
 .navLink {
   pointer-events: auto;
 }
+
+.menuButton {
+  display: none;
+}
+
+@media (max-width: 1120px) {
+  .header {
+    position: sticky;
+    z-index: 120;
+    align-items: center;
+    padding-top: var(--side-margin);
+    padding-bottom: var(--side-margin);
+    background-color: var(--bg-color);
+  }
+
+  .mark {
+    flex: 0 1 auto;
+    max-width: 220px;
+  }
+
+  .logo {
+    width: 100%;
+    height: auto;
+  }
+
+  .menuButton {
+    display: block;
+    pointer-events: auto;
+    z-index: 120;
+    min-height: 44px;
+    text-transform: uppercase;
+    font-size: var(--font-s);
+    letter-spacing: 10%;
+  }
+
+  .nav {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 110;
+    flex: none;
+    background-color: var(--bg-color);
+    padding: 110px var(--side-margin) var(--side-margin);
+    overflow: auto;
+  }
+
+  .open .nav {
+    display: block;
+  }
+
+  .navList {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
+  }
+
+  .navLink {
+    display: block;
+    padding: 14px 0;
+    pointer-events: auto;
+  }
+}

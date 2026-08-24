@@ -50,3 +50,15 @@
   list-style: decimal;
   list-style-position: inside;
 }
+
+@media (max-width: 800px) {
+  .richText :global(ul),
+  .richText :global(ol) {
+    gap: 20px;
+  }
+
+  .richText :global(ul) :global(li):before {
+    font-size: 24px;
+    line-height: 24px;
+  }
+}

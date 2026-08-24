@@ -30,3 +30,9 @@
   --vertical-aspect-ratio: 133.33%;
   --horizontal-aspect-ratio: 76.38%;
 }
+
+@media (max-width: 800px) {
+  :root {
+    --side-margin: 20px;
+  }
+}

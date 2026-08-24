@@ -47,3 +47,48 @@
   font-family: var(--font-serif);
   padding-bottom: 20px;
 }
+
+@media (max-width: 1120px) {
+  .list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .page {
+    padding-bottom: 80px;
+  }
+
+  .list {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 28px;
+  }
+
+  .link {
+    gap: 12px;
+  }
+
+  .copy {
+    padding-right: 12px;
+  }
+
+  .title {
+    padding-bottom: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .list {
+    grid-template-columns: 1fr;
+    row-gap: 36px;
+  }
+
+  .copy {
+    padding-right: var(--side-margin);
+    padding-left: var(--side-margin);
+  }
+
+  .title {
+    padding-bottom: 10px;
+  }
+}
