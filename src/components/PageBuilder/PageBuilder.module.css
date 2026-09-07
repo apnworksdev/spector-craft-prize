@@ -121,6 +121,10 @@
   padding-right: 20%;
 }
 
+.column:first-child .columnRichText {
+  padding-left: var(--side-margin);
+}
+
 /* Quote */
 
 .quote {

@@ -12,6 +12,7 @@ import styles from './SiteHeader.module.css'
 const nav = [
   { href: '/2026-prize-recipients', label: 'Prize Recipients' },
   { href: '/emerging-artists-prize', label: 'Emerging Artists Prize' },
+  { href: '/summit', label: 'Summit' },
   { href: '/about', label: 'About' },
   { href: '/press', label: 'Press' },
 ]

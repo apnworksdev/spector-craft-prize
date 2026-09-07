@@ -7,6 +7,7 @@ const primaryNav = [
   { href: '/about', label: 'About' },
   { href: '/press', label: 'Press' },
   { href: '/emerging-artists-prize', label: 'Emerging Artists Prize' },
+  { href: '/summit', label: 'Summit' },
   { href: '/faq', label: 'FAQ' },
 ]
 

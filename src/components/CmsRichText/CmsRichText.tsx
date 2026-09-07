@@ -9,6 +9,7 @@ import type {
   AboutPersonSubBlock,
   AboutTextSubBlock,
   EmergingArtistsPrize,
+  Summit,
   MediaColumnsBlock,
   PrizeRecipient,
   RichTextBlock,
@@ -24,6 +25,8 @@ type LexicalRichText =
   | PrizeRecipient['content']
   | EmergingArtistsPrize['primary']
   | EmergingArtistsPrize['secondary']
+  | Summit['primary']
+  | Summit['secondary']
   | NonNullable<NonNullable<About['groups']>[number]['blocks']>[number]['content']
   | AboutTextSubBlock['content']
   | AboutPersonSubBlock['bio']

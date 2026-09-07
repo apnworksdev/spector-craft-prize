@@ -12,6 +12,7 @@ describe('tagsForGlobal', () => {
     expect(tagsForGlobal('home')).toEqual([CMS_TAGS.home])
     expect(tagsForGlobal('about')).toEqual([CMS_TAGS.about])
     expect(tagsForGlobal('emerging-artists-prize')).toEqual([CMS_TAGS.emergingArtistsPrize])
+    expect(tagsForGlobal('summit')).toEqual([CMS_TAGS.summit])
   })
 
   it('includes the media tag for press so image edits refresh the list', () => {

@@ -56,7 +56,7 @@ export const Media: CollectionConfig = {
       },
       {
         name: 'hero',
-        width: 1920,
+        width: 2560,
         withoutEnlargement: true,
       },
     ],

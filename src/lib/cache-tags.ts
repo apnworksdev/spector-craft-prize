@@ -3,13 +3,14 @@ export const CMS_TAGS = {
   about: 'cms:about',
   press: 'cms:press',
   emergingArtistsPrize: 'cms:emerging-artists-prize',
+  summit: 'cms:summit',
   editions: 'cms:editions',
   media: 'cms:media',
   edition: (year: number) => `cms:edition:${year}`,
   recipient: (year: number, slug: string) => `cms:recipient:${year}:${slug}`,
 } as const
 
-export type GlobalSlug = 'home' | 'about' | 'press' | 'emerging-artists-prize'
+export type GlobalSlug = 'home' | 'about' | 'press' | 'emerging-artists-prize' | 'summit'
 
 export function tagsForGlobal(slug: GlobalSlug): string[] {
   switch (slug) {
@@ -21,6 +22,8 @@ export function tagsForGlobal(slug: GlobalSlug): string[] {
       return [CMS_TAGS.press, CMS_TAGS.media]
     case 'emerging-artists-prize':
       return [CMS_TAGS.emergingArtistsPrize]
+    case 'summit':
+      return [CMS_TAGS.summit]
   }
 }
 

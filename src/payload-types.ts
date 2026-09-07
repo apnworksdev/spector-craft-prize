@@ -96,12 +96,14 @@ export interface Config {
     about: About;
     press: Press;
     'emerging-artists-prize': EmergingArtistsPrize;
+    summit: Summit;
   };
   globalsSelect: {
     home: HomeSelect<false> | HomeSelect<true>;
     about: AboutSelect<false> | AboutSelect<true>;
     press: PressSelect<false> | PressSelect<true>;
     'emerging-artists-prize': EmergingArtistsPrizeSelect<false> | EmergingArtistsPrizeSelect<true>;
+    summit: SummitSelect<false> | SummitSelect<true>;
   };
   locale: null;
   widgets: {
@@ -914,6 +916,51 @@ export interface EmergingArtistsPrize {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "summit".
+ */
+export interface Summit {
+  id: number;
+  /**
+   * Optional. Leave empty to keep this column blank.
+   */
+  primary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Optional. Leave empty to keep this column blank.
+   */
+  secondary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home_select".
  */
 export interface HomeSelect<T extends boolean = true> {
@@ -1003,6 +1050,17 @@ export interface PressSelect<T extends boolean = true> {
  * via the `definition` "emerging-artists-prize_select".
  */
 export interface EmergingArtistsPrizeSelect<T extends boolean = true> {
+  primary?: T;
+  secondary?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "summit_select".
+ */
+export interface SummitSelect<T extends boolean = true> {
   primary?: T;
   secondary?: T;
   updatedAt?: T;

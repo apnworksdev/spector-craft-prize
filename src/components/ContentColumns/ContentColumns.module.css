@@ -9,6 +9,10 @@
   align-items: start;
 }
 
+.column:empty {
+  display: none;
+}
+
 .richText {
   font-size: var(--font-l);
   line-height: 32px;
@@ -23,8 +27,8 @@
 .richText :global(h5),
 .richText :global(h6) {
   font-family: var(--font-serif);
-  font-size: var(--font-l);
-  line-height: 32px;
+  font-size: var(--font-xxl);
+  line-height: 46px;
 }
 
 .richText :global(a) {
@@ -65,5 +69,11 @@
 
   .richText {
     max-width: none;
+  }
+}
+
+@media (min-width: 801px) {
+  .column:empty {
+    display: block;
   }
 }
