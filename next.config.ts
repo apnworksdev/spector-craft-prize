@@ -6,7 +6,11 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
-function r2RemotePatterns(): NonNullable<NextConfig['images']>['remotePatterns'] {
+function r2RemotePatterns(): Array<{
+  protocol: 'http' | 'https'
+  hostname: string
+  pathname: string
+}> {
   const value = process.env.R2_PUBLIC_URL
   if (!value) return []
 

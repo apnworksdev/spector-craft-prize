@@ -25,6 +25,11 @@ export function hasLexicalText(content: unknown): boolean {
   return visit((content as { root?: unknown }).root)
 }
 
-export function mediaColumnHasContent(column: { media?: unknown; content?: unknown }): boolean {
-  return Boolean(column.media) || hasLexicalText(column.content)
+export function mediaColumnHasContent(column: unknown): boolean {
+  if (!column || typeof column !== 'object') {
+    return false
+  }
+
+  const current = column as { media?: unknown; content?: unknown }
+  return Boolean(current.media) || hasLexicalText(current.content)
 }
