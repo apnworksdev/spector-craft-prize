@@ -195,6 +195,18 @@
     font-size: var(--font-size);
   }
 
+  .columns {
+    gap: calc(var(--side-margin) * 2);
+  }
+
+  .columns.noMediaAndContent {
+    gap: 0;
+  }
+
+  .columns.noMediaAndContent .columnNoMedia + .column {
+    margin-top: calc(var(--side-margin) * 2);
+  }
+
   .columns,
   .columns[data-cols='3'] {
     grid-template-columns: 1fr;

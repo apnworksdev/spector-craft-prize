@@ -97,6 +97,8 @@ export interface Config {
     press: Press;
     'emerging-artists-prize': EmergingArtistsPrize;
     summit: Summit;
+    terms: Term;
+    privacy: Privacy;
   };
   globalsSelect: {
     home: HomeSelect<false> | HomeSelect<true>;
@@ -104,6 +106,8 @@ export interface Config {
     press: PressSelect<false> | PressSelect<true>;
     'emerging-artists-prize': EmergingArtistsPrizeSelect<false> | EmergingArtistsPrizeSelect<true>;
     summit: SummitSelect<false> | SummitSelect<true>;
+    terms: TermsSelect<false> | TermsSelect<true>;
+    privacy: PrivacySelect<false> | PrivacySelect<true>;
   };
   locale: null;
   widgets: {
@@ -961,6 +965,96 @@ export interface Summit {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "terms".
+ */
+export interface Term {
+  id: number;
+  /**
+   * Optional. Leave empty to keep this column blank.
+   */
+  primary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Optional. Leave empty to keep this column blank.
+   */
+  secondary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "privacy".
+ */
+export interface Privacy {
+  id: number;
+  /**
+   * Optional. Leave empty to keep this column blank.
+   */
+  primary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Optional. Leave empty to keep this column blank.
+   */
+  secondary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home_select".
  */
 export interface HomeSelect<T extends boolean = true> {
@@ -1061,6 +1155,28 @@ export interface EmergingArtistsPrizeSelect<T extends boolean = true> {
  * via the `definition` "summit_select".
  */
 export interface SummitSelect<T extends boolean = true> {
+  primary?: T;
+  secondary?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "terms_select".
+ */
+export interface TermsSelect<T extends boolean = true> {
+  primary?: T;
+  secondary?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "privacy_select".
+ */
+export interface PrivacySelect<T extends boolean = true> {
   primary?: T;
   secondary?: T;
   updatedAt?: T;

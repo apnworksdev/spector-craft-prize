@@ -15,7 +15,9 @@ import { About } from './globals/About'
 import { EmergingArtistsPrize } from './globals/EmergingArtistsPrize'
 import { Home } from './globals/Home'
 import { Press } from './globals/Press'
+import { Privacy } from './globals/Privacy'
 import { Summit } from './globals/Summit'
+import { Terms } from './globals/Terms'
 import { r2Storage } from './storage/r2'
 
 const filename = fileURLToPath(import.meta.url)
@@ -33,7 +35,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Editions, PrizeRecipients],
-  globals: [Home, About, Press, EmergingArtistsPrize, Summit],
+  globals: [Home, About, Press, EmergingArtistsPrize, Summit, Terms, Privacy],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures.filter((feature) => feature.key !== 'link'),

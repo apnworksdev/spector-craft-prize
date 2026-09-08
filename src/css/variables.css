@@ -7,6 +7,15 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Romain 20';  src:
+    url('../fonts/205TF-Romain20-Regular.woff2') format('woff2'),
+    url('../fonts/205TF-Romain20-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --white: #fff;
   --teal: #3A6573;
@@ -18,7 +27,7 @@
   --max-width-quote: 850px;
 
   --font: 'Zeist', sans-serif;
-  --font-serif: 'Georgia', serif;
+  --font-serif: 'Romain 20', serif;
   --font-size: 16px;
   --line-height: 1.2;
   --letter-spacing: 4%;

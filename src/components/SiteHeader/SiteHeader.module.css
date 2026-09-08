@@ -1,4 +1,6 @@
 .header {
+  --logo-max-width: 680px;
+
   position: relative;
   top: 0;
   z-index: 100;
@@ -12,12 +14,18 @@
 }
 
 .mark {
-  flex: 1;
+  flex: 1 1 auto;
+  max-width: var(--logo-max-width);
   pointer-events: auto;
 }
 
+.logo {
+  width: 100%;
+  height: auto;
+}
+
 .nav {
-  flex: 1;
+  flex: 1 1 auto;
 }
 
 .navList {
@@ -34,68 +42,40 @@
   pointer-events: auto;
 }
 
-.menuButton {
-  display: none;
-}
-
-@media (max-width: 1120px) {
+@media (max-width: 1216px) {
   .header {
-    position: sticky;
-    z-index: 120;
+    flex-direction: column;
     align-items: center;
-    padding-top: var(--side-margin);
-    padding-bottom: var(--side-margin);
-    background-color: var(--bg-color);
+    padding: 28px;
+    gap: 28px;
   }
 
   .mark {
-    flex: 0 1 auto;
-    max-width: 220px;
-  }
-
-  .logo {
+    flex: 0 0 auto;
     width: 100%;
-    height: auto;
-  }
-
-  .menuButton {
-    display: block;
-    pointer-events: auto;
-    z-index: 120;
-    min-height: 44px;
-    text-transform: uppercase;
-    font-size: var(--font-s);
-    letter-spacing: 10%;
+    max-width: var(--logo-max-width);
   }
 
   .nav {
-    display: none;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 110;
-    flex: none;
-    background-color: var(--bg-color);
-    padding: 110px var(--side-margin) var(--side-margin);
-    overflow: auto;
-  }
-
-  .open .nav {
-    display: block;
+    flex: 0 0 auto;
+    width: 100%;
   }
 
   .navList {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 504px) {
+  .navList {
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
   }
 
   .navLink {
     display: block;
-    padding: 14px 0;
-    pointer-events: auto;
+    text-align: center;
   }
 }
