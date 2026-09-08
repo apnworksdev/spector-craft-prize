@@ -12,7 +12,7 @@ async function expireTags(tags: string[]) {
     const { revalidateTag } = await import('next/cache')
 
     for (const tag of tags) {
-      revalidateTag(tag, 'max')
+      revalidateTag(tag, { expire: 0 })
     }
   } catch {
     // Payload CLI (migrate, generate:types) has no Next.js cache.

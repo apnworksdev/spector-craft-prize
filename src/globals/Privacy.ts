@@ -6,7 +6,6 @@ import { revalidateGlobal } from '@/hooks/revalidate'
 export const Privacy: GlobalConfig = {
   slug: 'privacy',
   label: 'Privacy Policy',
-  interfaceName: 'Privacy',
   access: {
     read: publicRead,
   },

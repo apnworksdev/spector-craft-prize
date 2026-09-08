@@ -6,7 +6,6 @@ import { revalidateGlobal } from '@/hooks/revalidate'
 export const Terms: GlobalConfig = {
   slug: 'terms',
   label: 'Terms & Conditions',
-  interfaceName: 'Terms',
   access: {
     read: publicRead,
   },
