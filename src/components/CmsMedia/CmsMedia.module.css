@@ -1,0 +1,12 @@
+.link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

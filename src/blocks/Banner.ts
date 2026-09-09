@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 
+import { mediaLinkField } from '@/fields/mediaLink'
 import { MAX_UPLOAD_MB } from '@/lib/upload'
 
 export const BannerBlock: Block = {
@@ -19,6 +20,7 @@ export const BannerBlock: Block = {
         description: `Image or compressed video (H.264 MP4 around 1080p, max ${MAX_UPLOAD_MB} MB).`,
       },
     },
+    mediaLinkField(),
     {
       name: 'title',
       type: 'text',

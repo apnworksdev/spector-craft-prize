@@ -153,6 +153,7 @@ function PersonSubBlock({ block }: { block: AboutPersonSubBlock }) {
           <CmsImage
             className={styles.personImage}
             fallbackAlt={block.name}
+            href={layout === 'stacked' ? block.link : null}
             sizes="185px"
             value={block.image}
           />

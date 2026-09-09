@@ -6,7 +6,7 @@ import logo from '@/assets/logo.png'
 import styles from './SiteHeader.module.css'
 
 const nav = [
-  { href: '/2026-prize-recipients', label: 'Prize Recipients' },
+  { href: '/2026-prize-recipients', label: '2026 Prize Recipients' },
   { href: '/emerging-artists-prize', label: 'Emerging Artists Prize' },
   { href: '/about', label: 'About' },
   { href: '/press', label: 'Press' },

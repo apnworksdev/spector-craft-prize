@@ -33,6 +33,7 @@ export function RecipientProfile({ recipient }: RecipientProfileProps) {
               <CmsImage
                 className={styles.image}
                 fallbackAlt={recipient.name}
+                href={recipient.main.link}
                 priority
                 size="hero"
                 sizes="(max-width: 800px) 100vw, 50vw"
@@ -55,6 +56,7 @@ export function RecipientProfile({ recipient }: RecipientProfileProps) {
                   <CmsImage
                     className={styles.image}
                     fallbackAlt={recipient.name}
+                    href={item.link}
                     size="card"
                     sizes="(max-width: 800px) 100vw, 50vw"
                     value={item.image}
@@ -83,6 +85,7 @@ export function RecipientProfile({ recipient }: RecipientProfileProps) {
                   <CmsImage
                     className={styles.image}
                     fallbackAlt={recipient.name}
+                    href={item.link}
                     size="card"
                     sizes="(max-width: 800px) 100vw, 50vw"
                     value={item.image}

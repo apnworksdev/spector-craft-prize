@@ -1,5 +1,6 @@
 import type { Block } from 'payload'
 
+import { mediaLinkField } from '@/fields/mediaLink'
 import { mediaColumnHasContent } from '@/lib/richText'
 import { MAX_UPLOAD_MB } from '@/lib/upload'
 
@@ -60,6 +61,7 @@ export const MediaColumnsBlock: Block = {
             description: `Optional image or compressed video (max ${MAX_UPLOAD_MB} MB).`,
           },
         },
+        mediaLinkField(),
         {
           name: 'content',
           type: 'richText',

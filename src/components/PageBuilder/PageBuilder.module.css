@@ -57,7 +57,7 @@
 }
 
 .richText.wide {
-  max-width: 100%;
+  max-width: var(--max-width-rich-text-wide);
 }
 
 /* Media Columns */
@@ -176,6 +176,10 @@
 }
 
 @media (max-width: 800px) {
+  .richText.wide {
+    max-width: 100%;
+  }
+
   .bannerWrapper {
     padding-bottom: 75%;
   }

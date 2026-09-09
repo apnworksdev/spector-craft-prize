@@ -1,3 +1,4 @@
+import styles from './CmsMedia.module.css'
 import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { isVideo, mediaAlt, mediaSrc, type MediaSizeName } from '@/lib/media'
 import type { Media } from '@/payload-types'
@@ -9,6 +10,7 @@ type CmsMediaProps = {
   className?: string
   sizes: string
   priority?: boolean
+  href?: string | null
 }
 
 export function CmsMedia({
@@ -18,6 +20,7 @@ export function CmsMedia({
   className,
   sizes,
   priority,
+  href,
 }: CmsMediaProps) {
   if (isVideo(value)) {
     const src = mediaSrc(value)
@@ -26,15 +29,30 @@ export function CmsMedia({
       return null
     }
 
-    return (
+    const video = (
       <video
         aria-label={mediaAlt(value, fallbackAlt)}
-        className={className}
+        className={href ? styles.fill : className}
         controls
         playsInline
         preload="none"
         src={src}
       />
+    )
+
+    if (!href) {
+      return video
+    }
+
+    return (
+      <a
+        className={`${styles.link}${className ? ` ${className}` : ''}`}
+        href={href}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        {video}
+      </a>
     )
   }
 
@@ -42,6 +60,7 @@ export function CmsMedia({
     <CmsImage
       className={className}
       fallbackAlt={fallbackAlt}
+      href={href}
       priority={priority}
       size={size}
       sizes={sizes}
@@ -49,4 +68,3 @@ export function CmsMedia({
     />
   )
 }
-

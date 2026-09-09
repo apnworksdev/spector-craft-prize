@@ -241,6 +241,10 @@ export interface BannerBlock {
    * Image or compressed video (H.264 MP4 around 1080p, max 30 MB).
    */
   media: number | Media;
+  /**
+   * Optional. Makes this image or video open the URL when clicked.
+   */
+  link?: string | null;
   title?: string | null;
   subtitle?: string | null;
   id?: string | null;
@@ -252,6 +256,9 @@ export interface BannerBlock {
  * via the `definition` "RichTextBlock".
  */
 export interface RichTextBlock {
+  /**
+   * Wide is about two-thirds of the page; narrow is a centered reading column.
+   */
   width?: ('narrow' | 'wide') | null;
   content: {
     root: {
@@ -289,6 +296,10 @@ export interface MediaColumnsBlock {
      * Optional image or compressed video (max 30 MB).
      */
     media?: (number | null) | Media;
+    /**
+     * Optional. Makes this image or video open the URL when clicked.
+     */
+    link?: string | null;
     /**
      * Optional. Leave empty if this column is media-only.
      */
@@ -351,6 +362,10 @@ export interface PrizeRecipient {
   main?: {
     image?: (number | null) | Media;
     /**
+     * Optional. Makes this image or video open the URL when clicked.
+     */
+    link?: string | null;
+    /**
      * Bio text under the name and location.
      */
     content?: {
@@ -376,6 +391,10 @@ export interface PrizeRecipient {
     images?:
       | {
           image: number | Media;
+          /**
+           * Optional. Makes this image or video open the URL when clicked.
+           */
+          link?: string | null;
           id?: string | null;
         }[]
       | null;
@@ -422,6 +441,10 @@ export interface PrizeRecipient {
   gallery?:
     | {
         image: number | Media;
+        /**
+         * Optional. Makes this image or video open the URL when clicked.
+         */
+        link?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -608,6 +631,7 @@ export interface EditionsSelect<T extends boolean = true> {
  */
 export interface BannerBlockSelect<T extends boolean = true> {
   media?: T;
+  link?: T;
   title?: T;
   subtitle?: T;
   id?: T;
@@ -633,6 +657,7 @@ export interface MediaColumnsBlockSelect<T extends boolean = true> {
     | T
     | {
         media?: T;
+        link?: T;
         content?: T;
         id?: T;
       };
@@ -662,6 +687,7 @@ export interface PrizeRecipientsSelect<T extends boolean = true> {
     | T
     | {
         image?: T;
+        link?: T;
         content?: T;
       };
   secondary?:
@@ -671,6 +697,7 @@ export interface PrizeRecipientsSelect<T extends boolean = true> {
           | T
           | {
               image?: T;
+              link?: T;
               id?: T;
             };
         content?: T;
@@ -680,6 +707,7 @@ export interface PrizeRecipientsSelect<T extends boolean = true> {
     | T
     | {
         image?: T;
+        link?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -824,6 +852,10 @@ export interface AboutPersonSubBlock {
    */
   layout: 'inline' | 'stacked';
   image?: (number | null) | Media;
+  /**
+   * Optional. Only for stacked Foundation profiles — not Jury or Advisory Board portraits.
+   */
+  link?: string | null;
   name: string;
   /**
    * Role or title under the name.
@@ -1114,6 +1146,7 @@ export interface AboutTextSubBlockSelect<T extends boolean = true> {
 export interface AboutPersonSubBlockSelect<T extends boolean = true> {
   layout?: T;
   image?: T;
+  link?: T;
   name?: T;
   title?: T;
   bio?: T;

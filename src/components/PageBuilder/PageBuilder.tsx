@@ -41,6 +41,7 @@ function BannerSection({ block }: { block: BannerBlock }) {
         <CmsMedia
           className={styles.media}
           fallbackAlt={block.title ?? undefined}
+          href={block.link}
           priority
           size="hero"
           sizes="100vw"
@@ -87,10 +88,11 @@ function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
           {column.media ? (
             <div className={styles.columnMediaWrapper}>
               <CmsMedia
+                className={styles.columnMedia}
+                href={column.link}
                 size="card"
                 sizes="(max-width: 800px) 100vw, 50vw"
                 value={column.media}
-                className={styles.columnMedia}
               />
             </div>
           ) : null}

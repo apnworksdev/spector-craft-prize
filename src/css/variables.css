@@ -24,6 +24,7 @@
 
   --side-margin: 30px;
   --max-width-rich-text: 750px;
+  --max-width-rich-text-wide: 66.666%;
   --max-width-quote: 850px;
 
   --font: 'Zeist', sans-serif;

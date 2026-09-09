@@ -1,6 +1,7 @@
 import type { Block, GlobalConfig } from 'payload'
 
 import { publicRead } from '@/access/publicRead'
+import { mediaLinkField } from '@/fields/mediaLink'
 import { revalidateGlobal } from '@/hooks/revalidate'
 
 const AboutTextSubBlock: Block = {
@@ -48,6 +49,13 @@ const AboutPersonSubBlock: Block = {
         mimeType: { contains: 'image' },
       },
     },
+    mediaLinkField({
+      admin: {
+        condition: (_, siblingData) => siblingData?.layout === 'stacked',
+        description:
+          'Optional. Only for stacked Foundation profiles — not Jury or Advisory Board portraits.',
+      },
+    }),
     {
       name: 'name',
       type: 'text',

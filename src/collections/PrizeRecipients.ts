@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { publicRead } from '@/access/publicRead'
+import { mediaLinkField } from '@/fields/mediaLink'
 import { revalidateDeletedRecipient, revalidateRecipient } from '@/hooks/revalidate'
 
 export const PrizeRecipients: CollectionConfig = {
@@ -68,6 +69,7 @@ export const PrizeRecipients: CollectionConfig = {
             mimeType: { contains: 'image' },
           },
         },
+        mediaLinkField(),
         {
           name: 'content',
           type: 'richText',
@@ -104,6 +106,7 @@ export const PrizeRecipients: CollectionConfig = {
                 mimeType: { contains: 'image' },
               },
             },
+            mediaLinkField(),
           ],
         },
         {
@@ -143,6 +146,7 @@ export const PrizeRecipients: CollectionConfig = {
             mimeType: { contains: 'image' },
           },
         },
+        mediaLinkField(),
       ],
     },
   ],

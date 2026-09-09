@@ -1,5 +1,6 @@
 import Image from 'next/image'
 
+import styles from '@/components/CmsMedia/CmsMedia.module.css'
 import { mediaAlt, mediaImage, type MediaSizeName } from '@/lib/media'
 import type { Media } from '@/payload-types'
 
@@ -10,6 +11,7 @@ type CmsImageProps = {
   className?: string
   sizes: string
   priority?: boolean
+  href?: string | null
 }
 
 export function CmsImage({
@@ -19,6 +21,7 @@ export function CmsImage({
   className,
   sizes,
   priority,
+  href,
 }: CmsImageProps) {
   const image = mediaImage(value, size)
 
@@ -26,15 +29,30 @@ export function CmsImage({
     return null
   }
 
-  return (
+  const img = (
     <Image
       alt={image.alt || mediaAlt(value, fallbackAlt)}
-      className={className}
+      className={href ? styles.fill : className}
       height={image.height}
       priority={priority}
       sizes={sizes}
       src={image.src}
       width={image.width}
     />
+  )
+
+  if (!href) {
+    return img
+  }
+
+  return (
+    <a
+      className={`${styles.link}${className ? ` ${className}` : ''}`}
+      href={href}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      {img}
+    </a>
   )
 }

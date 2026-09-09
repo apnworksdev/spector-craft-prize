@@ -14,8 +14,11 @@ export const RichTextBlock: Block = {
       defaultValue: 'narrow',
       options: [
         { label: 'Narrow', value: 'narrow' },
-        { label: 'Wide', value: 'wide' },
+        { label: 'Wide (~2/3 page)', value: 'wide' },
       ],
+      admin: {
+        description: 'Wide is about two-thirds of the page; narrow is a centered reading column.',
+      },
     },
     {
       name: 'content',
