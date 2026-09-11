@@ -238,11 +238,15 @@ export interface Edition {
  */
 export interface BannerBlock {
   /**
-   * Image or compressed video (H.264 MP4 around 1080p, max 30 MB).
+   * Image or short video file (max 30 MB). Or use YouTube URL below for longer films.
    */
-  media: number | Media;
+  media?: (number | null) | Media;
   /**
-   * Optional. Makes this image or video open the URL when clicked.
+   * Optional. Paste a YouTube link (Public or Unlisted). Preferred for longer films instead of uploading a video file.
+   */
+  youtubeUrl?: string | null;
+  /**
+   * Optional. Makes an uploaded image open this URL. Ignored for YouTube embeds.
    */
   link?: string | null;
   title?: string | null;
@@ -289,15 +293,19 @@ export interface MediaColumnsBlock {
    */
   aspectRatio?: ('horizontal' | 'vertical') | null;
   /**
-   * Two or three columns. Each needs an image/video, text, or both.
+   * Two or three columns. Each needs media, a YouTube URL, text, or a mix.
    */
   columns: {
     /**
-     * Optional image or compressed video (max 30 MB).
+     * Optional image or short video file (max 30 MB).
      */
     media?: (number | null) | Media;
     /**
-     * Optional. Makes this image or video open the URL when clicked.
+     * Optional. Paste a YouTube link (Public or Unlisted). Preferred for longer films instead of uploading a video file.
+     */
+    youtubeUrl?: string | null;
+    /**
+     * Optional. Makes an uploaded image open this URL. Ignored for YouTube embeds.
      */
     link?: string | null;
     /**
@@ -631,6 +639,7 @@ export interface EditionsSelect<T extends boolean = true> {
  */
 export interface BannerBlockSelect<T extends boolean = true> {
   media?: T;
+  youtubeUrl?: T;
   link?: T;
   title?: T;
   subtitle?: T;
@@ -657,6 +666,7 @@ export interface MediaColumnsBlockSelect<T extends boolean = true> {
     | T
     | {
         media?: T;
+        youtubeUrl?: T;
         link?: T;
         content?: T;
         id?: T;

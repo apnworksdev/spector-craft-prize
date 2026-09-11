@@ -72,6 +72,13 @@
 .personBio {
   gap: 16px;
   margin-top: 16px;
+  font-size: var(--font-l);
+  line-height: 32px;
+}
+
+.inline .personBio {
+  font-size: var(--font-size);
+  line-height: 1.45;
 }
 
 .personMedia {
@@ -150,5 +157,10 @@
 
   .stacked + .stacked {
     margin-top: 40px;
+  }
+
+  .personBio {
+    font-size: var(--font-size);
+    line-height: 1.45;
   }
 }

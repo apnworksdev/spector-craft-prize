@@ -1,6 +1,8 @@
 import { CmsMedia } from '@/components/CmsMedia/CmsMedia'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import { YouTubeEmbed } from '@/components/YouTubeEmbed/YouTubeEmbed'
 import { hasLexicalText } from '@/lib/richText'
+import { youtubeVideoId } from '@/lib/youtube'
 import type { BannerBlock, Home, MediaColumnsBlock, QuoteBlock, RichTextBlock } from '@/payload-types'
 
 import styles from './PageBuilder.module.css'
@@ -35,18 +37,24 @@ export function PageBuilder({ layout }: PageBuilderProps) {
 }
 
 function BannerSection({ block }: { block: BannerBlock }) {
+  const youtube = youtubeVideoId(block.youtubeUrl) ? block.youtubeUrl : null
+
   return (
     <section className={styles.banner}>
       <div className={styles.bannerWrapper}>
-        <CmsMedia
-          className={styles.media}
-          fallbackAlt={block.title ?? undefined}
-          href={block.link}
-          priority
-          size="hero"
-          sizes="100vw"
-          value={block.media}
-        />
+        {youtube ? (
+          <YouTubeEmbed className={styles.media} title={block.title ?? undefined} url={youtube} />
+        ) : (
+          <CmsMedia
+            className={styles.media}
+            fallbackAlt={block.title ?? undefined}
+            href={block.link}
+            priority
+            size="hero"
+            sizes="100vw"
+            value={block.media}
+          />
+        )}
         {block.title || block.subtitle ? (
           <div className={styles.bannerCopy}>
             {block.title ? <h1 className={styles.bannerTitle}>{block.title}</h1> : null}
@@ -72,7 +80,8 @@ function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
   const count = block.columns.length
   const aspect = block.aspectRatio || 'horizontal'
   const hasMediaAndContent = block.columns.some(
-    (column) => column.media && hasLexicalText(column.content),
+    (column) =>
+      (column.media || youtubeVideoId(column.youtubeUrl)) && hasLexicalText(column.content),
   )
 
   return (
@@ -80,25 +89,34 @@ function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
       className={`${styles.columns} ${styles[aspect]}${hasMediaAndContent ? '' : ` ${styles.noMediaAndContent}`}`}
       data-cols={count}
     >
-      {block.columns.map((column) => (
-        <div
-          className={`${styles.column}${column.media ? '' : ` ${styles.columnNoMedia}`}`}
-          key={column.id}
-        >
-          {column.media ? (
-            <div className={styles.columnMediaWrapper}>
-              <CmsMedia
-                className={styles.columnMedia}
-                href={column.link}
-                size="card"
-                sizes="(max-width: 800px) 100vw, 50vw"
-                value={column.media}
-              />
-            </div>
-          ) : null}
-          <CmsRichText data={column.content} className={styles.columnRichText} />
-        </div>
-      ))}
+      {block.columns.map((column) => {
+        const youtube = youtubeVideoId(column.youtubeUrl) ? column.youtubeUrl : null
+        const hasVisual = Boolean(youtube || column.media)
+
+        return (
+          <div
+            className={`${styles.column}${hasVisual ? '' : ` ${styles.columnNoMedia}`}`}
+            key={column.id}
+          >
+            {youtube ? (
+              <div className={styles.columnMediaWrapper}>
+                <YouTubeEmbed className={styles.columnMedia} url={youtube} />
+              </div>
+            ) : column.media ? (
+              <div className={styles.columnMediaWrapper}>
+                <CmsMedia
+                  className={styles.columnMedia}
+                  href={column.link}
+                  size="card"
+                  sizes="(max-width: 800px) 100vw, 50vw"
+                  value={column.media}
+                />
+              </div>
+            ) : null}
+            <CmsRichText data={column.content} className={styles.columnRichText} />
+          </div>
+        )
+      })}
     </section>
   )
 }

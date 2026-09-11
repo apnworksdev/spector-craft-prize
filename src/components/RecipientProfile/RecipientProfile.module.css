@@ -28,6 +28,11 @@
   padding-right: 100px;
 }
 
+.richText {
+  font-size: var(--font-l);
+  line-height: 32px;
+}
+
 .mediaColumns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -77,6 +82,11 @@
   .copy {
     max-width: none;
     padding-right: var(--side-margin);
+  }
+
+  .richText {
+    font-size: var(--font-size);
+    line-height: 1.45;
   }
 
   .mediaColumns {

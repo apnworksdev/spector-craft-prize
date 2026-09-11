@@ -39,9 +39,16 @@ describe('hasLexicalText', () => {
 })
 
 describe('mediaColumnHasContent', () => {
-  it('requires media, text, or both', () => {
+  it('requires media, YouTube URL, text, or a mix', () => {
     expect(mediaColumnHasContent({ media: null, content: empty })).toBe(false)
     expect(mediaColumnHasContent({ media: 3, content: empty })).toBe(true)
     expect(mediaColumnHasContent({ media: null, content: withText })).toBe(true)
+    expect(
+      mediaColumnHasContent({
+        media: null,
+        youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
+        content: empty,
+      }),
+    ).toBe(true)
   })
 })

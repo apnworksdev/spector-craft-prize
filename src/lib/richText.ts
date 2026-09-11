@@ -30,6 +30,6 @@ export function mediaColumnHasContent(column: unknown): boolean {
     return false
   }
 
-  const current = column as { media?: unknown; content?: unknown }
-  return Boolean(current.media) || hasLexicalText(current.content)
+  const current = column as { media?: unknown; youtubeUrl?: unknown; content?: unknown }
+  return Boolean(current.media) || Boolean(current.youtubeUrl) || hasLexicalText(current.content)
 }

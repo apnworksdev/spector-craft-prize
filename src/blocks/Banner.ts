@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
 import { mediaLinkField } from '@/fields/mediaLink'
+import { youtubeUrlField } from '@/fields/youtubeUrl'
 import { MAX_UPLOAD_MB } from '@/lib/upload'
 
 export const BannerBlock: Block = {
@@ -15,12 +16,23 @@ export const BannerBlock: Block = {
       name: 'media',
       type: 'upload',
       relationTo: 'media',
-      required: true,
       admin: {
-        description: `Image or compressed video (H.264 MP4 around 1080p, max ${MAX_UPLOAD_MB} MB).`,
+        description: `Image or short video file (max ${MAX_UPLOAD_MB} MB). Or use YouTube URL below for longer films.`,
+      },
+      validate: (value: unknown, { siblingData }: { siblingData: unknown }) => {
+        const data = siblingData as { youtubeUrl?: string | null }
+        if (!value && !data?.youtubeUrl) {
+          return 'Add an image/video upload or a YouTube URL'
+        }
+        return true
       },
     },
-    mediaLinkField(),
+    youtubeUrlField(),
+    mediaLinkField({
+      admin: {
+        description: 'Optional. Makes an uploaded image open this URL. Ignored for YouTube embeds.',
+      },
+    }),
     {
       name: 'title',
       type: 'text',

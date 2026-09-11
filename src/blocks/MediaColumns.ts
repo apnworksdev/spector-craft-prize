@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
 import { mediaLinkField } from '@/fields/mediaLink'
+import { youtubeUrlField } from '@/fields/youtubeUrl'
 import { mediaColumnHasContent } from '@/lib/richText'
 import { MAX_UPLOAD_MB } from '@/lib/upload'
 
@@ -35,7 +36,7 @@ export const MediaColumnsBlock: Block = {
         plural: 'Columns',
       },
       admin: {
-        description: 'Two or three columns. Each needs an image/video, text, or both.',
+        description: 'Two or three columns. Each needs media, a YouTube URL, text, or a mix.',
       },
       validate: (value) => {
         const columns = Array.isArray(value) ? value : []
@@ -47,7 +48,7 @@ export const MediaColumnsBlock: Block = {
         const emptyIndex = columns.findIndex((column) => !mediaColumnHasContent(column))
 
         if (emptyIndex !== -1) {
-          return `Column ${emptyIndex + 1} needs an image/video or text`
+          return `Column ${emptyIndex + 1} needs an image/video, YouTube URL, or text`
         }
 
         return true
@@ -58,10 +59,15 @@ export const MediaColumnsBlock: Block = {
           type: 'upload',
           relationTo: 'media',
           admin: {
-            description: `Optional image or compressed video (max ${MAX_UPLOAD_MB} MB).`,
+            description: `Optional image or short video file (max ${MAX_UPLOAD_MB} MB).`,
           },
         },
-        mediaLinkField(),
+        youtubeUrlField(),
+        mediaLinkField({
+          admin: {
+            description: 'Optional. Makes an uploaded image open this URL. Ignored for YouTube embeds.',
+          },
+        }),
         {
           name: 'content',
           type: 'richText',
