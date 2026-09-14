@@ -5,6 +5,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   CREATE TABLE "documents" (
     "id" serial PRIMARY KEY NOT NULL,
     "title" varchar NOT NULL,
+    "prefix" varchar,
     "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
     "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
     "url" varchar,
