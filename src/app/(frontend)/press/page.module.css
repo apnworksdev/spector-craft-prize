@@ -4,7 +4,7 @@
 
 .list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   row-gap: 40px;
   list-style: none;
 }
@@ -43,6 +43,10 @@
   padding-right: var(--side-margin);
 }
 
+.item:nth-child(5n + 1) .copy {
+  padding-left: var(--side-margin);
+}
+
 .title {
   font-family: var(--font-serif);
   padding-bottom: 20px;
@@ -51,6 +55,14 @@
 @media (max-width: 1120px) {
   .list {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .item:nth-child(5n + 1) .copy {
+    padding-left: 0;
+  }
+
+  .item:nth-child(3n + 1) .copy {
+    padding-left: var(--side-margin);
   }
 }
 
@@ -70,6 +82,14 @@
 
   .copy {
     padding-right: 12px;
+  }
+
+  .item:nth-child(3n + 1) .copy {
+    padding-left: 0;
+  }
+
+  .item:nth-child(odd) .copy {
+    padding-left: var(--side-margin);
   }
 
   .title {

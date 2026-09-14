@@ -39,14 +39,14 @@ describe('hasLexicalText', () => {
 })
 
 describe('mediaColumnHasContent', () => {
-  it('requires media, YouTube URL, text, or a mix', () => {
+  it('requires media, Vimeo URL, text, or a mix', () => {
     expect(mediaColumnHasContent({ media: null, content: empty })).toBe(false)
     expect(mediaColumnHasContent({ media: 3, content: empty })).toBe(true)
     expect(mediaColumnHasContent({ media: null, content: withText })).toBe(true)
     expect(
       mediaColumnHasContent({
         media: null,
-        youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
+        vimeoUrl: 'https://vimeo.com/123456789',
         content: empty,
       }),
     ).toBe(true)

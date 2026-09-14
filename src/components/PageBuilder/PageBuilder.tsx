@@ -1,8 +1,8 @@
 import { CmsMedia } from '@/components/CmsMedia/CmsMedia'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
-import { YouTubeEmbed } from '@/components/YouTubeEmbed/YouTubeEmbed'
+import { VimeoEmbed } from '@/components/VimeoEmbed/VimeoEmbed'
 import { hasLexicalText } from '@/lib/richText'
-import { youtubeVideoId } from '@/lib/youtube'
+import { vimeoVideoId } from '@/lib/vimeo'
 import type { BannerBlock, Home, MediaColumnsBlock, QuoteBlock, RichTextBlock } from '@/payload-types'
 
 import styles from './PageBuilder.module.css'
@@ -37,13 +37,13 @@ export function PageBuilder({ layout }: PageBuilderProps) {
 }
 
 function BannerSection({ block }: { block: BannerBlock }) {
-  const youtube = youtubeVideoId(block.youtubeUrl) ? block.youtubeUrl : null
+  const vimeo = vimeoVideoId(block.vimeoUrl) ? block.vimeoUrl : null
 
   return (
     <section className={styles.banner}>
       <div className={styles.bannerWrapper}>
-        {youtube ? (
-          <YouTubeEmbed className={styles.media} title={block.title ?? undefined} url={youtube} />
+        {vimeo ? (
+          <VimeoEmbed className={styles.media} title={block.title ?? undefined} url={vimeo} />
         ) : (
           <CmsMedia
             className={styles.media}
@@ -81,7 +81,7 @@ function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
   const aspect = block.aspectRatio || 'horizontal'
   const hasMediaAndContent = block.columns.some(
     (column) =>
-      (column.media || youtubeVideoId(column.youtubeUrl)) && hasLexicalText(column.content),
+      (column.media || vimeoVideoId(column.vimeoUrl)) && hasLexicalText(column.content),
   )
 
   return (
@@ -90,20 +90,20 @@ function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
       data-cols={count}
     >
       {block.columns.map((column) => {
-        const youtube = youtubeVideoId(column.youtubeUrl) ? column.youtubeUrl : null
-        const hasVisual = Boolean(youtube || column.media)
+        const vimeo = vimeoVideoId(column.vimeoUrl) ? column.vimeoUrl : null
+        const hasVisual = Boolean(vimeo || column.media)
 
         return (
           <div
-            className={`${styles.column}${hasVisual ? '' : ` ${styles.columnNoMedia}`}`}
+            className={`${styles.column}${hasVisual ? '' : ` ${styles.columnNoMedia} ${styles[aspect]}`}`}
             key={column.id}
           >
-            {youtube ? (
-              <div className={styles.columnMediaWrapper}>
-                <YouTubeEmbed className={styles.columnMedia} url={youtube} />
+            {vimeo ? (
+              <div className={`${styles.columnMediaWrapper} ${styles[aspect]}`}>
+                <VimeoEmbed className={styles.columnMedia} url={vimeo} />
               </div>
             ) : column.media ? (
-              <div className={styles.columnMediaWrapper}>
+              <div className={`${styles.columnMediaWrapper} ${styles[aspect]}`}>
                 <CmsMedia
                   className={styles.columnMedia}
                   href={column.link}

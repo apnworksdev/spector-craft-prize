@@ -33,6 +33,8 @@
   align-items: center;
   gap: var(--side-margin);
   color: var(--white);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .bannerCopy .bannerTitle {
@@ -109,6 +111,7 @@
 .columnRichText {
   padding-top: var(--side-margin);
   padding-right: var(--side-margin);
+  padding-bottom: var(--side-margin);
   font-size: var(--font-l);
   line-height: 32px;
 }
@@ -151,9 +154,12 @@
 
 /* Section spacing */
 
-.banner + .richText,
-.columns + .richText {
+.banner + .richText {
   padding-top: 40px;
+}
+
+.columns + .richText {
+  padding-top: 140px;
 }
 
 .columns + .columns {
@@ -188,10 +194,6 @@
 
   .richText.wide {
     max-width: 100%;
-  }
-
-  .bannerWrapper {
-    padding-bottom: 75%;
   }
 
   .bannerCopy {
@@ -252,9 +254,12 @@
     font-size: 28px;
   }
 
-  .banner + .richText,
-  .columns + .richText {
+  .banner + .richText {
     padding-top: 32px;
+  }
+
+  .columns + .richText {
+    padding-top: 64px;
   }
 
   .columns + .columns {

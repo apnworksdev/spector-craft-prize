@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    documents: Document;
     editions: Edition;
     'prize-recipients': PrizeRecipient;
     'payload-kv': PayloadKv;
@@ -80,6 +81,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
     editions: EditionsSelect<false> | EditionsSelect<true>;
     'prize-recipients': PrizeRecipientsSelect<false> | PrizeRecipientsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -99,6 +101,7 @@ export interface Config {
     summit: Summit;
     terms: Term;
     privacy: Privacy;
+    navigation: Navigation;
   };
   globalsSelect: {
     home: HomeSelect<false> | HomeSelect<true>;
@@ -108,6 +111,7 @@ export interface Config {
     summit: SummitSelect<false> | SummitSelect<true>;
     terms: TermsSelect<false> | TermsSelect<true>;
     privacy: PrivacySelect<false> | PrivacySelect<true>;
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
   };
   locale: null;
   widgets: {
@@ -213,6 +217,30 @@ export interface Media {
   };
 }
 /**
+ * PDFs for Rules of Entry, FAQ, and other downloadable files. Max 30 MB.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  /**
+   * Name shown in the CMS, e.g. “Rules of Entry”.
+   */
+  title: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
  * One edition per year. Public URL is /{year}-prize-recipients.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -238,15 +266,15 @@ export interface Edition {
  */
 export interface BannerBlock {
   /**
-   * Image or short video file (max 30 MB). Or use YouTube URL below for longer films.
+   * Image or short video file (max 30 MB). Or use Vimeo URL below for longer films.
    */
   media?: (number | null) | Media;
   /**
-   * Optional. Paste a YouTube link (Public or Unlisted). Preferred for longer films instead of uploading a video file.
+   * Optional. Paste a Vimeo link (Public or Unlisted). Preferred for longer films instead of uploading a video file.
    */
-  youtubeUrl?: string | null;
+  vimeoUrl?: string | null;
   /**
-   * Optional. Makes an uploaded image open this URL. Ignored for YouTube embeds.
+   * Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.
    */
   link?: string | null;
   title?: string | null;
@@ -293,7 +321,7 @@ export interface MediaColumnsBlock {
    */
   aspectRatio?: ('horizontal' | 'vertical') | null;
   /**
-   * Two or three columns. Each needs media, a YouTube URL, text, or a mix.
+   * Two or three columns. Each needs media, a Vimeo URL, text, or a mix.
    */
   columns: {
     /**
@@ -301,11 +329,11 @@ export interface MediaColumnsBlock {
      */
     media?: (number | null) | Media;
     /**
-     * Optional. Paste a YouTube link (Public or Unlisted). Preferred for longer films instead of uploading a video file.
+     * Optional. Paste a Vimeo link (Public or Unlisted). Preferred for longer films instead of uploading a video file.
      */
-    youtubeUrl?: string | null;
+    vimeoUrl?: string | null;
     /**
-     * Optional. Makes an uploaded image open this URL. Ignored for YouTube embeds.
+     * Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.
      */
     link?: string | null;
     /**
@@ -444,13 +472,20 @@ export interface PrizeRecipient {
     [k: string]: unknown;
   } | null;
   /**
-   * Stacked images on the right of the body content.
+   * Stacked images or vertical Vimeo videos on the right of the body content.
    */
   gallery?:
     | {
-        image: number | Media;
         /**
-         * Optional. Makes this image or video open the URL when clicked.
+         * Optional image. Or use Vimeo URL below for a vertical video.
+         */
+        image?: (number | null) | Media;
+        /**
+         * Optional. Paste a Vimeo link for a vertical video. Preferred over uploading large files.
+         */
+        vimeoUrl?: string | null;
+        /**
+         * Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.
          */
         link?: string | null;
         id?: string | null;
@@ -490,6 +525,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'documents';
+        value: number | Document;
       } | null)
     | ({
         relationTo: 'editions';
@@ -617,6 +656,24 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  title?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "editions_select".
  */
 export interface EditionsSelect<T extends boolean = true> {
@@ -639,7 +696,7 @@ export interface EditionsSelect<T extends boolean = true> {
  */
 export interface BannerBlockSelect<T extends boolean = true> {
   media?: T;
-  youtubeUrl?: T;
+  vimeoUrl?: T;
   link?: T;
   title?: T;
   subtitle?: T;
@@ -666,7 +723,7 @@ export interface MediaColumnsBlockSelect<T extends boolean = true> {
     | T
     | {
         media?: T;
-        youtubeUrl?: T;
+        vimeoUrl?: T;
         link?: T;
         content?: T;
         id?: T;
@@ -717,6 +774,7 @@ export interface PrizeRecipientsSelect<T extends boolean = true> {
     | T
     | {
         image?: T;
+        vimeoUrl?: T;
         link?: T;
         id?: T;
       };
@@ -1096,6 +1154,74 @@ export interface Privacy {
   createdAt?: string | null;
 }
 /**
+ * Edit header and footer menu links. Reorder rows to change order.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: number;
+  /**
+   * Primary header navigation.
+   */
+  header?:
+    | {
+        label: string;
+        /**
+         * Site path or full URL for pages. Examples: /about, /2026-prize-recipients. Leave empty if you upload a PDF below.
+         */
+        url?: string | null;
+        /**
+         * Optional PDF. If set, this is used instead of the URL.
+         */
+        file?: (number | null) | Document;
+        /**
+         * Recommended for PDFs and external links.
+         */
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  footerPrimary?:
+    | {
+        label: string;
+        /**
+         * Site path or full URL for pages. Examples: /about, /2026-prize-recipients. Leave empty if you upload a PDF below.
+         */
+        url?: string | null;
+        /**
+         * Optional PDF. If set, this is used instead of the URL.
+         */
+        file?: (number | null) | Document;
+        /**
+         * Recommended for PDFs and external links.
+         */
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  footerLegal?:
+    | {
+        label: string;
+        /**
+         * Site path or full URL for pages. Examples: /about, /2026-prize-recipients. Leave empty if you upload a PDF below.
+         */
+        url?: string | null;
+        /**
+         * Optional PDF. If set, this is used instead of the URL.
+         */
+        file?: (number | null) | Document;
+        /**
+         * Recommended for PDFs and external links.
+         */
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home_select".
  */
@@ -1222,6 +1348,42 @@ export interface TermsSelect<T extends boolean = true> {
 export interface PrivacySelect<T extends boolean = true> {
   primary?: T;
   secondary?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  header?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        file?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  footerPrimary?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        file?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  footerLegal?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        file?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

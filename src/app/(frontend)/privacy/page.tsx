@@ -8,5 +8,5 @@ export const metadata = {
 export default async function PrivacyPage() {
   const page = await getCachedGlobal('privacy', 2)
 
-  return <ContentColumns primary={page.primary} secondary={page.secondary} />
+  return <ContentColumns primary={page.primary} secondary={page.secondary} size="compact" />
 }

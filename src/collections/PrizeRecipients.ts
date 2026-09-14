@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { publicRead } from '@/access/publicRead'
 import { mediaLinkField } from '@/fields/mediaLink'
+import { vimeoUrlField } from '@/fields/vimeoUrl'
 import { revalidateDeletedRecipient, revalidateRecipient } from '@/hooks/revalidate'
 
 export const PrizeRecipients: CollectionConfig = {
@@ -130,23 +131,43 @@ export const PrizeRecipients: CollectionConfig = {
       name: 'gallery',
       type: 'array',
       labels: {
-        singular: 'Image',
-        plural: 'Gallery images',
+        singular: 'Item',
+        plural: 'Gallery',
       },
       admin: {
-        description: 'Stacked images on the right of the body content.',
+        description:
+          'Stacked images or vertical Vimeo videos on the right of the body content.',
       },
       fields: [
         {
           name: 'image',
           type: 'upload',
           relationTo: 'media',
-          required: true,
           filterOptions: {
             mimeType: { contains: 'image' },
           },
+          admin: {
+            description: 'Optional image. Or use Vimeo URL below for a vertical video.',
+          },
+          validate: (value: unknown, { siblingData }: { siblingData: unknown }) => {
+            const data = siblingData as { vimeoUrl?: string | null }
+            if (!value && !data?.vimeoUrl) {
+              return 'Add an image or a Vimeo URL'
+            }
+            return true
+          },
         },
-        mediaLinkField(),
+        vimeoUrlField({
+          admin: {
+            description:
+              'Optional. Paste a Vimeo link for a vertical video. Preferred over uploading large files.',
+          },
+        }),
+        mediaLinkField({
+          admin: {
+            description: 'Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.',
+          },
+        }),
       ],
     },
   ],

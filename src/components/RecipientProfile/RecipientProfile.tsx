@@ -1,6 +1,8 @@
 import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import { VimeoEmbed } from '@/components/VimeoEmbed/VimeoEmbed'
 import { hasLexicalText } from '@/lib/richText'
+import { vimeoVideoId } from '@/lib/vimeo'
 import type { PrizeRecipient } from '@/payload-types'
 
 import styles from './RecipientProfile.module.css'
@@ -11,7 +13,9 @@ type RecipientProfileProps = {
 
 export function RecipientProfile({ recipient }: RecipientProfileProps) {
   const secondaryImages = (recipient.secondary?.images ?? []).filter((item) => item.image)
-  const gallery = (recipient.gallery ?? []).filter((item) => item.image)
+  const gallery = (recipient.gallery ?? []).filter(
+    (item) => item.image || vimeoVideoId(item.vimeoUrl),
+  )
   const hasMainCopy =
     Boolean(recipient.name) ||
     Boolean(recipient.location) ||
@@ -80,18 +84,33 @@ export function RecipientProfile({ recipient }: RecipientProfileProps) {
           ) : null}
           {gallery.length ? (
             <div className={styles.mediaStack} aria-label="Gallery">
-              {gallery.map((item) => (
-                <div className={styles.media} key={item.id}>
-                  <CmsImage
-                    className={styles.image}
-                    fallbackAlt={recipient.name}
-                    href={item.link}
-                    size="card"
-                    sizes="(max-width: 800px) 100vw, 50vw"
-                    value={item.image}
-                  />
-                </div>
-              ))}
+              {gallery.map((item) => {
+                const vimeo = vimeoVideoId(item.vimeoUrl) ? item.vimeoUrl : null
+
+                return (
+                  <div
+                    className={`${styles.media}${vimeo ? ` ${styles.mediaVimeo}` : ''}`}
+                    key={item.id}
+                  >
+                    {vimeo ? (
+                      <VimeoEmbed
+                        className={styles.image}
+                        title={`${recipient.name} gallery video`}
+                        url={vimeo}
+                      />
+                    ) : (
+                      <CmsImage
+                        className={styles.image}
+                        fallbackAlt={recipient.name}
+                        href={item.link}
+                        size="card"
+                        sizes="(max-width: 800px) 100vw, 50vw"
+                        value={item.image}
+                      />
+                    )}
+                  </div>
+                )
+              })}
             </div>
           ) : null}
         </section>

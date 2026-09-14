@@ -1,22 +1,15 @@
 import Link from 'next/link'
 
+import { isExternalNavUrl, type NavLinkItem } from '@/lib/navigation'
+
 import styles from './SiteFooter.module.css'
 
-const primaryNav = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/press', label: 'Press' },
-  { href: '/emerging-artists-prize', label: 'Emerging Artists Prize' },
-  { href: '/summit', label: 'Summit' },
-  { href: '/faq', label: 'FAQ' },
-]
+type SiteFooterProps = {
+  primary: NavLinkItem[]
+  legal: NavLinkItem[]
+}
 
-const legalNav = [
-  { href: '/terms', label: 'Terms & Conditions' },
-  { href: '/privacy', label: 'Privacy Policy' },
-]
-
-export function SiteFooter() {
+export function SiteFooter({ primary, legal }: SiteFooterProps) {
   return (
     <footer className={styles.footer}>
       <div className={styles.subscribe}>
@@ -44,24 +37,43 @@ export function SiteFooter() {
 
       <nav aria-label="Footer" className={styles.nav}>
         <ul className={styles.navList}>
-          {primaryNav.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href} className={styles.navLink}>
-                {item.label}
-              </Link>
+          {primary.map((item) => (
+            <li key={`${item.label}-${item.url}`}>
+              <NavLink item={item} />
             </li>
           ))}
         </ul>
         <ul className={styles.navList}>
-          {legalNav.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href} className={styles.navLink}>
-                {item.label}
-              </Link>
+          {legal.map((item) => (
+            <li key={`${item.label}-${item.url}`}>
+              <NavLink item={item} />
             </li>
           ))}
         </ul>
       </nav>
     </footer>
+  )
+}
+
+function NavLink({ item }: { item: NavLinkItem }) {
+  const external = item.openInNewTab || isExternalNavUrl(item.url)
+
+  if (external) {
+    return (
+      <a
+        className={styles.navLink}
+        href={item.url}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        {item.label}
+      </a>
+    )
+  }
+
+  return (
+    <Link className={styles.navLink} href={item.url}>
+      {item.label}
+    </Link>
   )
 }

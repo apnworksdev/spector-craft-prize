@@ -8,12 +8,14 @@ import sharp from 'sharp'
 import { getServerURL } from './lib/env'
 import { MAX_UPLOAD_BYTES } from './lib/upload'
 import { Editions } from './collections/Editions'
+import { Documents } from './collections/Documents'
 import { Media } from './collections/Media'
 import { PrizeRecipients } from './collections/PrizeRecipients'
 import { Users } from './collections/Users'
 import { About } from './globals/About'
 import { EmergingArtistsPrize } from './globals/EmergingArtistsPrize'
 import { Home } from './globals/Home'
+import { Navigation } from './globals/Navigation'
 import { Press } from './globals/Press'
 import { Privacy } from './globals/Privacy'
 import { Summit } from './globals/Summit'
@@ -34,8 +36,8 @@ export default buildConfig({
       titleSuffix: ' — Spector Craft Prize',
     },
   },
-  collections: [Users, Media, Editions, PrizeRecipients],
-  globals: [Home, About, Press, EmergingArtistsPrize, Summit, Terms, Privacy],
+  collections: [Users, Media, Documents, Editions, PrizeRecipients],
+  globals: [Home, About, Press, EmergingArtistsPrize, Summit, Terms, Privacy, Navigation],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures.filter((feature) => feature.key !== 'link'),

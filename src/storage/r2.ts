@@ -13,6 +13,14 @@ export const r2Storage = s3Storage({
         return `${getR2PublicURL()}/${key}`
       },
     },
+    documents: {
+      prefix: 'documents',
+      disablePayloadAccessControl: true,
+      generateFileURL: ({ filename, prefix }) => {
+        const key = prefix ? `${prefix}/${filename}` : filename
+        return `${getR2PublicURL()}/${key}`
+      },
+    },
   },
   bucket: process.env.R2_BUCKET || '',
   config: {

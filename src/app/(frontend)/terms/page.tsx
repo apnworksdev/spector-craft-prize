@@ -8,5 +8,5 @@ export const metadata = {
 export default async function TermsPage() {
   const page = await getCachedGlobal('terms', 2)
 
-  return <ContentColumns primary={page.primary} secondary={page.secondary} />
+  return <ContentColumns primary={page.primary} secondary={page.secondary} size="compact" />
 }

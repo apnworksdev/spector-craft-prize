@@ -78,3 +78,11 @@ export const revalidateMedia: CollectionAfterChangeHook = async () => {
 export const revalidateDeletedMedia: CollectionAfterDeleteHook = async () => {
   await expireTags([CMS_TAGS.media])
 }
+
+export const revalidateDocument: CollectionAfterChangeHook = async () => {
+  await expireTags([CMS_TAGS.documents, CMS_TAGS.navigation])
+}
+
+export const revalidateDeletedDocument: CollectionAfterDeleteHook = async () => {
+  await expireTags([CMS_TAGS.documents, CMS_TAGS.navigation])
+}

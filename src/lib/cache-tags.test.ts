@@ -15,6 +15,7 @@ describe('tagsForGlobal', () => {
     expect(tagsForGlobal('summit')).toEqual([CMS_TAGS.summit])
     expect(tagsForGlobal('terms')).toEqual([CMS_TAGS.terms])
     expect(tagsForGlobal('privacy')).toEqual([CMS_TAGS.privacy])
+    expect(tagsForGlobal('navigation')).toEqual([CMS_TAGS.navigation, CMS_TAGS.documents])
   })
 
   it('includes the media tag for press so image edits refresh the list', () => {

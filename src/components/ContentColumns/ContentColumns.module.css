@@ -20,18 +20,40 @@
   gap: 32px;
 }
 
+/* Terms / Privacy — same body size as About Jury/Advisory bios */
+.compactRichText {
+  font-size: var(--font-size);
+  line-height: 1.45;
+  max-width: var(--max-width-rich-text);
+  gap: 32px;
+}
+
+.compactRichText :global(p),
+.compactRichText :global(li),
+.compactRichText :global(blockquote) {
+  font-size: var(--font-size);
+  line-height: 1.45;
+}
+
 .richText :global(h1),
 .richText :global(h2),
 .richText :global(h3),
 .richText :global(h4),
 .richText :global(h5),
-.richText :global(h6) {
+.richText :global(h6),
+.compactRichText :global(h1),
+.compactRichText :global(h2),
+.compactRichText :global(h3),
+.compactRichText :global(h4),
+.compactRichText :global(h5),
+.compactRichText :global(h6) {
   font-family: var(--font-serif);
   font-size: var(--font-xxl);
   line-height: 46px;
 }
 
-.richText :global(a) {
+.richText :global(a),
+.compactRichText :global(a) {
   text-transform: none;
 }
 
@@ -40,7 +62,8 @@
     gap: calc(var(--side-margin) * 2);
   }
 
-  .richText {
+  .richText,
+  .compactRichText {
     font-size: var(--font-size);
     line-height: 1.45;
     gap: 24px;
@@ -51,7 +74,13 @@
   .richText :global(h3),
   .richText :global(h4),
   .richText :global(h5),
-  .richText :global(h6) {
+  .richText :global(h6),
+  .compactRichText :global(h1),
+  .compactRichText :global(h2),
+  .compactRichText :global(h3),
+  .compactRichText :global(h4),
+  .compactRichText :global(h5),
+  .compactRichText :global(h6) {
     font-size: var(--font-xl);
     line-height: 1.4;
   }
@@ -67,7 +96,8 @@
     gap: 64px;
   }
 
-  .richText {
+  .richText,
+  .compactRichText {
     max-width: none;
   }
 }

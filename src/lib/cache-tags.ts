@@ -6,6 +6,8 @@ export const CMS_TAGS = {
   summit: 'cms:summit',
   terms: 'cms:terms',
   privacy: 'cms:privacy',
+  navigation: 'cms:navigation',
+  documents: 'cms:documents',
   editions: 'cms:editions',
   media: 'cms:media',
   edition: (year: number) => `cms:edition:${year}`,
@@ -20,6 +22,7 @@ export type GlobalSlug =
   | 'summit'
   | 'terms'
   | 'privacy'
+  | 'navigation'
 
 export function tagsForGlobal(slug: GlobalSlug): string[] {
   switch (slug) {
@@ -37,6 +40,8 @@ export function tagsForGlobal(slug: GlobalSlug): string[] {
       return [CMS_TAGS.terms]
     case 'privacy':
       return [CMS_TAGS.privacy]
+    case 'navigation':
+      return [CMS_TAGS.navigation, CMS_TAGS.documents]
   }
 }
 

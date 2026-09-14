@@ -1,7 +1,7 @@
 import type { Block } from 'payload'
 
 import { mediaLinkField } from '@/fields/mediaLink'
-import { youtubeUrlField } from '@/fields/youtubeUrl'
+import { vimeoUrlField } from '@/fields/vimeoUrl'
 import { MAX_UPLOAD_MB } from '@/lib/upload'
 
 export const BannerBlock: Block = {
@@ -17,20 +17,20 @@ export const BannerBlock: Block = {
       type: 'upload',
       relationTo: 'media',
       admin: {
-        description: `Image or short video file (max ${MAX_UPLOAD_MB} MB). Or use YouTube URL below for longer films.`,
+        description: `Image or short video file (max ${MAX_UPLOAD_MB} MB). Or use Vimeo URL below for longer films.`,
       },
       validate: (value: unknown, { siblingData }: { siblingData: unknown }) => {
-        const data = siblingData as { youtubeUrl?: string | null }
-        if (!value && !data?.youtubeUrl) {
-          return 'Add an image/video upload or a YouTube URL'
+        const data = siblingData as { vimeoUrl?: string | null }
+        if (!value && !data?.vimeoUrl) {
+          return 'Add an image/video upload or a Vimeo URL'
         }
         return true
       },
     },
-    youtubeUrlField(),
+    vimeoUrlField(),
     mediaLinkField({
       admin: {
-        description: 'Optional. Makes an uploaded image open this URL. Ignored for YouTube embeds.',
+        description: 'Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.',
       },
     }),
     {
