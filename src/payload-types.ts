@@ -376,7 +376,7 @@ export interface QuoteBlock {
   blockType: 'quote';
 }
 /**
- * Individual recipients. Layout: intro (text + portrait), featured work, then body text beside a stacked gallery.
+ * Individual recipients. Layout: intro (text + portrait), featured work, then article sections (text + media).
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "prize-recipients".
@@ -455,9 +455,18 @@ export interface PrizeRecipient {
     } | null;
   };
   /**
-   * Long-form text on the left, beside the gallery.
+   * Ordered text and media sections. On mobile they appear in this order. On desktop, all text sits on the left and all media stacks on the right.
    */
-  content?: {
+  article?: (RecipientTextBlock | RecipientMediaBlock)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RecipientTextBlock".
+ */
+export interface RecipientTextBlock {
+  content: {
     root: {
       type: string;
       children: {
@@ -471,29 +480,31 @@ export interface PrizeRecipient {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'text';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RecipientMediaBlock".
+ */
+export interface RecipientMediaBlock {
   /**
-   * Stacked images or vertical Vimeo videos on the right of the body content.
+   * Optional image. Or use Vimeo URL below for a vertical video.
    */
-  gallery?:
-    | {
-        /**
-         * Optional image. Or use Vimeo URL below for a vertical video.
-         */
-        image?: (number | null) | Media;
-        /**
-         * Optional. Paste a Vimeo link for a vertical video. Preferred over uploading large files.
-         */
-        vimeoUrl?: string | null;
-        /**
-         * Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.
-         */
-        link?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
+  image?: (number | null) | Media;
+  /**
+   * Optional. Paste a Vimeo link for a vertical video. Preferred over uploading large files.
+   */
+  vimeoUrl?: string | null;
+  /**
+   * Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.
+   */
+  link?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'media';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -771,17 +782,34 @@ export interface PrizeRecipientsSelect<T extends boolean = true> {
             };
         content?: T;
       };
-  content?: T;
-  gallery?:
+  article?:
     | T
     | {
-        image?: T;
-        vimeoUrl?: T;
-        link?: T;
-        id?: T;
+        text?: T | RecipientTextBlockSelect<T>;
+        media?: T | RecipientMediaBlockSelect<T>;
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RecipientTextBlock_select".
+ */
+export interface RecipientTextBlockSelect<T extends boolean = true> {
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RecipientMediaBlock_select".
+ */
+export interface RecipientMediaBlockSelect<T extends boolean = true> {
+  image?: T;
+  vimeoUrl?: T;
+  link?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

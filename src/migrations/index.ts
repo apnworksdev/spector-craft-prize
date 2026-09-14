@@ -7,6 +7,7 @@ import * as migration_20260914_095400_recipient_gallery_vimeo from './20260914_0
 import * as migration_20260914_101500_navigation from './20260914_101500_navigation';
 import * as migration_20260914_102200_documents from './20260914_102200_documents';
 import * as migration_20260914_110000_documents_prefix from './20260914_110000_documents_prefix';
+import * as migration_20260914_141100_recipient_article_blocks from './20260914_141100_recipient_article_blocks';
 
 export const migrations = [
   {
@@ -53,5 +54,10 @@ export const migrations = [
     up: migration_20260914_110000_documents_prefix.up,
     down: migration_20260914_110000_documents_prefix.down,
     name: '20260914_110000_documents_prefix',
+  },
+  {
+    up: migration_20260914_141100_recipient_article_blocks.up,
+    down: migration_20260914_141100_recipient_article_blocks.down,
+    name: '20260914_141100_recipient_article_blocks',
   },
 ]

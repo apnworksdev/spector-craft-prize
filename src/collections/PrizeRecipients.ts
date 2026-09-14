@@ -1,8 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
+import { RecipientMediaBlock, RecipientTextBlock } from '@/blocks/RecipientArticle'
 import { publicRead } from '@/access/publicRead'
 import { mediaLinkField } from '@/fields/mediaLink'
-import { vimeoUrlField } from '@/fields/vimeoUrl'
 import { revalidateDeletedRecipient, revalidateRecipient } from '@/hooks/revalidate'
 
 export const PrizeRecipients: CollectionConfig = {
@@ -11,7 +11,7 @@ export const PrizeRecipients: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'edition', 'slug', 'updatedAt'],
     description:
-      'Individual recipients. Layout: intro (text + portrait), featured work, then body text beside a stacked gallery.',
+      'Individual recipients. Layout: intro (text + portrait), featured work, then article sections (text + media).',
   },
   access: {
     read: publicRead,
@@ -120,55 +120,17 @@ export const PrizeRecipients: CollectionConfig = {
       ],
     },
     {
-      name: 'content',
-      type: 'richText',
-      label: 'Body content',
-      admin: {
-        description: 'Long-form text on the left, beside the gallery.',
-      },
-    },
-    {
-      name: 'gallery',
-      type: 'array',
+      name: 'article',
+      type: 'blocks',
       labels: {
-        singular: 'Item',
-        plural: 'Gallery',
+        singular: 'Section',
+        plural: 'Article',
       },
+      blocks: [RecipientTextBlock, RecipientMediaBlock],
       admin: {
         description:
-          'Stacked images or vertical Vimeo videos on the right of the body content.',
+          'Ordered text and media sections. On mobile they appear in this order. On desktop, all text sits on the left and all media stacks on the right.',
       },
-      fields: [
-        {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
-          filterOptions: {
-            mimeType: { contains: 'image' },
-          },
-          admin: {
-            description: 'Optional image. Or use Vimeo URL below for a vertical video.',
-          },
-          validate: (value: unknown, { siblingData }: { siblingData: unknown }) => {
-            const data = siblingData as { vimeoUrl?: string | null }
-            if (!value && !data?.vimeoUrl) {
-              return 'Add an image or a Vimeo URL'
-            }
-            return true
-          },
-        },
-        vimeoUrlField({
-          admin: {
-            description:
-              'Optional. Paste a Vimeo link for a vertical video. Preferred over uploading large files.',
-          },
-        }),
-        mediaLinkField({
-          admin: {
-            description: 'Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.',
-          },
-        }),
-      ],
     },
   ],
 }

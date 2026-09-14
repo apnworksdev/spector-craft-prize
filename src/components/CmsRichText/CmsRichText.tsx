@@ -14,6 +14,7 @@ import type {
   Term,
   MediaColumnsBlock,
   PrizeRecipient,
+  RecipientTextBlock,
   RichTextBlock,
 } from '@/payload-types'
 
@@ -24,7 +25,7 @@ type LexicalRichText =
   | MediaColumnsBlock['columns'][number]['content']
   | NonNullable<PrizeRecipient['main']>['content']
   | NonNullable<PrizeRecipient['secondary']>['content']
-  | PrizeRecipient['content']
+  | RecipientTextBlock['content']
   | EmergingArtistsPrize['primary']
   | EmergingArtistsPrize['secondary']
   | Summit['primary']
