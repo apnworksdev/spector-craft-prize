@@ -12,7 +12,7 @@ describe('tagsForGlobal', () => {
     expect(tagsForGlobal('home')).toEqual([CMS_TAGS.home])
     expect(tagsForGlobal('about')).toEqual([CMS_TAGS.about])
     expect(tagsForGlobal('emerging-artists-prize')).toEqual([CMS_TAGS.emergingArtistsPrize])
-    expect(tagsForGlobal('summit')).toEqual([CMS_TAGS.summit])
+    expect(tagsForGlobal('summit')).toEqual([CMS_TAGS.summit, CMS_TAGS.media])
     expect(tagsForGlobal('terms')).toEqual([CMS_TAGS.terms])
     expect(tagsForGlobal('privacy')).toEqual([CMS_TAGS.privacy])
     expect(tagsForGlobal('navigation')).toEqual([CMS_TAGS.navigation, CMS_TAGS.documents])

@@ -54,7 +54,7 @@ function ArticleMedia({ block, name }: { block: RecipientMediaBlock; name: strin
   const media = (
     <div className={`${styles.media}${vimeo ? ` ${styles.mediaVimeo}` : ''}`}>
       {vimeo ? (
-        <VimeoEmbed className={styles.image} title={`${name} gallery video`} url={vimeo} />
+        <VimeoEmbed className={styles.image} compact title={`${name} gallery video`} url={vimeo} />
       ) : (
         <CmsImage
           className={styles.image}

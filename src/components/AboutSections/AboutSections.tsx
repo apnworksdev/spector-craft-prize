@@ -2,8 +2,8 @@
 
 import { useRef, useState } from 'react'
 
-import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import { PersonCard } from '@/components/PersonCard/PersonCard'
 import columns from '@/components/ContentColumns/ContentColumns.module.css'
 import type { About, AboutPersonSubBlock, AboutTextSubBlock } from '@/payload-types'
 
@@ -144,26 +144,14 @@ function TextSubBlock({ block }: { block: AboutTextSubBlock }) {
 }
 
 function PersonSubBlock({ block }: { block: AboutPersonSubBlock }) {
-  const layout = block.layout || 'inline'
-
   return (
-    <article className={`${styles.person} ${styles[layout]}`}>
-      {block.image ? (
-        <div className={styles.personMedia}>
-          <CmsImage
-            className={styles.personImage}
-            fallbackAlt={block.name}
-            href={layout === 'stacked' ? block.link : null}
-            sizes="185px"
-            value={block.image}
-          />
-        </div>
-      ) : null}
-      <div className={styles.personCopy}>
-        <h3 className={styles.personName}>{block.name}</h3>
-        {block.title ? <p className={styles.personTitle}>{block.title}</p> : null}
-        <CmsRichText data={block.bio} className={styles.personBio} />
-      </div>
-    </article>
+    <PersonCard
+      bio={block.bio}
+      image={block.image}
+      layout={block.layout || 'inline'}
+      link={block.link}
+      name={block.name}
+      title={block.title}
+    />
   )
 }

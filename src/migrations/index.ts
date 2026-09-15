@@ -8,6 +8,8 @@ import * as migration_20260914_101500_navigation from './20260914_101500_navigat
 import * as migration_20260914_102200_documents from './20260914_102200_documents';
 import * as migration_20260914_110000_documents_prefix from './20260914_110000_documents_prefix';
 import * as migration_20260914_141100_recipient_article_blocks from './20260914_141100_recipient_article_blocks';
+import * as migration_20260915_103000_summit_people from './20260915_103000_summit_people';
+import * as migration_20260915_170800_footer_credits from './20260915_170800_footer_credits';
 
 export const migrations = [
   {
@@ -59,5 +61,15 @@ export const migrations = [
     up: migration_20260914_141100_recipient_article_blocks.up,
     down: migration_20260914_141100_recipient_article_blocks.down,
     name: '20260914_141100_recipient_article_blocks',
+  },
+  {
+    up: migration_20260915_103000_summit_people.up,
+    down: migration_20260915_103000_summit_people.down,
+    name: '20260915_103000_summit_people',
+  },
+  {
+    up: migration_20260915_170800_footer_credits.up,
+    down: migration_20260915_170800_footer_credits.down,
+    name: '20260915_170800_footer_credits',
   },
 ]

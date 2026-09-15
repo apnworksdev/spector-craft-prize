@@ -43,7 +43,7 @@ function BannerSection({ block }: { block: BannerBlock }) {
     <section className={styles.banner}>
       <div className={styles.bannerWrapper}>
         {vimeo ? (
-          <VimeoEmbed className={styles.media} title={block.title ?? undefined} url={vimeo} />
+          <VimeoEmbed className={styles.media} progress title={block.title ?? undefined} url={vimeo} />
         ) : (
           <CmsMedia
             className={styles.media}
@@ -100,7 +100,12 @@ function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
           >
             {vimeo ? (
               <div className={`${styles.columnMediaWrapper} ${styles[aspect]}`}>
-                <VimeoEmbed className={styles.columnMedia} url={vimeo} />
+                <VimeoEmbed
+                  className={styles.columnMedia}
+                  compact={aspect === 'vertical'}
+                  progress={aspect === 'horizontal'}
+                  url={vimeo}
+                />
               </div>
             ) : column.media ? (
               <div className={`${styles.columnMediaWrapper} ${styles[aspect]}`}>

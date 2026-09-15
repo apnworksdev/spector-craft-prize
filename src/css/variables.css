@@ -23,7 +23,7 @@
   --fg-color: var(--teal);
 
   --side-margin: 30px;
-  --max-width-rich-text: 750px;
+  --max-width-rich-text: 950px;
   --max-width-rich-text-wide: 66.666%;
   --max-width-quote: 850px;
 
@@ -33,7 +33,7 @@
   --line-height: 1.2;
   --letter-spacing: 4%;
 
-  --font-s: 12px;
+  --font-s: 14px;
   --font-l: 24px;
   --font-xl: 30px;
   --font-xxl: 38px;

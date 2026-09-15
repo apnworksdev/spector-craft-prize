@@ -47,7 +47,7 @@ export const Navigation: GlobalConfig = {
   slug: 'navigation',
   label: 'Header & Footer',
   admin: {
-    description: 'Edit header and footer menu links. Reorder rows to change order.',
+    description: 'Edit header and footer menu links, plus footer credits.',
   },
   access: {
     read: publicRead,
@@ -104,6 +104,15 @@ export const Navigation: GlobalConfig = {
         { label: 'Terms & Conditions', url: '/terms', openInNewTab: false },
         { label: 'Privacy Policy', url: '/privacy', openInNewTab: false },
       ],
+    },
+    {
+      name: 'footerCredits',
+      type: 'richText',
+      label: 'Footer credits',
+      admin: {
+        description:
+          'Optional. Left-aligned credit line above the footer links. Use links for Instagram handles.',
+      },
     },
   ],
 }

@@ -13,15 +13,37 @@
   pointer-events: none;
 }
 
-.mark {
+.brand {
   flex: 1 1 auto;
   max-width: var(--logo-max-width);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.mark {
+  width: 100%;
   pointer-events: auto;
 }
 
 .logo {
   width: 100%;
   height: auto;
+}
+
+.menuToggle {
+  display: none;
+  pointer-events: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--font);
+  font-size: var(--font-s);
+  letter-spacing: 10%;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 .nav {
@@ -47,31 +69,38 @@
     flex-direction: column;
     align-items: center;
     padding: 28px;
-    gap: 28px;
+    gap: 12px;
   }
 
-  .mark {
+  .brand {
     flex: 0 0 auto;
     width: 100%;
     max-width: var(--logo-max-width);
+    align-items: center;
+    gap: 26px;
+  }
+
+  .menuToggle {
+    display: block;
   }
 
   .nav {
+    display: none;
     flex: 0 0 auto;
     width: 100%;
+    pointer-events: auto;
   }
 
-  .navList {
-    justify-content: center;
+  .navOpen {
+    display: block;
   }
-}
 
-@media (max-width: 504px) {
   .navList {
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 16px;
+    padding-top: 4px;
   }
 
   .navLink {

@@ -11,7 +11,7 @@ export function mediaLinkField(options: MediaLinkOptions = {}): TextField {
     type: 'text',
     label: 'Link',
     admin: {
-      description: 'Optional. Makes this image or video open the URL when clicked.',
+      description: 'Optional. Makes this image or video open the URL when clicked (same tab).',
       ...options.admin,
     },
   }

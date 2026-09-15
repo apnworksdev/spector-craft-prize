@@ -8,5 +8,5 @@ export const metadata = {
 export default async function SummitPage() {
   const page = await getCachedGlobal('summit', 2)
 
-  return <ContentColumns primary={page.primary} secondary={page.secondary} />
+  return <ContentColumns people={page.people} primary={page.primary} secondary={page.secondary} />
 }

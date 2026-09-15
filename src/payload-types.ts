@@ -399,7 +399,7 @@ export interface PrizeRecipient {
   main?: {
     image?: (number | null) | Media;
     /**
-     * Optional. Makes this image or video open the URL when clicked.
+     * Optional. Makes this image or video open the URL when clicked (same tab).
      */
     link?: string | null;
     /**
@@ -429,7 +429,7 @@ export interface PrizeRecipient {
       | {
           image: number | Media;
           /**
-           * Optional. Makes this image or video open the URL when clicked.
+           * Optional. Makes this image or video open the URL when clicked (same tab).
            */
           link?: string | null;
           id?: string | null;
@@ -1090,6 +1090,35 @@ export interface Summit {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Optional. Headshots and bios shown in the right-hand column.
+   */
+  people?:
+    | {
+        image?: (number | null) | Media;
+        name: string;
+        /**
+         * Role or title under the name.
+         */
+        title?: string | null;
+        bio?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1184,7 +1213,7 @@ export interface Privacy {
   createdAt?: string | null;
 }
 /**
- * Edit header and footer menu links. Reorder rows to change order.
+ * Edit header and footer menu links, plus footer credits.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation".
@@ -1248,6 +1277,24 @@ export interface Navigation {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Optional. Left-aligned credit line above the footer links. Use links for Instagram handles.
+   */
+  footerCredits?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1356,6 +1403,15 @@ export interface EmergingArtistsPrizeSelect<T extends boolean = true> {
 export interface SummitSelect<T extends boolean = true> {
   primary?: T;
   secondary?: T;
+  people?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        title?: T;
+        bio?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1414,6 +1470,7 @@ export interface NavigationSelect<T extends boolean = true> {
         openInNewTab?: T;
         id?: T;
       };
+  footerCredits?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

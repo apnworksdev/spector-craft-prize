@@ -57,6 +57,17 @@
   text-transform: none;
 }
 
+.people {
+  display: flex;
+  flex-direction: column;
+  gap: 38px;
+  margin-top: 48px;
+}
+
+.people:first-child {
+  margin-top: 0;
+}
+
 @media (max-width: 1120px) {
   .columns {
     gap: calc(var(--side-margin) * 2);
@@ -99,6 +110,11 @@
   .richText,
   .compactRichText {
     max-width: none;
+  }
+
+  .people {
+    gap: 28px;
+    margin-top: 32px;
   }
 }
 

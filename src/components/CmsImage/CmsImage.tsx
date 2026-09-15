@@ -46,12 +46,7 @@ export function CmsImage({
   }
 
   return (
-    <a
-      className={`${styles.link}${className ? ` ${className}` : ''}`}
-      href={href}
-      rel="noopener noreferrer"
-      target="_blank"
-    >
+    <a className={`${styles.link}${className ? ` ${className}` : ''}`} href={href}>
       {img}
     </a>
   )

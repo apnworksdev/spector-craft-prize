@@ -34,7 +34,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <SiteHeader items={header} />
         <main>{children}</main>
-        <SiteFooter legal={footerLegal} primary={footerPrimary} />
+        <SiteFooter credits={navigation.footerCredits} legal={footerLegal} primary={footerPrimary} />
       </body>
     </html>
   )

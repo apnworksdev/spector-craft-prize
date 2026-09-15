@@ -35,7 +35,7 @@ export function tagsForGlobal(slug: GlobalSlug): string[] {
     case 'emerging-artists-prize':
       return [CMS_TAGS.emergingArtistsPrize]
     case 'summit':
-      return [CMS_TAGS.summit]
+      return [CMS_TAGS.summit, CMS_TAGS.media]
     case 'terms':
       return [CMS_TAGS.terms]
     case 'privacy':

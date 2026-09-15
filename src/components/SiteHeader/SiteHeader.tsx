@@ -1,5 +1,8 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState } from 'react'
 
 import logo from '@/assets/logo.png'
 import { isExternalNavUrl, type NavLinkItem } from '@/lib/navigation'
@@ -11,23 +14,40 @@ type SiteHeaderProps = {
 }
 
 export function SiteHeader({ items }: SiteHeaderProps) {
+  const [open, setOpen] = useState(false)
+
   return (
     <header className={styles.header}>
-      <Link className={styles.mark} href="/">
-        <Image
-          src={logo}
-          alt="Spector Craft Prize logo"
-          width={1024}
-          height={143}
-          priority
-          className={styles.logo}
-        />
-      </Link>
-      <nav aria-label="Primary" className={styles.nav}>
+      <div className={styles.brand}>
+        <Link className={styles.mark} href="/" onClick={() => setOpen(false)}>
+          <Image
+            src={logo}
+            alt="Spector Craft Prize logo"
+            width={1024}
+            height={143}
+            priority
+            className={styles.logo}
+          />
+        </Link>
+        <button
+          aria-controls="site-menu"
+          aria-expanded={open}
+          className={styles.menuToggle}
+          onClick={() => setOpen((current) => !current)}
+          type="button"
+        >
+          Menu
+        </button>
+      </div>
+      <nav
+        aria-label="Primary"
+        className={`${styles.nav}${open ? ` ${styles.navOpen}` : ''}`}
+        id="site-menu"
+      >
         <ul className={styles.navList}>
           {items.map((item) => (
             <li key={`${item.label}-${item.url}`}>
-              <NavLink item={item} />
+              <NavLink item={item} onNavigate={() => setOpen(false)} />
             </li>
           ))}
         </ul>
@@ -36,7 +56,7 @@ export function SiteHeader({ items }: SiteHeaderProps) {
   )
 }
 
-function NavLink({ item }: { item: NavLinkItem }) {
+function NavLink({ item, onNavigate }: { item: NavLinkItem; onNavigate: () => void }) {
   const external = item.openInNewTab || isExternalNavUrl(item.url)
 
   if (external) {
@@ -53,7 +73,7 @@ function NavLink({ item }: { item: NavLinkItem }) {
   }
 
   return (
-    <Link className={styles.navLink} href={item.url}>
+    <Link className={styles.navLink} href={item.url} onClick={onNavigate}>
       {item.label}
     </Link>
   )

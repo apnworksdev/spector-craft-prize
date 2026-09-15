@@ -45,12 +45,7 @@ export function CmsMedia({
     }
 
     return (
-      <a
-        className={`${styles.link}${className ? ` ${className}` : ''}`}
-        href={href}
-        rel="noopener noreferrer"
-        target="_blank"
-      >
+      <a className={`${styles.link}${className ? ` ${className}` : ''}`} href={href}>
         {video}
       </a>
     )

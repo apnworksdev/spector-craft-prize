@@ -13,6 +13,7 @@ import type {
   Summit,
   Term,
   MediaColumnsBlock,
+  Navigation,
   PrizeRecipient,
   RecipientTextBlock,
   RichTextBlock,
@@ -37,6 +38,8 @@ type LexicalRichText =
   | NonNullable<NonNullable<About['groups']>[number]['blocks']>[number]['content']
   | AboutTextSubBlock['content']
   | AboutPersonSubBlock['bio']
+  | NonNullable<NonNullable<Summit['people']>[number]>['bio']
+  | Navigation['footerCredits']
 
 type CmsRichTextProps = {
   data?: LexicalRichText | null

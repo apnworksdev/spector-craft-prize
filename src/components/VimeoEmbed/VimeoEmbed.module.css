@@ -28,12 +28,38 @@
   bottom: 0;
   z-index: 3;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
   gap: 8px;
   padding: 12px 14px;
   background: linear-gradient(to top, rgb(0 0 0 / 55%), transparent);
   pointer-events: none;
+}
+
+.progress {
+  pointer-events: auto;
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  height: 4px;
+  padding: 0;
+  border: 0;
+  background: rgb(255 255 255 / 35%);
+  cursor: pointer;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  background: var(--white);
+  pointer-events: none;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
 }
 
 .controlsEnd {
@@ -66,6 +92,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .control:hover,
@@ -74,7 +101,29 @@
   outline: none;
 }
 
-.control:disabled {
+.control:disabled,
+.progress:disabled {
   opacity: 0.5;
   cursor: wait;
+}
+
+@media (max-width: 800px) {
+  .compact .controls {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .compact .buttons,
+  .compact .controlsEnd {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .compact .control {
+    min-width: 0;
+    height: 28px;
+    padding: 0 7px;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
 }
