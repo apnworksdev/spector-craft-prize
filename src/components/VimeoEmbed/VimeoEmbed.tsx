@@ -16,6 +16,49 @@ type FullscreenNode = HTMLElement & {
   webkitRequestFullscreen?: () => Promise<void> | void
 }
 
+type OverflowUnlock = {
+  el: HTMLElement
+  overflow: string
+}
+
+function unlockAncestorOverflow(node: HTMLElement) {
+  const previous: OverflowUnlock[] = []
+  let el: HTMLElement | null = node.parentElement
+
+  while (el && el !== document.documentElement) {
+    const style = getComputedStyle(el)
+    if (style.overflow !== 'visible' || style.overflowX !== 'visible' || style.overflowY !== 'visible') {
+      previous.push({ el, overflow: el.style.overflow })
+      el.style.setProperty('overflow', 'visible', 'important')
+    }
+    el = el.parentElement
+  }
+
+  return previous
+}
+
+function restoreAncestorOverflow(previous: OverflowUnlock[]) {
+  for (const item of previous) {
+    if (item.overflow) {
+      item.el.style.overflow = item.overflow
+    } else {
+      item.el.style.removeProperty('overflow')
+    }
+  }
+}
+
+function isPlayerFullscreen(data: unknown) {
+  if (typeof data === 'boolean') {
+    return data
+  }
+
+  if (data && typeof data === 'object' && 'fullscreen' in data) {
+    return Boolean((data as { fullscreen?: unknown }).fullscreen)
+  }
+
+  return false
+}
+
 function ignoreUnloadedPlayerRejections() {
   const view = window as Window & { __spectorVimeoUnloadGuard?: boolean }
   if (view.__spectorVimeoUnloadGuard) {
@@ -84,10 +127,13 @@ export function VimeoEmbed({
   const playerShellRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<Player | null>(null)
+  const overflowUnlocksRef = useRef<OverflowUnlock[]>([])
+  const cssExpandedRef = useRef(false)
   const [ready, setReady] = useState(false)
   const [playing, setPlaying] = useState(true)
   const [muted, setMuted] = useState(true)
   const [expanded, setExpanded] = useState(false)
+  const [cssExpanded, setCssExpanded] = useState(false)
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
 
@@ -108,6 +154,8 @@ export function VimeoEmbed({
     iframe.title = title
     iframe.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media'
     iframe.setAttribute('allowfullscreen', '')
+    iframe.setAttribute('webkitallowfullscreen', 'true')
+    iframe.setAttribute('playsinline', 'true')
     container.appendChild(iframe)
 
     const player = new Player(iframe)
@@ -151,6 +199,19 @@ export function VimeoEmbed({
         player.on('play', onPlay)
         player.on('pause', onPause)
         player.on('volumechange', onVolumeChange)
+        player.on('fullscreenchange', (data: unknown) => {
+          const on = isPlayerFullscreen(data)
+          if (on) {
+            cssExpandedRef.current = false
+            setCssExpanded(false)
+            setExpanded(true)
+            return
+          }
+
+          if (!cssExpandedRef.current) {
+            setExpanded(false)
+          }
+        })
         if (progress) {
           player.on('timeupdate', onTimeUpdate)
         }
@@ -215,7 +276,15 @@ export function VimeoEmbed({
     const onFullscreenChange = () => {
       const shell = playerShellRef.current
       const active = getFullscreenElement()
-      setExpanded(Boolean(shell && active === shell))
+      if (shell && active === shell) {
+        setExpanded(true)
+        setCssExpanded(false)
+        return
+      }
+
+      if (!active && !cssExpandedRef.current) {
+        setExpanded(false)
+      }
     }
 
     document.addEventListener('fullscreenchange', onFullscreenChange)
@@ -225,6 +294,22 @@ export function VimeoEmbed({
       document.removeEventListener('webkitfullscreenchange', onFullscreenChange)
     }
   }, [])
+
+  useEffect(() => {
+    cssExpandedRef.current = cssExpanded
+    const shell = playerShellRef.current
+    if (!cssExpanded || !shell) {
+      restoreAncestorOverflow(overflowUnlocksRef.current)
+      overflowUnlocksRef.current = []
+      return
+    }
+
+    overflowUnlocksRef.current = unlockAncestorOverflow(shell)
+    return () => {
+      restoreAncestorOverflow(overflowUnlocksRef.current)
+      overflowUnlocksRef.current = []
+    }
+  }, [cssExpanded])
 
   useEffect(() => {
     if (!expanded) {
@@ -329,22 +414,50 @@ export function VimeoEmbed({
   }
 
   const exitExpanded = async () => {
+    const player = playerRef.current
+    if (player) {
+      try {
+        const isFs = await player.getFullscreen().catch(() => false)
+        if (isFs) {
+          await player.exitFullscreen()
+        }
+      } catch {
+        // Keep going so the CSS fallback can close.
+      }
+    }
+
     const active = getFullscreenElement()
     if (active) {
       await exitNativeFullscreen()
     }
+    setCssExpanded(false)
+    cssExpandedRef.current = false
     setExpanded(false)
   }
 
   const toggleFullscreen = async () => {
     const shell = playerShellRef.current
+    const player = playerRef.current
     if (!shell) {
       return
     }
 
-    if (expanded || getFullscreenElement() === shell) {
+    if (expanded || cssExpanded || getFullscreenElement() === shell) {
       await exitExpanded()
       return
+    }
+
+    if (player) {
+      try {
+        await player.requestFullscreen()
+        const isFs = await player.getFullscreen().catch(() => false)
+        if (isFs) {
+          setExpanded(true)
+          return
+        }
+      } catch {
+        // iOS often rejects element fullscreen; try the CSS fallback.
+      }
     }
 
     try {
@@ -357,6 +470,8 @@ export function VimeoEmbed({
       // iOS Safari doesn't fullscreen arbitrary elements.
     }
 
+    cssExpandedRef.current = true
+    setCssExpanded(true)
     setExpanded(true)
   }
 
@@ -381,7 +496,7 @@ export function VimeoEmbed({
 
   return (
     <div
-      className={`${styles.player}${compact ? ` ${styles.compact}` : ''}${expanded ? ` ${styles.expanded}` : ''}${className ? ` ${className}` : ''}`}
+      className={`${styles.player}${compact ? ` ${styles.compact}` : ''}${cssExpanded ? ` ${styles.expanded}` : ''}${className ? ` ${className}` : ''}`}
       ref={playerShellRef}
       title={title}
     >
