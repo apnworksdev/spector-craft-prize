@@ -66,7 +66,23 @@
 }
 
 .mediaVimeo {
-  padding-bottom: 178%;
+  height: auto;
+  padding-bottom: 0;
+  aspect-ratio: 9 / 16;
+  width: min(100%, calc(100dvh * 9 / 16));
+  max-height: 100dvh;
+  margin-inline: auto;
+}
+
+.mediaFrame:has(.mediaVimeo) {
+  display: flex;
+  justify-content: center;
+  max-height: 100dvh;
+  padding-block: 12px;
+}
+
+.mediaFrame:has(.mediaVimeo) .mediaVimeo {
+  max-height: 100%;
 }
 
 .image {
@@ -120,6 +136,10 @@
 
   .mediaFrame {
     padding: 5% 15% 5% 15%;
+  }
+
+  .mediaFrame:has(.mediaVimeo) {
+    padding: 8px 15%;
   }
 
   .main .media,

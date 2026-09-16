@@ -1,0 +1,42 @@
+.dialog {
+  position: relative;
+  z-index: 1;
+  width: min(530px, calc(100vw - 40px));
+  padding: 20px 40px 15px;
+  background: var(--white);
+  color: var(--fg-color);
+  border: 0.5px solid var(--fg-color);
+}
+
+.close {
+  position: absolute;
+  top: 8px;
+  right: 5px;
+  width: 18px;
+  height: 18px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  .dialog {
+    padding: 32px 24px 24px;
+  }
+}

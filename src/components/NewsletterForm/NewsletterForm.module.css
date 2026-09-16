@@ -1,0 +1,56 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.heading {
+  max-width: 750px;
+  font-size: var(--font-s);
+  letter-spacing: 10%;
+  text-transform: uppercase;
+}
+
+.email {
+  width: 100%;
+  padding-bottom: 15px;
+  border-bottom: 0.5px solid var(--fg-color);
+  text-align: center;
+  text-transform: none;
+  letter-spacing: var(--letter-spacing);
+}
+
+.email::placeholder {
+  opacity: 0.35;
+}
+
+.honeypot {
+  position: absolute;
+  left: -5000px;
+}
+
+.submit {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-transform: uppercase;
+  letter-spacing: 10%;
+}
+
+.submit:disabled {
+  opacity: 0.5;
+}
+
+.success,
+.error {
+  max-width: 420px;
+  text-transform: none;
+  letter-spacing: var(--letter-spacing);
+  line-height: 1.4;
+}
+
+.error {
+  color: var(--fg-color);
+}

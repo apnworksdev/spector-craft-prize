@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import { NewsletterForm } from '@/components/NewsletterForm/NewsletterForm'
 import { isExternalNavUrl, type NavLinkItem } from '@/lib/navigation'
 import { hasLexicalText } from '@/lib/richText'
 import type { Navigation } from '@/payload-types'
@@ -17,26 +18,7 @@ export function SiteFooter({ primary, legal, credits }: SiteFooterProps) {
   return (
     <footer className={styles.footer}>
       <div className={styles.subscribe}>
-        <p className={styles.subscribeCopy}>
-          Subscribe to our newsletter to get the latest news on the Spector Craft Prize
-        </p>
-        <form className={styles.form} action="#" method="post">
-          <label className="sr-only" htmlFor="newsletter-email">
-            Email address
-          </label>
-          <input
-            className={styles.email}
-            id="newsletter-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="Email address"
-            required
-          />
-          <button className={styles.submit} type="submit">
-            Submit
-          </button>
-        </form>
+        <NewsletterForm />
       </div>
 
       <div className={styles.bottom}>

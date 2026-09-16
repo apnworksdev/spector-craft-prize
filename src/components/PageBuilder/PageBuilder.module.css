@@ -12,6 +12,11 @@
   overflow: hidden;
 }
 
+.bannerPortrait {
+  height: min(100dvh, calc(100vw * 16 / 9));
+  padding-bottom: 0;
+}
+
 .banner .media {
   position: absolute;
   top: 0;
@@ -99,6 +104,15 @@
   padding-bottom: var(--horizontal-aspect-ratio);
 }
 
+.columnMediaPortrait {
+  height: auto;
+  padding-bottom: 0;
+  aspect-ratio: 9 / 16;
+  width: min(100%, calc(100dvh * 9 / 16));
+  max-height: 100dvh;
+  margin-inline: auto;
+}
+
 .columnMedia {
   position: absolute;
   top: 0;
@@ -139,17 +153,55 @@
   max-width: var(--max-width-quote);
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
-.quote .quoteText {
+.quote figure {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.quoteText {
+  gap: 0;
   font-family: var(--font-serif);
-  font-size: var(--font-xxl);
-  line-height: 1.4;
-  letter-spacing: 4%;
+  font-size: var(--font-xl);
+  line-height: 1.28;
+  letter-spacing: 0.01em;
+  text-align: center;
 }
 
-.quote .quoteWriter {
-  margin-top: 16px;
+.quoteText :global(p:first-child)::before {
+  content: '“';
+}
+
+.quoteText :global(p:last-child)::after {
+  content: '”';
+}
+
+.quoteText :global(strong) {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: var(--font-xxl);
+  line-height: 0;
+}
+
+.quoteAttribution {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 28px;
+  font-size: var(--font-s);
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.quoteWriterTitle {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 /* Section spacing */
@@ -228,7 +280,12 @@
     grid-template-columns: 1fr;
   }
 
-  .columnNoMedia {
+  .columnMediaWrapper.horizontal {
+    padding-bottom: var(--vertical-aspect-ratio);
+  }
+
+  .columnNoMedia,
+  .columnNoMedia.horizontal {
     height: auto;
     padding-bottom: 0;
   }
@@ -250,8 +307,12 @@
     padding-right: var(--side-margin);
   }
 
-  .quote .quoteText {
-    font-size: 28px;
+  .quoteText {
+    font-size: var(--font-l);
+  }
+
+  .quoteText :global(strong) {
+    font-size: var(--font-xl);
   }
 
   .banner + .richText {

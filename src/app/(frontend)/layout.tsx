@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { NewsletterPopup } from '@/components/NewsletterPopup/NewsletterPopup'
 import { SiteFooter } from '@/components/SiteFooter/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader/SiteHeader'
 import { getCachedGlobal } from '@/lib/cms'
@@ -35,6 +36,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <SiteHeader items={header} />
         <main>{children}</main>
         <SiteFooter credits={navigation.footerCredits} legal={footerLegal} primary={footerPrimary} />
+        <NewsletterPopup />
       </body>
     </html>
   )

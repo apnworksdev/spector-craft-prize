@@ -1,3 +1,10 @@
+import {
+  BoldFeature,
+  FixedToolbarFeature,
+  InlineToolbarFeature,
+  ParagraphFeature,
+  lexicalEditor,
+} from '@payloadcms/richtext-lexical'
 import type { Block } from 'payload'
 
 export const QuoteBlock: Block = {
@@ -10,15 +17,33 @@ export const QuoteBlock: Block = {
   fields: [
     {
       name: 'quote',
-      type: 'textarea',
+      type: 'richText',
       required: true,
+      editor: lexicalEditor({
+        features: () => [
+          ParagraphFeature(),
+          BoldFeature(),
+          InlineToolbarFeature(),
+          FixedToolbarFeature(),
+        ],
+      }),
+      admin: {
+        description: 'Bold a word to make it larger, like Craft / conversation in the homepage quote.',
+      },
     },
     {
       name: 'writer',
       type: 'text',
       required: true,
       admin: {
-        description: 'Attribution, e.g. the speaker or author.',
+        description: 'Name, e.g. Glenn Adamson.',
+      },
+    },
+    {
+      name: 'writerTitle',
+      type: 'text',
+      admin: {
+        description: 'Role or title under the name, e.g. Curator, author, and scholar.',
       },
     },
   ],

@@ -28,6 +28,14 @@ export const BannerBlock: Block = {
       },
     },
     vimeoUrlField(),
+    vimeoUrlField({
+      name: 'vimeoUrlMobile',
+      label: 'Vimeo URL (mobile)',
+      admin: {
+        description:
+          'Optional. Vertical version for small screens. Falls back to the main Vimeo URL if empty.',
+      },
+    }),
     mediaLinkField({
       admin: {
         description: 'Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.',

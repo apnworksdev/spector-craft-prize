@@ -14,6 +14,7 @@ import type {
   Term,
   MediaColumnsBlock,
   Navigation,
+  QuoteBlock,
   PrizeRecipient,
   RecipientTextBlock,
   RichTextBlock,
@@ -40,6 +41,7 @@ type LexicalRichText =
   | AboutPersonSubBlock['bio']
   | NonNullable<NonNullable<Summit['people']>[number]>['bio']
   | Navigation['footerCredits']
+  | QuoteBlock['quote']
 
 type CmsRichTextProps = {
   data?: LexicalRichText | null

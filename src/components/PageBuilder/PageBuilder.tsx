@@ -1,5 +1,6 @@
 import { CmsMedia } from '@/components/CmsMedia/CmsMedia'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import { BannerVisual } from '@/components/PageBuilder/BannerVisual'
 import { VimeoEmbed } from '@/components/VimeoEmbed/VimeoEmbed'
 import { hasLexicalText } from '@/lib/richText'
 import { vimeoVideoId } from '@/lib/vimeo'
@@ -37,31 +38,9 @@ export function PageBuilder({ layout }: PageBuilderProps) {
 }
 
 function BannerSection({ block }: { block: BannerBlock }) {
-  const vimeo = vimeoVideoId(block.vimeoUrl) ? block.vimeoUrl : null
-
   return (
     <section className={styles.banner}>
-      <div className={styles.bannerWrapper}>
-        {vimeo ? (
-          <VimeoEmbed className={styles.media} progress title={block.title ?? undefined} url={vimeo} />
-        ) : (
-          <CmsMedia
-            className={styles.media}
-            fallbackAlt={block.title ?? undefined}
-            href={block.link}
-            priority
-            size="hero"
-            sizes="100vw"
-            value={block.media}
-          />
-        )}
-        {block.title || block.subtitle ? (
-          <div className={styles.bannerCopy}>
-            {block.title ? <h1 className={styles.bannerTitle}>{block.title}</h1> : null}
-            {block.subtitle ? <p className={styles.bannerSubtitle}>{block.subtitle}</p> : null}
-          </div>
-        ) : null}
-      </div>
+      <BannerVisual block={block} />
     </section>
   )
 }
@@ -99,11 +78,12 @@ function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
             key={column.id}
           >
             {vimeo ? (
-              <div className={`${styles.columnMediaWrapper} ${styles[aspect]}`}>
+              <div
+                className={`${styles.columnMediaWrapper} ${styles[aspect]}${aspect === 'vertical' ? ` ${styles.columnMediaPortrait}` : ''}`}
+              >
                 <VimeoEmbed
                   className={styles.columnMedia}
                   compact={aspect === 'vertical'}
-                  progress={aspect === 'horizontal'}
                   url={vimeo}
                 />
               </div>
@@ -127,13 +107,20 @@ function MediaColumnsSection({ block }: { block: MediaColumnsBlock }) {
 }
 
 function QuoteSection({ block }: { block: QuoteBlock }) {
+  if (!hasLexicalText(block.quote)) {
+    return null
+  }
+
   return (
     <section className={styles.quote}>
       <figure>
-        <blockquote className={styles.quoteText}>
-          <p>&ldquo;{block.quote}&rdquo;</p>
+        <blockquote>
+          <CmsRichText className={styles.quoteText} data={block.quote} />
         </blockquote>
-        <figcaption className={styles.quoteWriter}>{block.writer}</figcaption>
+        <figcaption className={styles.quoteAttribution}>
+          <span className={styles.quoteWriter}>{block.writer}</span>
+          {block.writerTitle ? <span className={styles.quoteWriterTitle}>{block.writerTitle}</span> : null}
+        </figcaption>
       </figure>
     </section>
   )

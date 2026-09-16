@@ -1,11 +1,10 @@
 'use client'
 
-import { useSyncExternalStore } from 'react'
-
 import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
 import { VimeoEmbed } from '@/components/VimeoEmbed/VimeoEmbed'
 import { hasLexicalText } from '@/lib/richText'
+import { useIsMobile } from '@/lib/useIsMobile'
 import { vimeoVideoId } from '@/lib/vimeo'
 import type { PrizeRecipient, RecipientMediaBlock, RecipientTextBlock } from '@/payload-types'
 
@@ -16,24 +15,6 @@ type ArticleBlock = NonNullable<PrizeRecipient['article']>[number]
 type RecipientArticleProps = {
   article: NonNullable<PrizeRecipient['article']>
   name: string
-}
-
-function subscribeMobile(onStoreChange: () => void) {
-  const media = window.matchMedia('(max-width: 800px)')
-  media.addEventListener('change', onStoreChange)
-  return () => media.removeEventListener('change', onStoreChange)
-}
-
-function getMobileSnapshot() {
-  return window.matchMedia('(max-width: 800px)').matches
-}
-
-function getServerSnapshot() {
-  return false
-}
-
-function useIsMobile() {
-  return useSyncExternalStore(subscribeMobile, getMobileSnapshot, getServerSnapshot)
 }
 
 function isTextBlock(block: ArticleBlock): block is RecipientTextBlock {

@@ -275,6 +275,10 @@ export interface BannerBlock {
    */
   vimeoUrl?: string | null;
   /**
+   * Optional. Vertical version for small screens. Falls back to the main Vimeo URL if empty.
+   */
+  vimeoUrlMobile?: string | null;
+  /**
    * Optional. Makes an uploaded image open this URL. Ignored for Vimeo embeds.
    */
   link?: string | null;
@@ -366,11 +370,32 @@ export interface MediaColumnsBlock {
  * via the `definition` "QuoteBlock".
  */
 export interface QuoteBlock {
-  quote: string;
   /**
-   * Attribution, e.g. the speaker or author.
+   * Bold a word to make it larger, like Craft / conversation in the homepage quote.
+   */
+  quote: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Name, e.g. Glenn Adamson.
    */
   writer: string;
+  /**
+   * Role or title under the name, e.g. Curator, author, and scholar.
+   */
+  writerTitle?: string | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'quote';
@@ -710,6 +735,7 @@ export interface EditionsSelect<T extends boolean = true> {
 export interface BannerBlockSelect<T extends boolean = true> {
   media?: T;
   vimeoUrl?: T;
+  vimeoUrlMobile?: T;
   link?: T;
   title?: T;
   subtitle?: T;
@@ -751,6 +777,7 @@ export interface MediaColumnsBlockSelect<T extends boolean = true> {
 export interface QuoteBlockSelect<T extends boolean = true> {
   quote?: T;
   writer?: T;
+  writerTitle?: T;
   id?: T;
   blockName?: T;
 }
