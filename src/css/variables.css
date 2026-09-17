@@ -25,7 +25,7 @@
   --side-margin: 30px;
   --max-width-rich-text: 950px;
   --max-width-rich-text-wide: 66.666%;
-  --max-width-quote: 760px;
+  --max-width-quote: 950px;
 
   --font: 'Zeist', sans-serif;
   --font-serif: 'Romain 20', serif;
@@ -48,5 +48,6 @@
     --font-l: 18px;
     --font-xl: 24px;
     --font-xxl: 30px;
+    --max-width-quote: 620px;
   }
 }

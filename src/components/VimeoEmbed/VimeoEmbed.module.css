@@ -118,18 +118,18 @@
 }
 
 @media (max-width: 800px) {
-  .compact .controls {
+  .controls {
     padding: 8px;
     gap: 6px;
   }
 
-  .compact .buttons,
-  .compact .controlsEnd {
+  .buttons,
+  .controlsEnd {
     flex-wrap: nowrap;
     gap: 4px;
   }
 
-  .compact .control {
+  .control {
     min-width: 0;
     height: 28px;
     padding: 0 7px;
@@ -137,7 +137,7 @@
     letter-spacing: 0.04em;
   }
 
-  .compact .progress {
+  .progress {
     height: 3px;
   }
 }
