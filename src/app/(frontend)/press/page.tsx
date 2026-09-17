@@ -4,6 +4,8 @@ import { isSafeHttpUrl } from '@/lib/urls'
 
 import styles from './page.module.css'
 
+export const revalidate = 60
+
 export const metadata = {
   title: 'Press — Spector Craft Prize',
 }

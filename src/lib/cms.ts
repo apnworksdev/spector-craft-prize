@@ -3,6 +3,9 @@ import { unstable_cache } from 'next/cache'
 import { tagsForEdition, tagsForGlobal, tagsForRecipient, type GlobalSlug } from '@/lib/cache-tags'
 import { getPayloadClient } from '@/lib/payload'
 
+/** Fallback if on-demand revalidation misses; CMS saves still expire tags immediately. */
+export const CMS_CACHE_SECONDS = 60
+
 export function getCachedGlobal<T extends GlobalSlug>(slug: T, depth = 0) {
   return unstable_cache(
     async () => {
@@ -10,7 +13,7 @@ export function getCachedGlobal<T extends GlobalSlug>(slug: T, depth = 0) {
       return payload.findGlobal({ slug, depth })
     },
     ['cms', 'global', slug, String(depth)],
-    { tags: tagsForGlobal(slug) },
+    { revalidate: CMS_CACHE_SECONDS, tags: tagsForGlobal(slug) },
   )()
 }
 
@@ -32,7 +35,7 @@ export function getCachedEdition(year: number) {
       return result.docs[0] ?? null
     },
     ['cms', 'edition', String(year)],
-    { tags: tagsForEdition(year) },
+    { revalidate: CMS_CACHE_SECONDS, tags: tagsForEdition(year) },
   )()
 }
 
@@ -69,7 +72,7 @@ export function getCachedRecipient(year: number, recipientSlug: string) {
       return recipients.docs[0] ?? null
     },
     ['cms', 'recipient', String(year), recipientSlug],
-    { tags: tagsForRecipient(year, recipientSlug) },
+    { revalidate: CMS_CACHE_SECONDS, tags: tagsForRecipient(year, recipientSlug) },
   )()
 }
 

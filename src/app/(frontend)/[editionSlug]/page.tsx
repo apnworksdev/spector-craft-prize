@@ -6,6 +6,8 @@ import { editionPath, parseEditionSlug } from '@/lib/editions'
 
 import styles from './page.module.css'
 
+export const revalidate = 60
+
 type EditionPageProps = {
   params: Promise<{
     editionSlug: string

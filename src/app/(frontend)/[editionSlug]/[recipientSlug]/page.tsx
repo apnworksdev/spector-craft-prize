@@ -4,6 +4,8 @@ import { RecipientProfile } from '@/components/RecipientProfile/RecipientProfile
 import { getCachedRecipient, listRecipients } from '@/lib/cms'
 import { parseEditionSlug } from '@/lib/editions'
 
+export const revalidate = 60
+
 type RecipientPageProps = {
   params: Promise<{
     editionSlug: string

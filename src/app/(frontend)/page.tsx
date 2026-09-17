@@ -3,6 +3,8 @@ import { getCachedGlobal } from '@/lib/cms'
 
 import styles from './page.module.css'
 
+export const revalidate = 60
+
 export default async function HomePage() {
   const home = await getCachedGlobal('home', 2)
 

@@ -1,6 +1,8 @@
 import { ContentColumns } from '@/components/ContentColumns/ContentColumns'
 import { getCachedGlobal } from '@/lib/cms'
 
+export const revalidate = 60
+
 export const metadata = {
   title: 'Emerging Artists Prize — Spector Craft Prize',
 }

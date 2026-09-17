@@ -3,19 +3,63 @@ import type {
   CollectionAfterDeleteHook,
   GlobalAfterChangeHook,
   Payload,
+  PayloadRequest,
 } from 'payload'
 
-import { CMS_TAGS, tagsForEdition, tagsForGlobal, tagsForRecipient } from '@/lib/cache-tags'
+import {
+  CMS_TAGS,
+  pathsForEdition,
+  pathsForGlobal,
+  pathsForRecipient,
+  SITE_LAYOUT_PATHS,
+  tagsForEdition,
+  tagsForGlobal,
+  tagsForRecipient,
+  type RevalidateTarget,
+} from '@/lib/cache-tags'
 
-async function expireTags(tags: string[]) {
-  try {
-    const { revalidateTag } = await import('next/cache')
+async function commitOpenTransaction(req: PayloadRequest) {
+  const transactionID = await req.transactionID
 
-    for (const tag of tags) {
-      revalidateTag(tag, { expire: 0 })
+  if (!transactionID) {
+    return
+  }
+
+  await req.payload.db.commitTransaction(transactionID)
+  delete req.transactionID
+}
+
+async function expireCache(tags: string[], paths: RevalidateTarget[]) {
+  const { revalidatePath, revalidateTag } = await import('next/cache')
+
+  for (const tag of tags) {
+    revalidateTag(tag, { expire: 0 })
+  }
+
+  for (const target of paths) {
+    if (target.type) {
+      revalidatePath(target.path, target.type)
+    } else {
+      revalidatePath(target.path)
     }
-  } catch {
-    // Payload CLI (migrate, generate:types) has no Next.js cache.
+  }
+}
+
+async function persistThenRevalidate(req: PayloadRequest, tags: string[], paths: RevalidateTarget[]) {
+  try {
+    await commitOpenTransaction(req)
+  } catch (error) {
+    req.payload.logger.error({ err: error }, 'Failed to commit before CMS revalidation')
+  }
+
+  try {
+    await expireCache(tags, paths)
+    req.payload.logger.info(
+      { paths: paths.map((target) => target.path), tags },
+      'Revalidated CMS cache',
+    )
+  } catch (error) {
+    req.payload.logger.error({ err: error, paths, tags }, 'Failed to revalidate CMS cache')
   }
 }
 
@@ -38,51 +82,83 @@ async function yearFromEdition(payload: Payload, edition: unknown): Promise<numb
 }
 
 export function revalidateGlobal(slug: Parameters<typeof tagsForGlobal>[0]): GlobalAfterChangeHook {
-  return async () => {
-    await expireTags(tagsForGlobal(slug))
+  return async ({ req }) => {
+    await persistThenRevalidate(req, tagsForGlobal(slug), pathsForGlobal(slug))
   }
 }
 
-export const revalidateEdition: CollectionAfterChangeHook = async ({ doc }) => {
-  await expireTags(tagsForEdition(doc.year as number))
+export const revalidateEdition: CollectionAfterChangeHook = async ({ doc, req }) => {
+  const year = doc.year as number
+  await persistThenRevalidate(req, tagsForEdition(year), pathsForEdition(year))
 }
 
-export const revalidateDeletedEdition: CollectionAfterDeleteHook = async ({ doc }) => {
-  await expireTags(tagsForEdition(doc.year as number))
+export const revalidateDeletedEdition: CollectionAfterDeleteHook = async ({ doc, req }) => {
+  const year = doc.year as number
+  await persistThenRevalidate(req, tagsForEdition(year), pathsForEdition(year))
 }
 
-export const revalidateRecipient: CollectionAfterChangeHook = async ({ doc, req }) => {
-  const year = await yearFromEdition(req.payload, doc.edition)
-
-  if (!year || typeof doc.slug !== 'string') {
-    return
-  }
-
-  await expireTags(tagsForRecipient(year, doc.slug))
+export const revalidateRecipient: CollectionAfterChangeHook = async ({ doc, previousDoc, req }) => {
+  const [tags, paths] = await cacheForRecipient(req.payload, doc, previousDoc)
+  await persistThenRevalidate(req, tags, paths)
 }
 
 export const revalidateDeletedRecipient: CollectionAfterDeleteHook = async ({ doc, req }) => {
-  const year = await yearFromEdition(req.payload, doc.edition)
+  const [tags, paths] = await cacheForRecipient(req.payload, doc)
+  await persistThenRevalidate(req, tags, paths)
+}
 
-  if (!year || typeof doc.slug !== 'string') {
-    return
+export const revalidateMedia: CollectionAfterChangeHook = async ({ req }) => {
+  await persistThenRevalidate(req, [CMS_TAGS.media], SITE_LAYOUT_PATHS)
+}
+
+export const revalidateDeletedMedia: CollectionAfterDeleteHook = async ({ req }) => {
+  await persistThenRevalidate(req, [CMS_TAGS.media], SITE_LAYOUT_PATHS)
+}
+
+export const revalidateDocument: CollectionAfterChangeHook = async ({ req }) => {
+  await persistThenRevalidate(req, [CMS_TAGS.documents, CMS_TAGS.navigation], SITE_LAYOUT_PATHS)
+}
+
+export const revalidateDeletedDocument: CollectionAfterDeleteHook = async ({ req }) => {
+  await persistThenRevalidate(req, [CMS_TAGS.documents, CMS_TAGS.navigation], SITE_LAYOUT_PATHS)
+}
+
+async function cacheForRecipient(
+  payload: Payload,
+  doc: { edition?: unknown; slug?: unknown },
+  previousDoc?: { edition?: unknown; slug?: unknown },
+): Promise<[string[], RevalidateTarget[]]> {
+  const tags = new Set<string>()
+  const paths: RevalidateTarget[] = []
+
+  async function add(entry: { edition?: unknown; slug?: unknown } | undefined) {
+    if (!entry || typeof entry.slug !== 'string') {
+      return
+    }
+
+    const year = await yearFromEdition(payload, entry.edition)
+
+    if (!year) {
+      return
+    }
+
+    for (const tag of tagsForRecipient(year, entry.slug)) {
+      tags.add(tag)
+    }
+
+    paths.push(...pathsForRecipient(year, entry.slug))
   }
 
-  await expireTags(tagsForRecipient(year, doc.slug))
-}
+  await add(doc)
+  await add(previousDoc)
 
-export const revalidateMedia: CollectionAfterChangeHook = async () => {
-  await expireTags([CMS_TAGS.media])
-}
+  const uniquePaths = paths.filter((target, index) => {
+    const key = `${target.type ?? 'page'}:${target.path}`
+    return (
+      paths.findIndex((candidate) => `${candidate.type ?? 'page'}:${candidate.path}` === key) ===
+      index
+    )
+  })
 
-export const revalidateDeletedMedia: CollectionAfterDeleteHook = async () => {
-  await expireTags([CMS_TAGS.media])
-}
-
-export const revalidateDocument: CollectionAfterChangeHook = async () => {
-  await expireTags([CMS_TAGS.documents, CMS_TAGS.navigation])
-}
-
-export const revalidateDeletedDocument: CollectionAfterDeleteHook = async () => {
-  await expireTags([CMS_TAGS.documents, CMS_TAGS.navigation])
+  return [[...tags], uniquePaths]
 }

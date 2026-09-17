@@ -1,3 +1,5 @@
+import { editionPath, recipientPath } from '@/lib/editions'
+
 export const CMS_TAGS = {
   home: 'cms:home',
   about: 'cms:about',
@@ -51,4 +53,40 @@ export function tagsForEdition(year: number): string[] {
 
 export function tagsForRecipient(year: number, slug: string): string[] {
   return [CMS_TAGS.recipient(year, slug), CMS_TAGS.edition(year), CMS_TAGS.media]
+}
+
+export type RevalidateTarget = {
+  path: string
+  type?: 'page' | 'layout'
+}
+
+export const SITE_LAYOUT_PATHS: RevalidateTarget[] = [{ path: '/', type: 'layout' }]
+
+export function pathsForGlobal(slug: GlobalSlug): RevalidateTarget[] {
+  switch (slug) {
+    case 'home':
+      return [{ path: '/' }]
+    case 'about':
+      return [{ path: '/about' }]
+    case 'press':
+      return [{ path: '/press' }]
+    case 'emerging-artists-prize':
+      return [{ path: '/emerging-artists-prize' }]
+    case 'summit':
+      return [{ path: '/summit' }]
+    case 'terms':
+      return [{ path: '/terms' }]
+    case 'privacy':
+      return [{ path: '/privacy' }]
+    case 'navigation':
+      return SITE_LAYOUT_PATHS
+  }
+}
+
+export function pathsForEdition(year: number): RevalidateTarget[] {
+  return [{ path: editionPath(year) }]
+}
+
+export function pathsForRecipient(year: number, slug: string): RevalidateTarget[] {
+  return [{ path: recipientPath(year, slug) }, { path: editionPath(year) }]
 }

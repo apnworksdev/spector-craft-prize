@@ -4,6 +4,8 @@ import { getCachedGlobal } from '@/lib/cms'
 
 import styles from '../status.module.css'
 
+export const revalidate = 60
+
 export const metadata = {
   title: 'About — Spector Craft Prize',
 }

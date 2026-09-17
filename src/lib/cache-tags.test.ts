@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import {
   CMS_TAGS,
+  pathsForGlobal,
+  pathsForRecipient,
   tagsForEdition,
   tagsForGlobal,
   tagsForRecipient,
@@ -38,6 +40,31 @@ describe('tagsForRecipient', () => {
       CMS_TAGS.recipient(2026, 'ada-lovelace'),
       CMS_TAGS.edition(2026),
       CMS_TAGS.media,
+    ])
+  })
+})
+
+describe('pathsForGlobal', () => {
+  it('maps each singleton to its public URL', () => {
+    expect(pathsForGlobal('home')).toEqual([{ path: '/' }])
+    expect(pathsForGlobal('about')).toEqual([{ path: '/about' }])
+    expect(pathsForGlobal('press')).toEqual([{ path: '/press' }])
+    expect(pathsForGlobal('emerging-artists-prize')).toEqual([{ path: '/emerging-artists-prize' }])
+    expect(pathsForGlobal('summit')).toEqual([{ path: '/summit' }])
+    expect(pathsForGlobal('terms')).toEqual([{ path: '/terms' }])
+    expect(pathsForGlobal('privacy')).toEqual([{ path: '/privacy' }])
+  })
+
+  it('busts the whole site layout when navigation changes', () => {
+    expect(pathsForGlobal('navigation')).toEqual([{ path: '/', type: 'layout' }])
+  })
+})
+
+describe('pathsForRecipient', () => {
+  it('includes the recipient page and its edition index', () => {
+    expect(pathsForRecipient(2026, 'sharif-bey')).toEqual([
+      { path: '/2026-prize-recipients/sharif-bey' },
+      { path: '/2026-prize-recipients' },
     ])
   })
 })

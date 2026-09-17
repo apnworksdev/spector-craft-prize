@@ -15,6 +15,8 @@ import '@/css/variables.css'
 import '@/css/global.css'
 import '@/css/main.css'
 
+export const revalidate = 60
+
 export const metadata = {
   metadataBase: new URL(getServerURL()),
   description: 'Spector Craft Prize',
