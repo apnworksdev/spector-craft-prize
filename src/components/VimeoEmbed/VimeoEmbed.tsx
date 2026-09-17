@@ -1,7 +1,7 @@
 'use client'
 
 import type Player from '@vimeo/player'
-import { type KeyboardEvent, type PointerEvent, useEffect, useRef, useState } from 'react'
+import { type KeyboardEvent as ReactKeyboardEvent, type PointerEvent, useEffect, useRef, useState } from 'react'
 
 import { vimeoEmbedSrc, vimeoVideoRef } from '@/lib/vimeo'
 
@@ -556,7 +556,7 @@ export function VimeoEmbed({
     }
   }
 
-  const onProgressKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+  const onProgressKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (!ready || duration <= 0) {
       return
     }
