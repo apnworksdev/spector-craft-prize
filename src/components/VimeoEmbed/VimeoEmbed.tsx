@@ -1,7 +1,7 @@
 'use client'
 
 import type Player from '@vimeo/player'
-import { useEffect, useRef, useState } from 'react'
+import { type KeyboardEvent, type PointerEvent, useEffect, useRef, useState } from 'react'
 
 import { vimeoEmbedSrc, vimeoVideoRef } from '@/lib/vimeo'
 
@@ -74,6 +74,21 @@ function ignoreUnloadedPlayerRejections() {
   })
 }
 
+function isIOS() {
+  if (typeof navigator === 'undefined') {
+    return false
+  }
+
+  return /iPad|iPhone|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+}
+
+function setIframePointerEvents(container: HTMLElement | null, enabled: boolean) {
+  const iframe = container?.querySelector('iframe')
+  if (iframe) {
+    iframe.style.pointerEvents = enabled ? 'auto' : ''
+  }
+}
+
 function getFullscreenElement() {
   const doc = document as FullscreenDocument
   return document.fullscreenElement ?? doc.webkitFullscreenElement ?? null
@@ -129,6 +144,7 @@ export function VimeoEmbed({
   const playerRef = useRef<Player | null>(null)
   const overflowUnlocksRef = useRef<OverflowUnlock[]>([])
   const cssExpandedRef = useRef(false)
+  const draggingRef = useRef(false)
   const [ready, setReady] = useState(false)
   const [inView, setInView] = useState(false)
   const [playing, setPlaying] = useState(true)
@@ -189,6 +205,9 @@ export function VimeoEmbed({
     const onPause = () => setPlaying(false)
     const onVolumeChange = (data: { muted: boolean }) => setMuted(data.muted)
     const onTimeUpdate = (data: { seconds?: number; duration?: number }) => {
+      if (draggingRef.current) {
+        return
+      }
       if (typeof data.seconds === 'number') {
         setCurrentTime(data.seconds)
       }
@@ -235,6 +254,7 @@ export function VimeoEmbed({
         player.on('volumechange', onVolumeChange)
         player.on('fullscreenchange', (data: unknown) => {
           const on = isPlayerFullscreen(data)
+          setIframePointerEvents(container, on)
           if (on) {
             cssExpandedRef.current = false
             setCssExpanded(false)
@@ -432,6 +452,7 @@ export function VimeoEmbed({
     if (active) {
       await exitNativeFullscreen()
     }
+    setIframePointerEvents(containerRef.current, false)
     setCssExpanded(false)
     cssExpandedRef.current = false
     setExpanded(false)
@@ -440,6 +461,7 @@ export function VimeoEmbed({
   const toggleFullscreen = async () => {
     const shell = playerShellRef.current
     const player = playerRef.current
+    const container = containerRef.current
     if (!shell) {
       return
     }
@@ -449,8 +471,9 @@ export function VimeoEmbed({
       return
     }
 
-    if (player) {
+    if (isIOS() && player) {
       try {
+        setIframePointerEvents(container, true)
         await player.requestFullscreen()
         const isFs = await player.getFullscreen().catch(() => false)
         if (isFs) {
@@ -458,8 +481,9 @@ export function VimeoEmbed({
           return
         }
       } catch {
-        // iOS often rejects element fullscreen; try the CSS fallback.
+        // Fall through to the wrapper / CSS fullscreen.
       }
+      setIframePointerEvents(container, false)
     }
 
     try {
@@ -477,20 +501,79 @@ export function VimeoEmbed({
     setExpanded(true)
   }
 
-  const seek = async (clientX: number, target: HTMLElement) => {
+  const seekTo = async (seconds: number) => {
     const player = playerRef.current
     if (!player || !duration) {
       return
     }
 
-    const rect = target.getBoundingClientRect()
-    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
-    const seconds = ratio * duration
-    setCurrentTime(seconds)
+    const next = Math.min(duration, Math.max(0, seconds))
+    setCurrentTime(next)
     try {
-      await player.setCurrentTime(seconds)
+      await player.setCurrentTime(next)
     } catch {
       return
+    }
+  }
+
+  const seekFromClientX = (clientX: number, target: HTMLElement) => {
+    const rect = target.getBoundingClientRect()
+    if (!rect.width) {
+      return
+    }
+
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+    void seekTo(ratio * duration)
+  }
+
+  const onProgressPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!ready || duration <= 0) {
+      return
+    }
+
+    event.preventDefault()
+    draggingRef.current = true
+    event.currentTarget.setPointerCapture(event.pointerId)
+    seekFromClientX(event.clientX, event.currentTarget)
+  }
+
+  const onProgressPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) {
+      return
+    }
+
+    seekFromClientX(event.clientX, event.currentTarget)
+  }
+
+  const endDrag = (event: PointerEvent<HTMLDivElement>) => {
+    if (!draggingRef.current) {
+      return
+    }
+
+    draggingRef.current = false
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
+  const onProgressKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!ready || duration <= 0) {
+      return
+    }
+
+    const step = event.shiftKey ? 10 : 5
+    if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      void seekTo(currentTime + step)
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
+      event.preventDefault()
+      void seekTo(currentTime - step)
+    } else if (event.key === 'Home') {
+      event.preventDefault()
+      void seekTo(0)
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      void seekTo(duration)
     }
   }
 
@@ -505,19 +588,26 @@ export function VimeoEmbed({
       <div className={styles.frame} ref={containerRef} />
       <div className={styles.controls}>
         {progress ? (
-          <button
+          <div
+            aria-disabled={!ready || duration <= 0}
             aria-label="Seek"
             aria-valuemax={Math.round(duration)}
             aria-valuemin={0}
             aria-valuenow={Math.round(currentTime)}
             className={styles.progress}
-            disabled={!ready || duration <= 0}
-            onClick={(event) => void seek(event.clientX, event.currentTarget)}
+            onKeyDown={onProgressKeyDown}
+            onLostPointerCapture={endDrag}
+            onPointerCancel={endDrag}
+            onPointerDown={onProgressPointerDown}
+            onPointerMove={onProgressPointerMove}
+            onPointerUp={endDrag}
             role="slider"
-            type="button"
+            tabIndex={ready && duration > 0 ? 0 : -1}
           >
-            <span className={styles.progressFill} style={{ width: `${percent}%` }} />
-          </button>
+            <span className={styles.progressTrack}>
+              <span className={styles.progressFill} style={{ width: `${percent}%` }} />
+            </span>
+          </div>
         ) : null}
         <div className={styles.buttons}>
           <button

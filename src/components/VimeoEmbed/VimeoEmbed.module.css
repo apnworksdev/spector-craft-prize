@@ -42,20 +42,42 @@
   pointer-events: auto;
   position: relative;
   display: block;
-  overflow: hidden;
   width: 100%;
-  height: 4px;
+  height: 18px;
   padding: 0;
   border: 0;
-  background: rgb(255 255 255 / 35%);
+  background: transparent;
   cursor: pointer;
+  touch-action: none;
+}
+
+.progress[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: wait;
+  pointer-events: none;
+}
+
+.progressTrack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 4px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 35%);
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .progressFill {
   display: block;
   height: 100%;
   background: var(--white);
-  pointer-events: none;
+}
+
+.progress:hover .progressTrack,
+.progress:focus-visible .progressTrack {
+  height: 6px;
 }
 
 .buttons {
@@ -75,14 +97,22 @@
 .player:fullscreen,
 .player:-webkit-full-screen,
 .expanded {
-  position: fixed;
-  inset: 0;
+  position: fixed !important;
+  inset: 0 !important;
   z-index: 400;
-  width: 100vw;
-  height: 100dvh;
-  max-height: 100dvh;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: 100dvh !important;
   background: #000;
   overflow: hidden;
+}
+
+.player:fullscreen .controls,
+.player:-webkit-full-screen .controls,
+.expanded .controls {
+  z-index: 5;
+  padding: 16px 20px 20px;
 }
 
 .control {
@@ -111,8 +141,7 @@
   outline: none;
 }
 
-.control:disabled,
-.progress:disabled {
+.control:disabled {
   opacity: 0.5;
   cursor: wait;
 }
@@ -137,7 +166,7 @@
     letter-spacing: 0.04em;
   }
 
-  .progress {
+  .progressTrack {
     height: 3px;
   }
 }
