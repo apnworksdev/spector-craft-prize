@@ -30,6 +30,8 @@ export function NewsletterForm({
     const email = String(new FormData(form).get('EMAIL') || '').trim()
 
     if (!email) {
+      setStatus('error')
+      setMessage('Please enter a valid email address.')
       return
     }
 

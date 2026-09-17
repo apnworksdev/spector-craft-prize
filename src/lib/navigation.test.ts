@@ -22,6 +22,15 @@ describe('normalizeNavLinks', () => {
     ).toEqual([{ label: 'About', url: '/about', openInNewTab: true }])
   })
 
+  it('drops unsafe CMS urls', () => {
+    expect(
+      normalizeNavLinks(
+        [{ label: 'Hack', url: 'javascript:alert(1)' }],
+        DEFAULT_HEADER_NAV,
+      ),
+    ).toEqual(DEFAULT_HEADER_NAV)
+  })
+
   it('prefers an uploaded PDF file over the URL', () => {
     expect(
       normalizeNavLinks(

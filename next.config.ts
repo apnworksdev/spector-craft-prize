@@ -12,6 +12,9 @@ function r2RemotePatterns(): Array<{
   pathname: string
 }> {
   const value = process.env.R2_PUBLIC_URL
+  if (process.env.R2_BUCKET && !value) {
+    throw new Error('R2_PUBLIC_URL must be set when R2_BUCKET is configured so next/image can load CMS media')
+  }
   if (!value) return []
 
   try {
@@ -29,6 +32,24 @@ function r2RemotePatterns(): Array<{
 }
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
+        ],
+      },
+    ]
+  },
   images: {
     localPatterns: [
       {

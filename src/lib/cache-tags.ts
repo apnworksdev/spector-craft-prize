@@ -27,13 +27,13 @@ export type GlobalSlug =
 export function tagsForGlobal(slug: GlobalSlug): string[] {
   switch (slug) {
     case 'home':
-      return [CMS_TAGS.home]
+      return [CMS_TAGS.home, CMS_TAGS.media]
     case 'about':
-      return [CMS_TAGS.about]
+      return [CMS_TAGS.about, CMS_TAGS.media]
     case 'press':
       return [CMS_TAGS.press, CMS_TAGS.media]
     case 'emerging-artists-prize':
-      return [CMS_TAGS.emergingArtistsPrize]
+      return [CMS_TAGS.emergingArtistsPrize, CMS_TAGS.media]
     case 'summit':
       return [CMS_TAGS.summit, CMS_TAGS.media]
     case 'terms':
@@ -46,7 +46,7 @@ export function tagsForGlobal(slug: GlobalSlug): string[] {
 }
 
 export function tagsForEdition(year: number): string[] {
-  return [CMS_TAGS.edition(year), CMS_TAGS.editions]
+  return [CMS_TAGS.edition(year), CMS_TAGS.editions, CMS_TAGS.media]
 }
 
 export function tagsForRecipient(year: number, slug: string): string[] {

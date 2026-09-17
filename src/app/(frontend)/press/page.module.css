@@ -2,6 +2,10 @@
   padding: 0 0 140px;
 }
 
+.empty {
+  padding: 80px var(--side-margin) 0;
+}
+
 .list {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

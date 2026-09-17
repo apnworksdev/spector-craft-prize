@@ -1,6 +1,6 @@
 'use client'
 
-import Player from '@vimeo/player'
+import type Player from '@vimeo/player'
 import { useEffect, useRef, useState } from 'react'
 
 import { vimeoEmbedSrc, vimeoVideoRef } from '@/lib/vimeo'
@@ -130,6 +130,7 @@ export function VimeoEmbed({
   const overflowUnlocksRef = useRef<OverflowUnlock[]>([])
   const cssExpandedRef = useRef(false)
   const [ready, setReady] = useState(false)
+  const [inView, setInView] = useState(false)
   const [playing, setPlaying] = useState(true)
   const [muted, setMuted] = useState(true)
   const [expanded, setExpanded] = useState(false)
@@ -138,9 +139,33 @@ export function VimeoEmbed({
   const [currentTime, setCurrentTime] = useState(0)
 
   useEffect(() => {
+    const shell = playerShellRef.current
+    if (!shell) {
+      return
+    }
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setInView(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setInView(true)
+        }
+      },
+      { rootMargin: '200px 0px', threshold: 0.01 },
+    )
+
+    observer.observe(shell)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
     const container = containerRef.current
     const src = vimeoEmbedSrc(url)
-    if (!container || !video || !src) {
+    if (!inView || !container || !video || !src) {
       return
     }
 
@@ -158,11 +183,7 @@ export function VimeoEmbed({
     iframe.setAttribute('playsinline', 'true')
     container.appendChild(iframe)
 
-    const player = new Player(iframe)
-    playerRef.current = player
-    setReady(false)
-    setDuration(0)
-    setCurrentTime(0)
+    let player: Player | null = null
 
     const onPlay = () => setPlaying(true)
     const onPause = () => setPlaying(false)
@@ -184,14 +205,27 @@ export function VimeoEmbed({
 
       tornDown = true
       playerRef.current = null
-      void player.destroy().catch(() => undefined)
+      if (player) {
+        void player.destroy().catch(() => undefined)
+      }
       iframe.remove()
     }
 
-    void player
-      .ready()
-      .then(async () => {
+    void import('@vimeo/player')
+      .then(({ default: Player }) => {
         if (cancelled) {
+          safeDestroy()
+          return
+        }
+
+        player = new Player(iframe)
+        playerRef.current = player
+        setReady(false)
+        setDuration(0)
+        setCurrentTime(0)
+
+        return player.ready().then(async () => {
+        if (cancelled || !player) {
           safeDestroy()
           return
         }
@@ -233,10 +267,16 @@ export function VimeoEmbed({
             setCurrentTime(seconds)
           }
 
+          const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
           try {
-            await player.play()
-            if (!cancelled) {
-              setPlaying(true)
+            if (reduceMotion) {
+              setPlaying(false)
+            } else {
+              await player.play()
+              if (!cancelled) {
+                setPlaying(true)
+              }
             }
           } catch {
             if (!cancelled) {
@@ -256,6 +296,7 @@ export function VimeoEmbed({
 
           setReady(false)
         }
+        })
       })
       .catch(() => {
         if (cancelled) {
@@ -270,7 +311,7 @@ export function VimeoEmbed({
       cancelled = true
       safeDestroy()
     }
-  }, [progress, title, url, video?.hash, video?.id])
+  }, [inView, progress, title, url, video?.hash, video?.id])
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -331,45 +372,6 @@ export function VimeoEmbed({
       document.removeEventListener('keydown', onKey)
     }
   }, [expanded])
-
-  useEffect(() => {
-    if (!ready) {
-      return
-    }
-
-    const sync = () => {
-      const player = playerRef.current
-      if (!player) {
-        return
-      }
-
-      void player
-        .getPaused()
-        .then((isPaused) => {
-          if (playerRef.current === player) {
-            setPlaying(!isPaused)
-          }
-        })
-        .catch(() => undefined)
-
-      if (!progress) {
-        return
-      }
-
-      void player
-        .getCurrentTime()
-        .then((seconds) => {
-          if (playerRef.current === player) {
-            setCurrentTime(seconds)
-          }
-        })
-        .catch(() => undefined)
-    }
-
-    sync()
-    const timer = window.setInterval(sync, 250)
-    return () => window.clearInterval(timer)
-  }, [progress, ready])
 
   if (!video) {
     return null

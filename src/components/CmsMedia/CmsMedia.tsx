@@ -1,6 +1,7 @@
 import styles from './CmsMedia.module.css'
 import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { isVideo, mediaAlt, mediaSrc, type MediaSizeName } from '@/lib/media'
+import { safeHref } from '@/lib/urls'
 import type { Media } from '@/payload-types'
 
 type CmsMediaProps = {
@@ -44,8 +45,13 @@ export function CmsMedia({
       return video
     }
 
+    const safe = safeHref(href, '')
+    if (!safe) {
+      return video
+    }
+
     return (
-      <a className={`${styles.link}${className ? ` ${className}` : ''}`} href={href}>
+      <a className={`${styles.link}${className ? ` ${className}` : ''}`} href={safe}>
         {video}
       </a>
     )

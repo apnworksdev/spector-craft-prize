@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 import { CmsMedia } from '@/components/CmsMedia/CmsMedia'
 import { VimeoEmbed } from '@/components/VimeoEmbed/VimeoEmbed'
 import { useIsMobile } from '@/lib/useIsMobile'
@@ -12,11 +14,19 @@ export function BannerVisual({ block }: { block: BannerBlock }) {
   const isMobile = useIsMobile()
   const mobileUrl = vimeoVideoId(block.vimeoUrlMobile) ? block.vimeoUrlMobile : null
   const desktopUrl = vimeoVideoId(block.vimeoUrl) ? block.vimeoUrl : null
-  const useMobileVideo = Boolean(isMobile && mobileUrl)
-  const vimeo = useMobileVideo ? mobileUrl : desktopUrl
+  const hasMobileVideo = Boolean(mobileUrl)
+  const hasBothVideos = Boolean(mobileUrl && desktopUrl)
+  const [canSelectVideo, setCanSelectVideo] = useState(!hasBothVideos)
+
+  useEffect(() => {
+    setCanSelectVideo(true)
+  }, [])
+
+  const useMobileVideo = Boolean(canSelectVideo && isMobile && mobileUrl)
+  const vimeo = canSelectVideo ? (useMobileVideo ? mobileUrl : desktopUrl) : null
 
   return (
-    <div className={`${styles.bannerWrapper}${useMobileVideo ? ` ${styles.bannerPortrait}` : ''}`}>
+    <div className={`${styles.bannerWrapper}${hasMobileVideo ? ` ${styles.bannerHasMobile}` : ''}`}>
       {vimeo ? (
         <VimeoEmbed
           className={styles.media}
@@ -24,7 +34,7 @@ export function BannerVisual({ block }: { block: BannerBlock }) {
           title={block.title ?? undefined}
           url={vimeo}
         />
-      ) : (
+      ) : canSelectVideo ? (
         <CmsMedia
           className={styles.media}
           fallbackAlt={block.title ?? undefined}
@@ -34,7 +44,7 @@ export function BannerVisual({ block }: { block: BannerBlock }) {
           sizes="100vw"
           value={block.media}
         />
-      )}
+      ) : null}
       {block.title || block.subtitle ? (
         <div className={styles.bannerCopy}>
           {block.title ? <h1 className={styles.bannerTitle}>{block.title}</h1> : null}

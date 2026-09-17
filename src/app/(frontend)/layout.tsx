@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { NewsletterPopup } from '@/components/NewsletterPopup/NewsletterPopup'
 import { SiteFooter } from '@/components/SiteFooter/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader/SiteHeader'
+import { getServerURL } from '@/lib/env'
 import { getCachedGlobal } from '@/lib/cms'
 import {
   DEFAULT_FOOTER_LEGAL_NAV,
@@ -15,8 +16,14 @@ import '@/css/global.css'
 import '@/css/main.css'
 
 export const metadata = {
+  metadataBase: new URL(getServerURL()),
   description: 'Spector Craft Prize',
   title: 'Spector Craft Prize',
+  openGraph: {
+    type: 'website',
+    siteName: 'Spector Craft Prize',
+    locale: 'en_US',
+  },
 }
 
 export const viewport = {

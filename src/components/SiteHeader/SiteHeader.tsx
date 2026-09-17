@@ -25,7 +25,6 @@ export function SiteHeader({ items }: SiteHeaderProps) {
             alt="Spector Craft Prize logo"
             width={1024}
             height={143}
-            priority
             className={styles.logo}
           />
         </Link>

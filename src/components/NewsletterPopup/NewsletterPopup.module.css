@@ -8,6 +8,11 @@
   border: 0.5px solid var(--fg-color);
 }
 
+.dialog:focus,
+.dialog:focus-visible {
+  outline: none;
+}
+
 .close {
   position: absolute;
   top: 8px;

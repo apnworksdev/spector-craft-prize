@@ -25,6 +25,11 @@ import { r2Storage } from './storage/r2'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const serverURL = getServerURL()
+const payloadSecret = process.env.PAYLOAD_SECRET?.trim()
+
+if (!payloadSecret) {
+  throw new Error('PAYLOAD_SECRET is required')
+}
 
 export default buildConfig({
   admin: {
@@ -48,7 +53,7 @@ export default buildConfig({
       FixedToolbarFeature(),
     ],
   }),
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: payloadSecret,
   serverURL,
   cors: [serverURL],
   csrf: [serverURL],

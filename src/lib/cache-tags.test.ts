@@ -9,9 +9,12 @@ import {
 
 describe('tagsForGlobal', () => {
   it('returns a dedicated tag for each singleton page', () => {
-    expect(tagsForGlobal('home')).toEqual([CMS_TAGS.home])
-    expect(tagsForGlobal('about')).toEqual([CMS_TAGS.about])
-    expect(tagsForGlobal('emerging-artists-prize')).toEqual([CMS_TAGS.emergingArtistsPrize])
+    expect(tagsForGlobal('home')).toEqual([CMS_TAGS.home, CMS_TAGS.media])
+    expect(tagsForGlobal('about')).toEqual([CMS_TAGS.about, CMS_TAGS.media])
+    expect(tagsForGlobal('emerging-artists-prize')).toEqual([
+      CMS_TAGS.emergingArtistsPrize,
+      CMS_TAGS.media,
+    ])
     expect(tagsForGlobal('summit')).toEqual([CMS_TAGS.summit, CMS_TAGS.media])
     expect(tagsForGlobal('terms')).toEqual([CMS_TAGS.terms])
     expect(tagsForGlobal('privacy')).toEqual([CMS_TAGS.privacy])
@@ -25,7 +28,7 @@ describe('tagsForGlobal', () => {
 
 describe('tagsForEdition', () => {
   it('tags the year page and the editions list', () => {
-    expect(tagsForEdition(2026)).toEqual([CMS_TAGS.edition(2026), CMS_TAGS.editions])
+    expect(tagsForEdition(2026)).toEqual([CMS_TAGS.edition(2026), CMS_TAGS.editions, CMS_TAGS.media])
   })
 })
 

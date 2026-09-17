@@ -1,4 +1,5 @@
 import { editionPath, recipientPath } from '@/lib/editions'
+import { safeHref } from '@/lib/urls'
 
 type InternalLinkDoc = {
   relationTo?: string
@@ -17,7 +18,7 @@ export function internalDocToHref({ linkNode }: { linkNode: LinkNodeLike }): str
   const value = doc?.value
 
   if (!doc?.relationTo || !value || typeof value !== 'object') {
-    return linkNode.fields?.url || '#'
+    return safeHref(linkNode.fields?.url)
   }
 
   if (doc.relationTo === 'editions' && 'year' in value && typeof value.year === 'number') {
@@ -37,7 +38,7 @@ export function internalDocToHref({ linkNode }: { linkNode: LinkNodeLike }): str
   }
 
   if (doc.relationTo === 'media' && 'url' in value && typeof value.url === 'string' && value.url) {
-    return value.url
+    return safeHref(value.url)
   }
 
   return '#'

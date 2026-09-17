@@ -1,3 +1,5 @@
+import { safeHref } from '@/lib/urls'
+
 export type NavLinkItem = {
   label: string
   url: string
@@ -37,11 +39,13 @@ export function isExternalNavUrl(url: string): boolean {
 
 function resolveNavUrl(item: NonNullable<NavLinkInput>): string | null {
   if (item.file && typeof item.file === 'object' && item.file.url) {
-    return item.file.url
+    const url = safeHref(item.file.url, '')
+    return url || null
   }
 
   if (item.url?.trim()) {
-    return item.url.trim()
+    const url = safeHref(item.url, '')
+    return url || null
   }
 
   return null

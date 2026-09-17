@@ -40,4 +40,14 @@ describe('internalDocToHref', () => {
       }),
     ).toBe('https://example.com')
   })
+
+  it('rejects unsafe custom URLs', () => {
+    expect(
+      internalDocToHref({
+        linkNode: {
+          fields: { url: 'javascript:alert(1)' },
+        },
+      }),
+    ).toBe('#')
+  })
 })

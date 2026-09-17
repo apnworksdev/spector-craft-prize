@@ -1,5 +1,6 @@
 import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
+import { safeHref } from '@/lib/urls'
 import type { Media } from '@/payload-types'
 
 import styles from './PersonCard.module.css'
@@ -28,7 +29,8 @@ export function PersonCard({
           <CmsImage
             className={styles.personImage}
             fallbackAlt={name}
-            href={layout === 'stacked' ? link : null}
+            href={layout === 'stacked' ? safeHref(link, '') || null : null}
+            size="card"
             sizes="185px"
             value={image}
           />

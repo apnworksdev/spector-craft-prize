@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 import { publicRead } from '@/access/publicRead'
 import { revalidateGlobal } from '@/hooks/revalidate'
+import { isSafeHttpUrl } from '@/lib/urls'
 
 export const Press: GlobalConfig = {
   slug: 'press',
@@ -60,6 +61,13 @@ export const Press: GlobalConfig = {
           required: true,
           admin: {
             description: 'External article URL. The whole item links here.',
+          },
+          validate: (value: unknown) => {
+            if (!value) {
+              return 'Required'
+            }
+
+            return isSafeHttpUrl(String(value)) || 'Enter a full http(s) URL.'
           },
         },
       ],

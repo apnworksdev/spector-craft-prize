@@ -17,6 +17,13 @@
   padding-bottom: 0;
 }
 
+@media (max-width: 800px) {
+  .bannerHasMobile {
+    height: min(100dvh, calc(100vw * 16 / 9));
+    padding-bottom: 0;
+  }
+}
+
 .banner .media {
   position: absolute;
   top: 0;

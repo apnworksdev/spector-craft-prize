@@ -1,5 +1,6 @@
 import { CmsImage } from '@/components/CmsImage/CmsImage'
 import { getCachedGlobal } from '@/lib/cms'
+import { isSafeHttpUrl } from '@/lib/urls'
 
 import styles from './page.module.css'
 
@@ -23,18 +24,15 @@ export default async function PressPage() {
       <h1 className="sr-only">Press</h1>
       {press.items?.length ? (
         <ul className={styles.list}>
-          {press.items.map((item) => (
-            <li className={styles.item} key={item.id}>
-              <a
-                className={styles.link}
-                href={item.url}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
+          {press.items.map((item) => {
+            const href = isSafeHttpUrl(item.url) ? item.url : undefined
+            const body = (
+              <>
                 <div className={styles.media}>
                   <CmsImage
                     className={styles.image}
                     fallbackAlt={item.title}
+                    size="card"
                     sizes="(max-width: 800px) 50vw, 20vw"
                     value={item.image}
                   />
@@ -44,11 +42,25 @@ export default async function PressPage() {
                   {item.subtitle ? <p className={styles.source}>{item.subtitle}</p> : null}
                   <p className={styles.date}>{formatDate(item.date)}</p>
                 </div>
-              </a>
-            </li>
-          ))}
+              </>
+            )
+
+            return (
+              <li className={styles.item} key={item.id}>
+                {href ? (
+                  <a className={styles.link} href={href} rel="noopener noreferrer" target="_blank">
+                    {body}
+                  </a>
+                ) : (
+                  <div className={styles.link}>{body}</div>
+                )}
+              </li>
+            )
+          })}
         </ul>
-      ) : null}
+      ) : (
+        <p className={styles.empty}>Press coverage will be published shortly.</p>
+      )}
     </article>
   )
 }

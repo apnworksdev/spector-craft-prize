@@ -2,6 +2,7 @@ import type { Field, GlobalConfig } from 'payload'
 
 import { publicRead } from '@/access/publicRead'
 import { revalidateGlobal } from '@/hooks/revalidate'
+import { isSafeHref } from '@/lib/urls'
 
 const navLinkFields: Field[] = [
   {
@@ -20,6 +21,9 @@ const navLinkFields: Field[] = [
       const data = siblingData as { file?: unknown }
       if (!value && !data?.file) {
         return 'Add a URL or upload a PDF'
+      }
+      if (value && !isSafeHref(String(value))) {
+        return 'Use a site path or an http(s), mailto, or tel link.'
       }
       return true
     },

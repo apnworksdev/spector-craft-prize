@@ -2,6 +2,7 @@ import Image from 'next/image'
 
 import styles from '@/components/CmsMedia/CmsMedia.module.css'
 import { mediaAlt, mediaImage, type MediaSizeName } from '@/lib/media'
+import { safeHref } from '@/lib/urls'
 import type { Media } from '@/payload-types'
 
 type CmsImageProps = {
@@ -45,8 +46,13 @@ export function CmsImage({
     return img
   }
 
+  const safe = safeHref(href, '')
+  if (!safe) {
+    return img
+  }
+
   return (
-    <a className={`${styles.link}${className ? ` ${className}` : ''}`} href={href}>
+    <a className={`${styles.link}${className ? ` ${className}` : ''}`} href={safe}>
       {img}
     </a>
   )
