@@ -5,6 +5,7 @@ import { useRef, useState } from 'react'
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
 import { PersonCard } from '@/components/PersonCard/PersonCard'
 import columns from '@/components/ContentColumns/ContentColumns.module.css'
+import { hasLexicalText } from '@/lib/richText'
 import type { About, AboutPersonSubBlock, AboutTextSubBlock } from '@/payload-types'
 
 import styles from './AboutSections.module.css'
@@ -120,21 +121,43 @@ export function AboutSections({ groups }: AboutSectionsProps) {
 
       <div className={styles.panel} ref={panelRef}>
         <CmsRichText data={active.content} className={columns.richText} />
-        {active.subBlocks.length ? (
-          <div className={styles.subBlocks}>
-            {active.subBlocks.map((subBlock) => {
-              switch (subBlock.blockType) {
-                case 'text':
-                  return <TextSubBlock block={subBlock} key={subBlock.id} />
-                case 'person':
-                  return <PersonSubBlock block={subBlock} key={subBlock.id} />
-                default:
-                  return null
-              }
-            })}
-          </div>
-        ) : null}
+        {active.subBlocks.length ? <SubBlocks subBlocks={active.subBlocks} /> : null}
       </div>
+    </div>
+  )
+}
+
+function usesHeadshotGrid(subBlocks: AboutSubBlock[]) {
+  return subBlocks.some((block) => block.blockType === 'person' && !hasLexicalText(block.bio))
+}
+
+function SubBlocks({ subBlocks }: { subBlocks: AboutSubBlock[] }) {
+  const headshotGrid = usesHeadshotGrid(subBlocks)
+
+  return (
+    <div className={headshotGrid ? styles.peopleGrid : styles.subBlocks}>
+      {subBlocks.map((subBlock) => {
+        switch (subBlock.blockType) {
+          case 'text':
+            return headshotGrid ? (
+              <div className={styles.span} key={subBlock.id}>
+                <TextSubBlock block={subBlock} />
+              </div>
+            ) : (
+              <TextSubBlock block={subBlock} key={subBlock.id} />
+            )
+          case 'person':
+            return (
+              <PersonSubBlock
+                block={subBlock}
+                key={subBlock.id}
+                span={headshotGrid && hasLexicalText(subBlock.bio)}
+              />
+            )
+          default:
+            return null
+        }
+      })}
     </div>
   )
 }
@@ -143,15 +166,22 @@ function TextSubBlock({ block }: { block: AboutTextSubBlock }) {
   return <CmsRichText data={block.content} className={columns.richText} />
 }
 
-function PersonSubBlock({ block }: { block: AboutPersonSubBlock }) {
-  return (
+function PersonSubBlock({ block, span }: { block: AboutPersonSubBlock; span?: boolean }) {
+  const hasBio = hasLexicalText(block.bio)
+  const card = (
     <PersonCard
       bio={block.bio}
       image={block.image}
-      layout={block.layout || 'inline'}
+      layout={hasBio ? block.layout || 'inline' : 'grid'}
       link={block.link}
       name={block.name}
       title={block.title}
     />
   )
+
+  if (!span) {
+    return card
+  }
+
+  return <div className={styles.span}>{card}</div>
 }

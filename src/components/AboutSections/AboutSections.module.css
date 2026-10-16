@@ -58,6 +58,17 @@
   gap: 38px;
 }
 
+.peopleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 36px 16px;
+}
+
+.span {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
 @media (max-width: 800px) {
   .nav {
     gap: 20px;
@@ -77,5 +88,15 @@
 
   .subBlocks {
     gap: 28px;
+  }
+
+  .peopleGrid {
+    gap: 28px 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .peopleGrid {
+    grid-template-columns: 1fr 1fr;
   }
 }

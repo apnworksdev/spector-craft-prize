@@ -38,7 +38,8 @@ const AboutPersonSubBlock: Block = {
         { label: 'Stacked — image above text', value: 'stacked' },
       ],
       admin: {
-        description: 'Inline for Advisory Board / Jury; stacked for Foundation profiles.',
+        description:
+          'Stacked for Foundation profiles. Leave the bio empty for a headshot in the three-across grid (two across on small screens). A bio takes the full row.',
       },
     },
     {

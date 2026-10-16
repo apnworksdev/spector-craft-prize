@@ -57,15 +57,20 @@
   text-transform: none;
 }
 
-.people {
-  display: flex;
-  flex-direction: column;
-  gap: 38px;
+.peopleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 36px 16px;
   margin-top: 48px;
 }
 
-.people:first-child {
+.peopleGrid:first-child {
   margin-top: 0;
+}
+
+.personSpan {
+  grid-column: 1 / -1;
+  min-width: 0;
 }
 
 @media (max-width: 1120px) {
@@ -112,9 +117,15 @@
     max-width: none;
   }
 
-  .people {
-    gap: 28px;
+  .peopleGrid {
+    gap: 28px 12px;
     margin-top: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .peopleGrid {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
