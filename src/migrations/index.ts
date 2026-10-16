@@ -12,6 +12,7 @@ import * as migration_20260915_103000_summit_people from './20260915_103000_summ
 import * as migration_20260915_170800_footer_credits from './20260915_170800_footer_credits';
 import * as migration_20260916_141800_banner_vimeo_mobile from './20260916_141800_banner_vimeo_mobile';
 import * as migration_20260916_173400_quote_richtext from './20260916_173400_quote_richtext';
+import * as migration_20261016_110000_press_intro from './20261016_110000_press_intro';
 
 export const migrations = [
   {
@@ -83,5 +84,10 @@ export const migrations = [
     up: migration_20260916_173400_quote_richtext.up,
     down: migration_20260916_173400_quote_richtext.down,
     name: '20260916_173400_quote_richtext',
+  },
+  {
+    up: migration_20261016_110000_press_intro.up,
+    down: migration_20261016_110000_press_intro.down,
+    name: '20261016_110000_press_intro',
   },
 ]

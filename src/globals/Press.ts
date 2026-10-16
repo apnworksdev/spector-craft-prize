@@ -15,6 +15,30 @@ export const Press: GlobalConfig = {
   },
   fields: [
     {
+      name: 'inquiryEmail',
+      type: 'email',
+      defaultValue: 'spectorcraftprize@dadagoldberg.com',
+      admin: {
+        description: 'Shown at the top of the Press page. Leave empty to use the default address.',
+      },
+    },
+    {
+      name: 'pressReleaseLabel',
+      type: 'text',
+      defaultValue: 'Spector Craft Prize Press Release',
+      admin: {
+        description: 'Link text for the press release PDF.',
+      },
+    },
+    {
+      name: 'pressRelease',
+      type: 'upload',
+      relationTo: 'documents',
+      admin: {
+        description: 'Optional PDF. The label above links here.',
+      },
+    },
+    {
       name: 'items',
       type: 'array',
       labels: {

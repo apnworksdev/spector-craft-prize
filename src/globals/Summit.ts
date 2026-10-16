@@ -37,7 +37,8 @@ export const Summit: GlobalConfig = {
         plural: 'People',
       },
       admin: {
-        description: 'Optional. Headshots and bios shown in the right-hand column.',
+        description:
+          'Optional. Shown in the right-hand column. People without a bio sit in a three-across grid (two across on small screens), with the name and title underneath. A person with a bio takes the full row.',
       },
       fields: [
         {

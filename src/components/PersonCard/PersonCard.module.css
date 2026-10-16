@@ -53,6 +53,31 @@
   margin-top: 62px;
 }
 
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: none;
+  min-width: 0;
+}
+
+.grid .personMedia {
+  width: 100%;
+  padding-bottom: var(--vertical-aspect-ratio);
+}
+
+.grid .personName {
+  font-family: var(--font-serif);
+  font-size: var(--font-l);
+  line-height: 1.15;
+}
+
+.grid .personTitle {
+  margin-top: 4px;
+  font-size: var(--font-size);
+  line-height: 1.3;
+}
+
 @media (max-width: 800px) {
   .person {
     max-width: none;
@@ -71,6 +96,10 @@
 
   .stacked + .stacked {
     margin-top: 40px;
+  }
+
+  .grid .personName {
+    font-size: var(--font-size);
   }
 
   .personBio {

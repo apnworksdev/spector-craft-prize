@@ -973,7 +973,7 @@ export interface AboutTextSubBlock {
  */
 export interface AboutPersonSubBlock {
   /**
-   * Inline for Advisory Board / Jury; stacked for Foundation profiles.
+   * Stacked for Foundation profiles. Leave the bio empty for a headshot in the three-across grid (two across on small screens). A bio takes the full row.
    */
   layout: 'inline' | 'stacked';
   image?: (number | null) | Media;
@@ -1011,6 +1011,18 @@ export interface AboutPersonSubBlock {
  */
 export interface Press {
   id: number;
+  /**
+   * Shown at the top of the Press page. Leave empty to use the default address.
+   */
+  inquiryEmail?: string | null;
+  /**
+   * Link text for the press release PDF.
+   */
+  pressReleaseLabel?: string | null;
+  /**
+   * Optional PDF. The label above links here.
+   */
+  pressRelease?: (number | null) | Document;
   items?:
     | {
         image: number | Media;
@@ -1118,7 +1130,7 @@ export interface Summit {
     [k: string]: unknown;
   } | null;
   /**
-   * Optional. Headshots and bios shown in the right-hand column.
+   * Optional. Shown in the right-hand column. People without a bio sit in a three-across grid (two across on small screens), with the name and title underneath. A person with a bio takes the full row.
    */
   people?:
     | {
@@ -1398,6 +1410,9 @@ export interface AboutPersonSubBlockSelect<T extends boolean = true> {
  * via the `definition` "press_select".
  */
 export interface PressSelect<T extends boolean = true> {
+  inquiryEmail?: T;
+  pressReleaseLabel?: T;
+  pressRelease?: T;
   items?:
     | T
     | {

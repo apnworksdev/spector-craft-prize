@@ -2,6 +2,7 @@ import type { ComponentProps } from 'react'
 
 import { CmsRichText } from '@/components/CmsRichText/CmsRichText'
 import { PersonCard } from '@/components/PersonCard/PersonCard'
+import { hasLexicalText } from '@/lib/richText'
 import type { Summit } from '@/payload-types'
 
 import styles from './ContentColumns.module.css'
@@ -34,16 +35,22 @@ export function ContentColumns({
         <div className={styles.column}>
           <CmsRichText data={secondary} className={richTextClass} />
           {portraits.length ? (
-            <div className={styles.people}>
-              {portraits.map((person) => (
-                <PersonCard
-                  bio={person.bio}
-                  image={person.image}
-                  key={person.id}
-                  name={person.name}
-                  title={person.title}
-                />
-              ))}
+            <div className={styles.peopleGrid}>
+              {portraits.map((person) => {
+                const hasBio = hasLexicalText(person.bio)
+
+                return (
+                  <PersonCard
+                    bio={person.bio}
+                    className={hasBio ? styles.personSpan : undefined}
+                    image={person.image}
+                    key={person.id}
+                    layout={hasBio ? 'inline' : 'grid'}
+                    name={person.name}
+                    title={person.title}
+                  />
+                )
+              })}
             </div>
           ) : null}
         </div>
