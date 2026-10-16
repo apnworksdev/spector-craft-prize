@@ -5,12 +5,15 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
-import { getServerURL } from './lib/env'
-import { MAX_UPLOAD_BYTES } from './lib/upload'
+import { Applicants } from './collections/Applicants'
+import { Applications } from './collections/Applications'
+import { Evaluations } from './collections/Evaluations'
 import { Editions } from './collections/Editions'
 import { Documents } from './collections/Documents'
 import { Media } from './collections/Media'
 import { PrizeRecipients } from './collections/PrizeRecipients'
+import { Programs } from './collections/Programs'
+import { SubmissionFiles } from './collections/SubmissionFiles'
 import { Users } from './collections/Users'
 import { About } from './globals/About'
 import { EmergingArtistsPrize } from './globals/EmergingArtistsPrize'
@@ -20,6 +23,11 @@ import { Press } from './globals/Press'
 import { Privacy } from './globals/Privacy'
 import { Summit } from './globals/Summit'
 import { Terms } from './globals/Terms'
+import { backfillApplicationFileLinks } from './hooks/applications'
+import { seedDefaultProgram } from './hooks/seedProgram'
+import { portalConsoleEmailAdapter } from './lib/email/consoleAdapter'
+import { getServerURL } from './lib/env'
+import { MAX_UPLOAD_BYTES } from './lib/upload'
 import { r2Storage } from './storage/r2'
 
 const filename = fileURLToPath(import.meta.url)
@@ -37,11 +45,29 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      views: {
+        logout: {
+          Component: '/components/Admin/AdminLogout#AdminLogout',
+        },
+      },
+    },
     meta: {
       titleSuffix: ' — Spector Craft Prize',
     },
   },
-  collections: [Users, Media, Documents, Editions, PrizeRecipients],
+  collections: [
+    Users,
+    Applicants,
+    Programs,
+    Applications,
+    Evaluations,
+    SubmissionFiles,
+    Media,
+    Documents,
+    Editions,
+    PrizeRecipients,
+  ],
   globals: [Home, About, Press, EmergingArtistsPrize, Summit, Terms, Privacy, Navigation],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [
@@ -53,6 +79,7 @@ export default buildConfig({
       FixedToolbarFeature(),
     ],
   }),
+  email: portalConsoleEmailAdapter,
   secret: payloadSecret,
   serverURL,
   cors: [serverURL],
@@ -76,4 +103,8 @@ export default buildConfig({
     },
   },
   plugins: [r2Storage],
+  onInit: async (payload) => {
+    await seedDefaultProgram(payload)
+    await backfillApplicationFileLinks(payload)
+  },
 })

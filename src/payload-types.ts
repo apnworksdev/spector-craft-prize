@@ -64,10 +64,16 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    applicants: ApplicantAuthOperations;
   };
   blocks: {};
   collections: {
     users: User;
+    applicants: Applicant;
+    programs: Program;
+    applications: Application;
+    evaluations: Evaluation;
+    'submission-files': SubmissionFile;
     media: Media;
     documents: Document;
     editions: Edition;
@@ -80,6 +86,11 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    applicants: ApplicantsSelect<false> | ApplicantsSelect<true>;
+    programs: ProgramsSelect<false> | ProgramsSelect<true>;
+    applications: ApplicationsSelect<false> | ApplicationsSelect<true>;
+    evaluations: EvaluationsSelect<false> | EvaluationsSelect<true>;
+    'submission-files': SubmissionFilesSelect<false> | SubmissionFilesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     editions: EditionsSelect<false> | EditionsSelect<true>;
@@ -117,7 +128,7 @@ export interface Config {
   widgets: {
     collections: CollectionsWidget;
   };
-  user: User;
+  user: User | Applicant;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -141,12 +152,40 @@ export interface UserAuthOperations {
     password: string;
   };
 }
+export interface ApplicantAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: number;
+  firstName?: string | null;
+  lastName?: string | null;
+  /**
+   * Jurors use /jury. Only admins can open Payload /admin.
+   */
+  role: 'admin' | 'juror';
+  /**
+   * Allow this admin to open the jury view at /jury.
+   */
+  canJury?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -165,6 +204,255 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "applicants".
+ */
+export interface Applicant {
+  id: number;
+  firstName: string;
+  lastName: string;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  _verified?: boolean | null;
+  _verificationToken?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'applicants';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programs".
+ */
+export interface Program {
+  id: number;
+  name: string;
+  /**
+   * Stable id, e.g. emerging-artists-2026-2027
+   */
+  slug: string;
+  deadline: string;
+  /**
+   * Applicants can sign up and submit only when Live.
+   */
+  status: 'draft' | 'live' | 'closed';
+  /**
+   * Optional Rules of Entry PDF linked from the application.
+   */
+  rulesDocument?: (number | null) | Document;
+  welcomeMessage: string;
+  helpMessage: string;
+  incompleteMessage: string;
+  readyToSubmitMessage: string;
+  confirmationEmailBody: string;
+  declarations: {
+    text: string;
+    id?: string | null;
+  }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * PDFs for Rules of Entry, FAQ, and other downloadable files. Max 30 MB.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  /**
+   * Name shown in the CMS, e.g. “Rules of Entry”.
+   */
+  title: string;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "applications".
+ */
+export interface Application {
+  id: number;
+  applicant: number | Applicant;
+  program: number | Program;
+  status: 'draft' | 'submitted';
+  submittedAt?: string | null;
+  /**
+   * When checked, jurors can view this submitted application.
+   */
+  selectedForEvaluation?: boolean | null;
+  fullName?: string | null;
+  artistName?: string | null;
+  dateOfBirth?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  socialMedia?: string | null;
+  personalNotes?: string | null;
+  yearsOfPractice?: string | null;
+  trainingBackground?: string | null;
+  primaryCraftDiscipline?: string | null;
+  /**
+   * Selected applicants must be able to provide a complete and accurate IRS Form W-9 for tax reporting purposes.
+   */
+  usCitizenOrResident?: ('yes' | 'no') | null;
+  eligibilityNotes?: string | null;
+  educationalBackground?: string | null;
+  recentExhibitions?: string | null;
+  awardsRecognition?: string | null;
+  /**
+   * 150 words maximum.
+   */
+  biographicalSummary?: string | null;
+  workTitle?: string | null;
+  workYearCreated?: string | null;
+  workDimensions?: string | null;
+  workMaterials?: string | null;
+  /**
+   * Statement of practice. 200 words maximum.
+   */
+  artistStatement?: string | null;
+  /**
+   * Process. 100 words maximum.
+   */
+  workDescription?: string | null;
+  /**
+   * 100 words maximum.
+   */
+  workSignificance?: string | null;
+  /**
+   * 125 words maximum.
+   */
+  whyPrize?: string | null;
+  /**
+   * Add several views of the same work in one upload and fill in the details once. To title a different work or a piece in a series, add another set. Images should have a white or neutral background. Maximum 5 images. JPEG, PNG, or WebP, at least 800 × 600 px, max 2 MB each.
+   */
+  workImages?:
+    | {
+        file: number | SubmissionFile;
+        title: string;
+        yearCreated: string;
+        materials: string;
+        dimensions: string;
+        /**
+         * 100 words maximum.
+         */
+        additionalDetails?: string | null;
+        setId?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Representative works that highlight your artistic development. Optional. You can group several images of one work, or add a separate set for each piece. Maximum 5 images. JPEG, PNG, or WebP, at least 800 × 600 px, max 2 MB each.
+   */
+  portfolioImages?:
+    | {
+        file: number | SubmissionFile;
+        title: string;
+        yearCreated: string;
+        materials: string;
+        dimensions: string;
+        /**
+         * 100 words maximum.
+         */
+        additionalDetails?: string | null;
+        setId?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional. Short video showing your work or process. MP4, maximum 90 seconds, maximum 10 MB.
+   */
+  workVideo?: (number | null) | SubmissionFile;
+  declarationsAccepted?:
+    | {
+        accepted?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  governmentId?: (number | null) | SubmissionFile;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submission-files".
+ */
+export interface SubmissionFile {
+  id: number;
+  kind: 'image' | 'video' | 'id';
+  applicant: number | Applicant;
+  application?: (number | null) | Application;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "evaluations".
+ */
+export interface Evaluation {
+  id: number;
+  application: number | Application;
+  juror: number | User;
+  /**
+   * Artistic excellence. 1–5.
+   */
+  artisticExcellence: number;
+  /**
+   * Cultural significance. 1–5.
+   */
+  culturalSignificance: number;
+  /**
+   * Growth potential. 1–5.
+   */
+  growthPotential: number;
+  /**
+   * Mission alignment. 1–5.
+   */
+  missionAlignment: number;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Images or short compressed videos. Max 30 MB. Videos should be H.264 MP4 around 1080p — not camera originals.
@@ -215,31 +503,6 @@ export interface Media {
       filename?: string | null;
     };
   };
-}
-/**
- * PDFs for Rules of Entry, FAQ, and other downloadable files. Max 30 MB.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: number;
-  /**
-   * Name shown in the CMS, e.g. “Rules of Entry”.
-   */
-  title: string;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * One edition per year. Public URL is /{year}-prize-recipients.
@@ -560,6 +823,26 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'applicants';
+        value: number | Applicant;
+      } | null)
+    | ({
+        relationTo: 'programs';
+        value: number | Program;
+      } | null)
+    | ({
+        relationTo: 'applications';
+        value: number | Application;
+      } | null)
+    | ({
+        relationTo: 'evaluations';
+        value: number | Evaluation;
+      } | null)
+    | ({
+        relationTo: 'submission-files';
+        value: number | SubmissionFile;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -576,10 +859,15 @@ export interface PayloadLockedDocument {
         value: number | PrizeRecipient;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: number | User;
+      }
+    | {
+        relationTo: 'applicants';
+        value: number | Applicant;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -589,10 +877,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: number;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: number | User;
+      }
+    | {
+        relationTo: 'applicants';
+        value: number | Applicant;
+      };
   key?: string | null;
   value?:
     | {
@@ -622,6 +915,10 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  role?: T;
+  canJury?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -638,6 +935,168 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "applicants_select".
+ */
+export interface ApplicantsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  _verified?: T;
+  _verificationToken?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programs_select".
+ */
+export interface ProgramsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  deadline?: T;
+  status?: T;
+  rulesDocument?: T;
+  welcomeMessage?: T;
+  helpMessage?: T;
+  incompleteMessage?: T;
+  readyToSubmitMessage?: T;
+  confirmationEmailBody?: T;
+  declarations?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "applications_select".
+ */
+export interface ApplicationsSelect<T extends boolean = true> {
+  applicant?: T;
+  program?: T;
+  status?: T;
+  submittedAt?: T;
+  selectedForEvaluation?: T;
+  fullName?: T;
+  artistName?: T;
+  dateOfBirth?: T;
+  addressLine1?: T;
+  addressLine2?: T;
+  city?: T;
+  state?: T;
+  postalCode?: T;
+  country?: T;
+  phone?: T;
+  email?: T;
+  website?: T;
+  socialMedia?: T;
+  personalNotes?: T;
+  yearsOfPractice?: T;
+  trainingBackground?: T;
+  primaryCraftDiscipline?: T;
+  usCitizenOrResident?: T;
+  eligibilityNotes?: T;
+  educationalBackground?: T;
+  recentExhibitions?: T;
+  awardsRecognition?: T;
+  biographicalSummary?: T;
+  workTitle?: T;
+  workYearCreated?: T;
+  workDimensions?: T;
+  workMaterials?: T;
+  artistStatement?: T;
+  workDescription?: T;
+  workSignificance?: T;
+  whyPrize?: T;
+  workImages?:
+    | T
+    | {
+        file?: T;
+        title?: T;
+        yearCreated?: T;
+        materials?: T;
+        dimensions?: T;
+        additionalDetails?: T;
+        setId?: T;
+        id?: T;
+      };
+  portfolioImages?:
+    | T
+    | {
+        file?: T;
+        title?: T;
+        yearCreated?: T;
+        materials?: T;
+        dimensions?: T;
+        additionalDetails?: T;
+        setId?: T;
+        id?: T;
+      };
+  workVideo?: T;
+  declarationsAccepted?:
+    | T
+    | {
+        accepted?: T;
+        id?: T;
+      };
+  governmentId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "evaluations_select".
+ */
+export interface EvaluationsSelect<T extends boolean = true> {
+  application?: T;
+  juror?: T;
+  artisticExcellence?: T;
+  culturalSignificance?: T;
+  growthPotential?: T;
+  missionAlignment?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submission-files_select".
+ */
+export interface SubmissionFilesSelect<T extends boolean = true> {
+  kind?: T;
+  applicant?: T;
+  application?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

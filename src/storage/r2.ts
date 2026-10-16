@@ -21,6 +21,10 @@ export const r2Storage = s3Storage({
         return `${getR2PublicURL()}/${key}`
       },
     },
+    'submission-files': {
+      prefix: 'submissions',
+      clientUploads: true,
+    },
   },
   bucket: process.env.R2_BUCKET || '',
   config: {
