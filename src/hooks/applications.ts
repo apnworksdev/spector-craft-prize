@@ -294,20 +294,27 @@ export const linkSubmissionFilesToApplication: CollectionAfterChangeHook = async
 }
 
 export async function backfillApplicationFileLinks(payload: Payload) {
-  const result = await payload.find({
-    collection: 'applications',
-    depth: 0,
-    limit: 1000,
-    overrideAccess: true,
-    pagination: false,
-  })
+  try {
+    const result = await payload.find({
+      collection: 'applications',
+      depth: 0,
+      limit: 1000,
+      overrideAccess: true,
+      pagination: false,
+    })
 
-  for (const doc of result.docs) {
-    if (applicationFileIds(doc).length === 0) {
-      continue
+    for (const doc of result.docs) {
+      if (applicationFileIds(doc).length === 0) {
+        continue
+      }
+
+      await syncApplicationFileLinks(payload, doc)
     }
-
-    await syncApplicationFileLinks(payload, doc)
+  } catch (error) {
+    payload.logger.warn({
+      err: error,
+      msg: 'Skipped application file backfill — applications collection is unavailable',
+    })
   }
 }
 

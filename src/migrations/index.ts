@@ -90,4 +90,4 @@ export const migrations = [
     down: migration_20261016_110000_press_intro.down,
     name: '20261016_110000_press_intro',
   },
-]
+];

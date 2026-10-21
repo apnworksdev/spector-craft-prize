@@ -32,48 +32,56 @@ const DEFAULT_PROGRAM = {
 }
 
 export async function seedDefaultProgram(payload: Payload) {
-  const existing = await payload.find({
-    collection: 'programs',
-    where: {
-      slug: {
-        equals: DEFAULT_PROGRAM.slug,
-      },
-    },
-    limit: 1,
-  })
-
-  if (existing.docs.length > 0) {
-    const program = existing.docs[0]
-    const previousWelcome =
-      'The Spector Craft Prize for Emerging Artists celebrates the next generation of visionary craft artists whose work reflects technical excellence, innovative design, and a thoughtful engagement with American culture.'
-    const previousIncomplete = 'Your application is not yet complete.'
-    const welcomeNeedsUpdate =
-      program.welcomeMessage === previousWelcome ||
-      program.welcomeMessage.includes(
-        'For questions about our policies, please use the contact information on the right.',
-      )
-    if (welcomeNeedsUpdate || program.incompleteMessage === previousIncomplete) {
-      await payload.update({
-        collection: 'programs',
-        id: program.id,
-        data: {
-          welcomeMessage: welcomeNeedsUpdate
-            ? DEFAULT_PROGRAM.welcomeMessage
-            : program.welcomeMessage,
-          incompleteMessage:
-            program.incompleteMessage === previousIncomplete
-              ? DEFAULT_PROGRAM.incompleteMessage
-              : program.incompleteMessage,
+  try {
+    const existing = await payload.find({
+      collection: 'programs',
+      where: {
+        slug: {
+          equals: DEFAULT_PROGRAM.slug,
         },
-      })
+      },
+      limit: 1,
+    })
+
+    if (existing.docs.length > 0) {
+      const program = existing.docs[0]
+      const previousWelcome =
+        'The Spector Craft Prize for Emerging Artists celebrates the next generation of visionary craft artists whose work reflects technical excellence, innovative design, and a thoughtful engagement with American culture.'
+      const previousIncomplete = 'Your application is not yet complete.'
+      const welcomeNeedsUpdate =
+        program.welcomeMessage === previousWelcome ||
+        program.welcomeMessage.includes(
+          'For questions about our policies, please use the contact information on the right.',
+        )
+      if (welcomeNeedsUpdate || program.incompleteMessage === previousIncomplete) {
+        await payload.update({
+          collection: 'programs',
+          id: program.id,
+          data: {
+            welcomeMessage: welcomeNeedsUpdate
+              ? DEFAULT_PROGRAM.welcomeMessage
+              : program.welcomeMessage,
+            incompleteMessage:
+              program.incompleteMessage === previousIncomplete
+                ? DEFAULT_PROGRAM.incompleteMessage
+                : program.incompleteMessage,
+          },
+        })
+      }
+      return
     }
-    return
+
+    await payload.create({
+      collection: 'programs',
+      data: DEFAULT_PROGRAM,
+    })
+
+    payload.logger.info(`Seeded program "${DEFAULT_PROGRAM.slug}"`)
+  } catch (error) {
+    // Portal tables may not exist yet (migrations pending). Don't fail the site build.
+    payload.logger.warn({
+      err: error,
+      msg: 'Skipped program seed — programs collection is unavailable',
+    })
   }
-
-  await payload.create({
-    collection: 'programs',
-    data: DEFAULT_PROGRAM,
-  })
-
-  payload.logger.info(`Seeded program "${DEFAULT_PROGRAM.slug}"`)
 }

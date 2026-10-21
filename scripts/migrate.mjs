@@ -13,10 +13,16 @@ if (process.env.DATABASE_MIGRATE_URL) {
 }
 
 const child = spawn('pnpm', ['exec', 'payload', 'migrate'], {
-  stdio: 'inherit',
+  // Pipe stdin so we can answer Payload's "dev mode push" confirm in CI.
+  stdio: ['pipe', 'inherit', 'inherit'],
   env: process.env,
   shell: true,
 })
+
+// Dev DBs often have a payload-migrations row with batch=-1 from `push: true`.
+// Payload then asks whether to proceed; Netlify has no TTY, so auto-accept.
+child.stdin.write('y\n')
+child.stdin.end()
 
 child.on('exit', (code) => {
   process.exit(code ?? 1)
