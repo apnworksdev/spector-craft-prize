@@ -1,13 +1,18 @@
 import { PortalShell } from '@/components/Portal/PortalShell'
 import { StaffNav } from '@/components/Portal/StaffNav'
-import { Button, FormStack, Panel, Table, TextField, Title } from '@/components/Portal/ui'
+import { Button, FormStack, Panel, Table, Text, TextField, Title } from '@/components/Portal/ui'
 import { createJurorUser } from '@/lib/portal-actions'
 import { displayName, PORTAL_PATHS } from '@/lib/portal'
 import { requireAdmin } from '@/lib/portal-auth'
 import { getPayloadClient } from '@/lib/payload'
 
-export default async function StaffUsersPage() {
+type PageProps = {
+  searchParams: Promise<{ error?: string }>
+}
+
+export default async function StaffUsersPage({ searchParams }: PageProps) {
   const user = await requireAdmin()
+  const { error } = await searchParams
 
   const payload = await getPayloadClient()
   const users = await payload.find({
@@ -53,6 +58,7 @@ export default async function StaffUsersPage() {
           <TextField label="Last name" name="lastName" required />
           <TextField label="Email" name="email" required type="email" />
           <TextField label="Password" name="password" required type="password" />
+          {error ? <Text variant="error">{error}</Text> : null}
           <Button type="submit" variant="primary">
             Create juror
           </Button>

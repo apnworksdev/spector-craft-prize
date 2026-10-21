@@ -1,6 +1,7 @@
 'use client'
 
 import { ApplicationWizard } from '@/components/Portal/ApplicationWizard'
+import { useWizardFieldError } from '@/components/Portal/WizardFieldErrors'
 import {
   ARTIST_STATEMENT_MAX_WORDS,
   WHY_PRIZE_MAX_WORDS,
@@ -16,7 +17,7 @@ type WorkStepFormProps = {
   application: Application
   readOnly: boolean
   busy?: boolean
-  onBack?: () => void
+  onBack?: (data: Partial<Application>) => void
   onContinue?: (data: Partial<Application>) => void
   onSaveAndExit?: (data: Partial<Application>) => void
   onSelectStep?: (step: WizardStep, data: Partial<Application>) => void
@@ -30,6 +31,89 @@ function valueOf(form: HTMLFormElement, name: string) {
   }
 
   return ''
+}
+
+function WorkFields({ application, readOnly }: { application: Application; readOnly: boolean }) {
+  const workTitleError = useWizardFieldError('workTitle')
+  const workYearError = useWizardFieldError('workYearCreated')
+  const workDimensionsError = useWizardFieldError('workDimensions')
+  const workMaterialsError = useWizardFieldError('workMaterials')
+  const artistStatementError = useWizardFieldError('artistStatement')
+  const workDescriptionError = useWizardFieldError('workDescription')
+  const workSignificanceError = useWizardFieldError('workSignificance')
+  const whyPrizeError = useWizardFieldError('whyPrize')
+
+  return (
+    <>
+      <Title as="h2" caps>
+        Submitted work
+      </Title>
+      <FieldRow>
+        <TextField
+          defaultValue={application.workTitle ?? ''}
+          error={workTitleError}
+          label="Work title*"
+          name="workTitle"
+          readOnly={readOnly}
+        />
+        <TextField
+          defaultValue={application.workYearCreated ?? ''}
+          error={workYearError}
+          label="Year created*"
+          name="workYearCreated"
+          readOnly={readOnly}
+        />
+      </FieldRow>
+      <FieldRow>
+        <TextField
+          defaultValue={application.workDimensions ?? ''}
+          error={workDimensionsError}
+          label="Dimensions*"
+          name="workDimensions"
+          readOnly={readOnly}
+        />
+        <TextField
+          defaultValue={application.workMaterials ?? ''}
+          error={workMaterialsError}
+          label="Materials*"
+          name="workMaterials"
+          readOnly={readOnly}
+        />
+      </FieldRow>
+      <TextArea
+        defaultValue={application.artistStatement ?? ''}
+        error={artistStatementError}
+        hint={`How does your work contribute to craft's role in contemporary American culture? Describe your practice's relationship to traditional methods, materials, or lineages (if applicable), and how it combines tradition with innovation. Tell us how your community, locale, or personal identity informs your work. ${ARTIST_STATEMENT_MAX_WORDS} words maximum.`}
+        label="Statement of practice*"
+        name="artistStatement"
+        readOnly={readOnly}
+      />
+      <TextArea
+        defaultValue={application.workDescription ?? ''}
+        error={workDescriptionError}
+        hint={`Describe the process, materials, and techniques used to create the submitted work. How does the work demonstrate your expertise and technical skill? If assistants, fabricators, or industrial processes were involved, describe your own role in the making. ${WORK_DESCRIPTION_MAX_WORDS} words maximum.`}
+        label="Description of submitted work*"
+        name="workDescription"
+        readOnly={readOnly}
+      />
+      <TextArea
+        defaultValue={application.workSignificance ?? ''}
+        error={workSignificanceError}
+        hint={`How does the submitted work reflect your distinct artistic voice? What significance does it hold within your broader practice? ${WORK_SIGNIFICANCE_MAX_WORDS} words maximum.`}
+        label="Significance*"
+        name="workSignificance"
+        readOnly={readOnly}
+      />
+      <TextArea
+        defaultValue={application.whyPrize ?? ''}
+        error={whyPrizeError}
+        hint={`How would the Spector Craft Prize support your ongoing artistic practice? Be specific about where you are in your career and what areas of your practice you want to develop in particular. ${WHY_PRIZE_MAX_WORDS} words maximum.`}
+        label="Why the Spector Craft Prize?*"
+        name="whyPrize"
+        readOnly={readOnly}
+      />
+    </>
+  )
 }
 
 export function WorkStepForm({
@@ -67,55 +151,7 @@ export function WorkStepForm({
       readOnly={readOnly}
       step="work"
     >
-      <Title as="h2">Submitted work</Title>
-      <FieldRow>
-        <TextField
-          defaultValue={application.workTitle ?? ''}
-          label="Work title*"
-          name="workTitle"
-        />
-        <TextField
-          defaultValue={application.workYearCreated ?? ''}
-          label="Year created*"
-          name="workYearCreated"
-        />
-      </FieldRow>
-      <FieldRow>
-        <TextField
-          defaultValue={application.workDimensions ?? ''}
-          label="Dimensions*"
-          name="workDimensions"
-        />
-        <TextField
-          defaultValue={application.workMaterials ?? ''}
-          label="Materials*"
-          name="workMaterials"
-        />
-      </FieldRow>
-      <TextArea
-        defaultValue={application.artistStatement ?? ''}
-        hint={`How does your work contribute to craft's role in contemporary American culture? Describe your practice's relationship to traditional methods, materials, or lineages (if applicable), and how it combines tradition with innovation. Tell us how your community, locale, or personal identity informs your work. ${ARTIST_STATEMENT_MAX_WORDS} words maximum.`}
-        label="Statement of practice*"
-        name="artistStatement"
-      />
-      <TextArea
-        defaultValue={application.workDescription ?? ''}
-        hint={`Describe the process, materials, and techniques used to create the submitted work. How does the work demonstrate your expertise and technical skill? If assistants, fabricators, or industrial processes were involved, describe your own role in the making. ${WORK_DESCRIPTION_MAX_WORDS} words maximum.`}
-        label="Description of submitted work*"
-        name="workDescription"
-      />
-      <TextArea
-        defaultValue={application.workSignificance ?? ''}
-        hint={`How does the submitted work reflect your distinct artistic voice? What significance does it hold within your broader practice? ${WORK_SIGNIFICANCE_MAX_WORDS} words maximum.`}
-        label="Significance*"
-        name="workSignificance"
-      />
-      <TextArea
-        defaultValue={application.whyPrize ?? ''}
-        hint={`How would the Spector Craft Prize support your ongoing artistic practice? Be specific about where you are in your career and what areas of your practice you want to develop in particular. ${WHY_PRIZE_MAX_WORDS} words maximum.`}
-        label="Why the Spector Craft Prize?*"
-        name="whyPrize"
-      />
+      <WorkFields application={application} readOnly={readOnly} />
     </ApplicationWizard>
   )
 }

@@ -1,12 +1,9 @@
+import { ApplicationProgressBar } from '@/components/Portal/ApplicationProgressBar'
 import { PortalShell } from '@/components/Portal/PortalShell'
 import { Button, Panel, Stack, Text, TextLink, Title } from '@/components/Portal/ui'
-import { stepComplete } from '@/lib/application-progress'
+import { applicationHasStarted, furthestAllowedStep, stepComplete } from '@/lib/application-progress'
 import { requireApplicant } from '@/lib/portal-auth'
-import {
-  ensureApplicantApplication,
-  getLiveProgram,
-  isApplicationReadOnly,
-} from '@/lib/portal-data'
+import { isApplicationReadOnly, resolveApplicantPortal } from '@/lib/portal-data'
 import {
   displayName,
   formatPortalDate,
@@ -14,9 +11,10 @@ import {
   PORTAL_PATHS,
   SELECTION_CRITERIA,
   SUPPORT_EMAIL,
+  WIZARD_STEP_HREF,
   WIZARD_STEPS,
 } from '@/lib/portal'
-
+import { programAcceptsSubmissions } from '@/lib/program-deadline'
 import styles from '@/components/Portal/portal.module.css'
 
 type PageProps = {
@@ -25,7 +23,7 @@ type PageProps = {
 
 export default async function ApplyWelcomePage({ searchParams }: PageProps) {
   const applicant = await requireApplicant()
-  const program = await getLiveProgram()
+  const { program, application } = await resolveApplicantPortal(applicant.id)
   const { submitted } = await searchParams
 
   if (!program?.id) {
@@ -39,15 +37,29 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
     )
   }
 
-  const application = await ensureApplicantApplication(applicant.id, program.id)
+  if (!application) {
+    return (
+      <PortalShell showLogout userLabel={displayName(applicant)}>
+        <Panel>
+          <Title>Welcome, {displayName(applicant)}</Title>
+          <Text>Applications are currently closed.</Text>
+        </Panel>
+      </PortalShell>
+    )
+  }
+
   const readOnly = isApplicationReadOnly(application)
+  const submittedAt = formatPortalDate(application.submittedAt)
   const started = WIZARD_STEPS.some((step) => step !== 'submit' && stepComplete(application, step))
+  const continueHref = WIZARD_STEP_HREF[furthestAllowedStep(application)]
+  const showProgress = !readOnly && applicationHasStarted(application)
   const rulesDocument = program.rulesDocument
   const rulesHref =
     rulesDocument && typeof rulesDocument === 'object' && rulesDocument.url
       ? rulesDocument.url
       : null
   const deadline = formatPortalDate(program.deadline)
+  const acceptingSubmissions = programAcceptsSubmissions(program)
   const paragraphs = program.welcomeMessage
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
@@ -57,6 +69,19 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
     <PortalShell showLogout userLabel={displayName(applicant)}>
       <div className={styles.welcomeLayout}>
         <Stack>
+          {readOnly ? (
+            <div className={styles.welcomeStatus}>
+              <Title as="h2">Application submitted</Title>
+              {submitted ? (
+                <Text variant="success">Your application was submitted.</Text>
+              ) : null}
+              {submittedAt ? <Text>Submitted on {submittedAt}.</Text> : null}
+              <Text>Your answers are read-only. You can review them anytime.</Text>
+              <Button href={`${PORTAL_PATHS.application}/personal`} variant="primary">
+                View application
+              </Button>
+            </div>
+          ) : null}
           <Title>Welcome to The Spector Craft Prize for Emerging Artists Submissions Portal.</Title>
           {paragraphs.map((paragraph) => (
             <Text key={paragraph}>{paragraph}</Text>
@@ -79,9 +104,7 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
             For technical assistance with this submission process, please click the Help link above
             or email {SUPPORT_EMAIL}
           </Text>
-          {submitted ? <Text variant="success">Your application was submitted.</Text> : null}
-          {readOnly ? <Text>Your application is submitted and read-only.</Text> : null}
-          {program.status !== 'live' && !readOnly ? (
+          {!acceptingSubmissions && !readOnly ? (
             <Text>Applications are currently closed.</Text>
           ) : null}
           <div className={styles.programMeta}>
@@ -93,9 +116,10 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
               <Text>Rules of Entry</Text>
             )}
           </div>
-          {program.status === 'live' || readOnly ? (
-            <Button href={`${PORTAL_PATHS.application}/personal`} variant="primary">
-              {readOnly ? 'View application' : started ? 'Continue' : 'Begin'}
+          {showProgress ? <ApplicationProgressBar application={application} /> : null}
+          {acceptingSubmissions && !readOnly ? (
+            <Button href={continueHref} variant="primary">
+              {started ? 'Continue' : 'Begin'}
             </Button>
           ) : null}
         </Stack>

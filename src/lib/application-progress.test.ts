@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { canOpenStep, stepComplete } from '@/lib/application-progress'
+import {
+  applicationProgressPercent,
+  canOpenStep,
+  formsFillRatio,
+  stepComplete,
+  stepFillRatio,
+} from '@/lib/application-progress'
 import type { Application } from '@/payload-types'
 
 function application(overrides: Partial<Application> = {}): Application {
@@ -48,6 +54,27 @@ describe('application progress', () => {
     })
     expect(canOpenStep(draft, 'bio')).toBe(true)
     expect(canOpenStep(draft, 'work')).toBe(false)
+  })
+
+  it('allows work as soon as biography is complete, even if work is empty', () => {
+    const draft = application({
+      ...personal,
+      ...eligibility,
+      educationalBackground: 'Studied ceramics.',
+      biographicalSummary: 'A short biography.',
+    })
+    expect(canOpenStep(draft, 'work')).toBe(true)
+    expect(canOpenStep(draft, 'media')).toBe(false)
+  })
+
+  it('reports zero progress for an empty draft', () => {
+    expect(applicationProgressPercent(application())).toBe(0)
+  })
+
+  it('fills a step by the share of required fields', () => {
+    const draft = application({ fullName: 'Ada Lovelace', email: 'ada@example.com' })
+    expect(stepFillRatio(draft, 'personal')).toBeCloseTo(2 / 9)
+    expect(formsFillRatio(draft)).toBeCloseTo(2 / 23)
   })
 
   it('allows media after the submitted work fields', () => {

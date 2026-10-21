@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminField, adminOnly, isAdmin } from '@/access/roles'
+import { deleteJurorEvaluations } from '@/hooks/evaluations'
 import { usersRead, usersUpdate } from '@/access/users'
 
 export const Users: CollectionConfig = {
@@ -21,6 +22,9 @@ export const Users: CollectionConfig = {
     read: usersRead,
     update: usersUpdate,
     delete: adminOnly,
+  },
+  hooks: {
+    beforeDelete: [deleteJurorEvaluations],
   },
   fields: [
     {

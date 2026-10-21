@@ -69,3 +69,17 @@ export const deleteApplicationEvaluations: CollectionBeforeDeleteHook = async ({
     },
   })
 }
+
+export const deleteJurorEvaluations: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  await req.payload.delete({
+    collection: 'evaluations',
+    overrideAccess: true,
+    overrideLock: true,
+    req,
+    where: {
+      juror: {
+        equals: id,
+      },
+    },
+  })
+}

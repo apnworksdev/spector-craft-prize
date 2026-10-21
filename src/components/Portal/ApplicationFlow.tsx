@@ -9,7 +9,7 @@ import { MediaStepForm } from '@/components/Portal/MediaStepForm'
 import { PersonalStepForm } from '@/components/Portal/PersonalStepForm'
 import { SubmitStepForm } from '@/components/Portal/SubmitStepForm'
 import { WorkStepForm } from '@/components/Portal/WorkStepForm'
-import { canOpenStep, stepComplete } from '@/lib/application-progress'
+import { furthestAllowedStep } from '@/lib/application-progress'
 import { enqueueApplicationSave } from '@/lib/application-save-queue'
 import {
   formatPortalDate,
@@ -46,12 +46,11 @@ export function ApplicationFlow({
       return WIZARD_STEPS.length - 1
     }
 
-    const opened = WIZARD_STEPS.indexOf(initialStep)
-    const completed = WIZARD_STEPS.reduce(
-      (max, key, index) => (stepComplete(application, key) ? index : max),
-      -1,
+    // Unlock through the first incomplete step (e.g. bio done → work is clickable even if half-filled).
+    return Math.max(
+      WIZARD_STEPS.indexOf(initialStep),
+      WIZARD_STEPS.indexOf(furthestAllowedStep(application)),
     )
-    return Math.max(opened, completed)
   })
   const draftRef = useRef(application)
 
@@ -66,8 +65,7 @@ export function ApplicationFlow({
 
     const nextDraft = { ...draftRef.current, ...data }
     const next = WIZARD_STEPS[WIZARD_STEPS.indexOf(from) + 1]
-    if (!next || !canOpenStep(nextDraft, next)) {
-      setError('Please complete this section before continuing.')
+    if (!next) {
       return
     }
 
@@ -107,21 +105,9 @@ export function ApplicationFlow({
     router.push(PORTAL_PATHS.welcome)
   }
 
-  function handleBack(from: WizardStep) {
-    const previous = WIZARD_STEPS[WIZARD_STEPS.indexOf(from) - 1]
-    if (!previous) {
-      return
-    }
-
-    setError('')
-    reach(previous)
-    setStep(previous)
-    router.replace(WIZARD_STEP_HREF[previous], { scroll: false })
-  }
-
-  function handleSelectStep(target: WizardStep, data: Partial<Application>) {
+  function navigateToStep(target: WizardStep, data: Partial<Application>) {
     const from = step
-    if (target === from || WIZARD_STEPS.indexOf(target) > furthestIndex) {
+    if (target === from) {
       return
     }
 
@@ -147,9 +133,27 @@ export function ApplicationFlow({
     })
   }
 
+  function handleBack(from: WizardStep, data: Partial<Application>) {
+    const previous = WIZARD_STEPS[WIZARD_STEPS.indexOf(from) - 1]
+    if (!previous) {
+      return
+    }
+
+    reach(previous)
+    navigateToStep(previous, data)
+  }
+
+  function handleSelectStep(target: WizardStep, data: Partial<Application>) {
+    if (WIZARD_STEPS.indexOf(target) > furthestIndex) {
+      return
+    }
+
+    navigateToStep(target, data)
+  }
+
   const navigation = {
     busy: savingExit,
-    onBack: step === 'personal' ? undefined : () => handleBack(step),
+    onBack: step === 'personal' ? undefined : (data: Partial<Application>) => handleBack(step, data),
     onContinue:
       step === 'submit' ? undefined : (data: Partial<Application>) => handleContinue(step, data),
     onSaveAndExit: handleSaveAndExit,
@@ -166,9 +170,9 @@ export function ApplicationFlow({
 
   return (
     <div className={styles.flowLayout}>
-      <div className={styles.programMeta}>
-        <Text>{program.name}</Text>
-        {deadline ? <Text>Deadline: {deadline}</Text> : null}
+      <div className={styles.flowMeta}>
+        <span>{program.name}</span>
+        {deadline ? <span>Deadline {deadline}</span> : null}
         {rulesHref ? <TextLink href={rulesHref}>Rules of Entry</TextLink> : null}
       </div>
       {error ? <Text variant="error">{error}</Text> : null}
@@ -197,7 +201,17 @@ export function ApplicationFlow({
         />
       ) : null}
       {step === 'submit' ? (
-        <SubmitStepForm application={draft} program={program} readOnly={readOnly} {...navigation} />
+        <SubmitStepForm
+          application={draft}
+          onApplicationPatch={(data) => {
+            const nextDraft = { ...draftRef.current, ...data }
+            draftRef.current = nextDraft
+            setDraft(nextDraft)
+          }}
+          program={program}
+          readOnly={readOnly}
+          {...navigation}
+        />
       ) : null}
     </div>
   )

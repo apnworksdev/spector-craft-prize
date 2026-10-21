@@ -15,3 +15,12 @@ export function isR2Configured() {
       process.env.R2_PUBLIC_URL,
   )
 }
+
+export function isR2SubmissionsConfigured() {
+  return Boolean(
+    process.env.R2_SUBMISSIONS_BUCKET &&
+      process.env.R2_ACCESS_KEY_ID &&
+      process.env.R2_SECRET_ACCESS_KEY &&
+      process.env.R2_ENDPOINT,
+  )
+}

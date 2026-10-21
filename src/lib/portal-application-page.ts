@@ -2,22 +2,22 @@ import { redirect } from 'next/navigation'
 
 import { canOpenStep } from '@/lib/application-progress'
 import { requireApplicant } from '@/lib/portal-auth'
-import {
-  ensureApplicantApplication,
-  getLiveProgram,
-  isApplicationReadOnly,
-} from '@/lib/portal-data'
+import { isApplicationReadOnly, resolveApplicantPortal } from '@/lib/portal-data'
 import { displayName, PORTAL_PATHS, type WizardStep } from '@/lib/portal'
+import { programAcceptsSubmissions } from '@/lib/program-deadline'
 
 export async function loadApplicationWizardPage(step: WizardStep) {
   const applicant = await requireApplicant()
-  const program = await getLiveProgram()
+  const { program, application } = await resolveApplicantPortal(applicant.id)
 
-  if (!program?.id) {
+  if (!program?.id || !application) {
     redirect(PORTAL_PATHS.welcome)
   }
 
-  const application = await ensureApplicantApplication(applicant.id, program.id)
+  const readOnly = isApplicationReadOnly(application)
+  if (!readOnly && !programAcceptsSubmissions(program)) {
+    redirect(PORTAL_PATHS.welcome)
+  }
 
   if (!canOpenStep(application, step)) {
     redirect(`${PORTAL_PATHS.application}/personal`)
@@ -27,7 +27,7 @@ export async function loadApplicationWizardPage(step: WizardStep) {
     applicant,
     application,
     program,
-    readOnly: isApplicationReadOnly(application),
+    readOnly,
     userLabel: displayName(applicant),
   }
 }

@@ -1,4 +1,4 @@
-import type { Access, FieldAccess } from 'payload'
+import type { Access, FieldAccess, PayloadRequest, Where } from 'payload'
 
 import { isAdmin, isApplicantUser, isJuror, isStaffUser } from '@/access/roles'
 import type { Application } from '@/payload-types'
@@ -17,9 +17,10 @@ export const applicationsRead: Access = ({ req }) => {
   }
 
   if (isJuror(req.user)) {
-    return {
+    const where: Where = {
       and: [{ status: { equals: 'submitted' } }, { selectedForEvaluation: { equals: true } }],
     }
+    return where
   }
 
   if (isApplicantUser(req.user) && req.user?.id) {
@@ -47,9 +48,10 @@ export const applicationsUpdate: Access = ({ req }) => {
   }
 
   if (isApplicantUser(req.user) && req.user?.id) {
-    return {
+    const where: Where = {
       and: [{ applicant: { equals: req.user.id } }, { status: { equals: 'draft' } }],
     }
+    return where
   }
 
   return false
@@ -57,7 +59,7 @@ export const applicationsUpdate: Access = ({ req }) => {
 
 export const applicationsDelete: Access = ({ req }) => isAdmin(req.user)
 
-export const applicationsAdmin: Access = ({ req }) => isStaffUser(req.user)
+export const applicationsAdmin = ({ req }: { req: PayloadRequest }) => isStaffUser(req.user)
 
 export const governmentIdRead: FieldAccess<Application> = ({ req, doc }) => {
   if (isAdmin(req.user)) {

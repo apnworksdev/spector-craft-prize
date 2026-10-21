@@ -17,17 +17,15 @@ export const Applicants: CollectionConfig = {
   auth: {
     verify: {
       generateEmailSubject: () => 'Verify your Spector Craft Prize account',
-      generateEmailHTML: ({ token }) => {
-        const url = `${serverURL}${PORTAL_PATHS.verify}?token=${token}`
-        console.info(`Verification link: ${url}`)
+      generateEmailHTML: (args) => {
+        const url = `${serverURL}${PORTAL_PATHS.verify}?token=${args?.token ?? ''}`
         return `<p>Please verify your email to continue your application.</p><p><a href="${url}">Verify email</a></p>`
       },
     },
     forgotPassword: {
       generateEmailSubject: () => 'Reset your Spector Craft Prize password',
-      generateEmailHTML: ({ token }) => {
-        const url = `${serverURL}${PORTAL_PATHS.resetPassword}?token=${token}`
-        console.info(`Password reset link: ${url}`)
+      generateEmailHTML: (args) => {
+        const url = `${serverURL}${PORTAL_PATHS.resetPassword}?token=${args?.token ?? ''}`
         return `<p>Reset your password using the link below.</p><p><a href="${url}">Reset password</a></p><p>If you did not request this, contact ${SUPPORT_EMAIL}.</p>`
       },
     },

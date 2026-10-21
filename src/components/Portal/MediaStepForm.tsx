@@ -18,7 +18,10 @@ import { uploadSubmissionFile } from '@/lib/portal-upload'
 import { wordCountError } from '@/lib/word-count'
 import type { Application } from '@/payload-types'
 
+import { useWizardFieldError } from '@/components/Portal/WizardFieldErrors'
+
 import { ApplicationWizard } from './ApplicationWizard'
+import styles from './portal.module.css'
 import {
   Actions,
   Button,
@@ -51,7 +54,7 @@ type MediaStepFormProps = {
   application: Application
   readOnly: boolean
   busy?: boolean
-  onBack?: () => void
+  onBack?: (data: Partial<Application>) => void
   onContinue?: (data: Partial<Application>) => void
   onDraft?: (data: Partial<Application>) => void
   onSaveAndExit?: (data: Partial<Application>) => void
@@ -127,6 +130,22 @@ function mediaPayload(
   }
 }
 
+function WorkImagesIntro() {
+  const workImagesError = useWizardFieldError('workImages')
+
+  return (
+    <>
+      <Title as="h2">Images of submitted work*</Title>
+      <Text variant="hint">{APPLICATION_IMAGE_HELP}</Text>
+      {workImagesError ? (
+        <Text className={styles.sectionError} variant="error">
+          {workImagesError}
+        </Text>
+      ) : null}
+    </>
+  )
+}
+
 export function MediaStepForm({
   application,
   readOnly,
@@ -155,6 +174,7 @@ export function MediaStepForm({
   const [setEntries, setSetEntries] = useState<ImageEntry[]>([])
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [formError, setFormError] = useState('')
+  const [editorFieldErrors, setEditorFieldErrors] = useState<Record<string, string>>({})
   const [savingItem, setSavingItem] = useState(false)
 
   function persist(
@@ -186,6 +206,7 @@ export function MediaStepForm({
     setSetEntries([])
     setPendingFiles([])
     setFormError('')
+    setEditorFieldErrors({})
   }
 
   function openNewImage(list: ImageList) {
@@ -276,15 +297,29 @@ export function MediaStepForm({
       return
     }
 
-    if (!title.trim() || !yearCreated.trim() || !materials.trim() || !dimensions.trim()) {
-      setFormError('Title, year, materials, and dimensions are required.')
+    const nextFieldErrors: Record<string, string> = {}
+    if (!title.trim()) {
+      nextFieldErrors.title = 'This field is required.'
+    }
+    if (!yearCreated.trim()) {
+      nextFieldErrors.yearCreated = 'This field is required.'
+    }
+    if (!materials.trim()) {
+      nextFieldErrors.materials = 'This field is required.'
+    }
+    if (!dimensions.trim()) {
+      nextFieldErrors.dimensions = 'This field is required.'
+    }
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setEditorFieldErrors(nextFieldErrors)
       setSavingItem(false)
       return
     }
+    setEditorFieldErrors({})
 
     const detailsError = wordCountError(additionalDetails, ADDITIONAL_DETAILS_MAX_WORDS)
     if (detailsError !== true) {
-      setFormError(detailsError)
+      setEditorFieldErrors({ additionalDetails: detailsError })
       setSavingItem(false)
       return
     }
@@ -396,9 +431,8 @@ export function MediaStepForm({
       readOnly={readOnly}
       step="media"
     >
-      <FormSection>
-        <Title as="h2">Images of submitted work*</Title>
-        <Text variant="hint">{APPLICATION_IMAGE_HELP}</Text>
+      <FormSection id="workImages">
+        <WorkImagesIntro />
         <MediaList>
           {renderSets('work', images)}
           {!readOnly && images.length < APPLICATION_IMAGE_MAX ? (
@@ -528,28 +562,38 @@ export function MediaStepForm({
           {editor.kind === 'image' ? (
             <>
               <TextField
+                error={editorFieldErrors.title}
                 label="Title*"
+                name="title"
                 onChange={(event) => setTitle(event.target.value)}
                 value={title}
               />
               <TextField
+                error={editorFieldErrors.yearCreated}
                 label="Year created*"
+                name="yearCreated"
                 onChange={(event) => setYearCreated(event.target.value)}
                 value={yearCreated}
               />
               <TextField
+                error={editorFieldErrors.materials}
                 label="Materials*"
+                name="materials"
                 onChange={(event) => setMaterials(event.target.value)}
                 value={materials}
               />
               <TextField
+                error={editorFieldErrors.dimensions}
                 label="Dimensions*"
+                name="dimensions"
                 onChange={(event) => setDimensions(event.target.value)}
                 value={dimensions}
               />
               <TextArea
+                error={editorFieldErrors.additionalDetails}
                 hint={`${ADDITIONAL_DETAILS_MAX_WORDS} words maximum.`}
                 label="Additional details"
+                name="additionalDetails"
                 onChange={(event) => setAdditionalDetails(event.target.value)}
                 value={additionalDetails}
               />

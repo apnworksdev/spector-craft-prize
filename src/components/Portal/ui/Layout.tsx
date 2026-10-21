@@ -88,11 +88,13 @@ export function Actions({ as: Tag = 'div', className, children, ...rest }: Actio
 export function Title({
   as: Tag = 'h1',
   variant,
+  caps = false,
   children,
   id,
 }: {
   as?: 'h1' | 'h2' | 'p'
   variant?: 'page' | 'section'
+  caps?: boolean
   children: ReactNode
   id?: string
 }) {
@@ -100,7 +102,10 @@ export function Title({
 
   return (
     <Tag
-      className={resolvedVariant === 'section' ? styles.sectionTitle : styles.title}
+      className={cx(
+        resolvedVariant === 'section' ? styles.sectionTitle : styles.title,
+        caps && styles.capsTitle,
+      )}
       id={id}
     >
       {children}
@@ -119,15 +124,17 @@ export function FormSection({ className, children, ...rest }: HTMLAttributes<HTM
 export function Text({
   as: Tag = 'p',
   variant = 'lead',
+  className,
   children,
 }: {
   as?: 'p' | 'span'
   variant?: 'lead' | 'hint' | 'error' | 'success'
+  className?: string
   children: ReactNode
 }) {
   return (
     <Tag
-      className={styles[variant]}
+      className={cx(styles[variant], className)}
       role={variant === 'error' ? 'alert' : variant === 'success' ? 'status' : undefined}
     >
       {children}

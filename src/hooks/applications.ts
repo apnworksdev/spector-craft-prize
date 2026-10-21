@@ -10,6 +10,7 @@ import {
 import { isAdmin, isApplicantUser } from '@/access/roles'
 import { applicationFileIds } from '@/lib/application-files'
 import { relationId } from '@/lib/portal'
+import { programAcceptsSubmissions } from '@/lib/program-deadline'
 import { wordCountError } from '@/lib/word-count'
 import {
   ADDITIONAL_DETAILS_MAX_WORDS,
@@ -20,15 +21,45 @@ import {
   WORK_SIGNIFICANCE_MAX_WORDS,
 } from '@/lib/portal-media'
 
-export const enforceApplicantOwnership: CollectionBeforeChangeHook = ({ data, operation, req }) => {
+const PROGRAM_CLOSED = 'Applications for this program are closed.'
+
+async function loadProgram(req: PayloadRequest, programId: number | null) {
+  if (!programId) {
+    return null
+  }
+
+  try {
+    return await req.payload.findByID({
+      collection: 'programs',
+      depth: 0,
+      id: programId,
+      req,
+    })
+  } catch {
+    return null
+  }
+}
+
+export const enforceApplicantOwnership: CollectionBeforeChangeHook = async ({
+  data,
+  operation,
+  req,
+}) => {
   if (operation !== 'create' || !isApplicantUser(req.user) || !req.user?.id) {
     return data
+  }
+
+  const program = await loadProgram(req, relationId(data?.program))
+  if (!programAcceptsSubmissions(program)) {
+    throw new APIError(PROGRAM_CLOSED, 403)
   }
 
   return {
     ...data,
     applicant: req.user.id,
-    status: data?.status ?? 'draft',
+    status: 'draft',
+    submittedAt: null,
+    selectedForEvaluation: false,
   }
 }
 
@@ -42,7 +73,8 @@ export const assertApplicationFileOwnership: CollectionBeforeChangeHook = async 
   }
 
   const ownerId =
-    relationId(originalDoc?.applicant) ?? (isApplicantUser(req.user) ? Number(req.user.id) : null)
+    relationId(originalDoc?.applicant) ??
+    (isApplicantUser(req.user) && req.user ? Number(req.user.id) : null)
   const fileIds = applicationFileIds({
     workImages: data?.workImages ?? originalDoc?.workImages,
     portfolioImages: data?.portfolioImages ?? originalDoc?.portfolioImages,
@@ -78,7 +110,7 @@ function requiredText(data: Record<string, unknown> | undefined, field: string, 
   }
 }
 
-function assertSubmitReady(data: Record<string, unknown> | undefined) {
+function assertSubmitReady(data: Record<string, unknown> | undefined, declarationCount: number) {
   requiredText(data, 'fullName', 'Full Name')
   requiredText(data, 'dateOfBirth', 'Date of birth')
   requiredText(data, 'addressLine1', 'Address Line 1')
@@ -115,7 +147,7 @@ function assertSubmitReady(data: Record<string, unknown> | undefined) {
   }
 
   const declarations = data.declarationsAccepted
-  if (!Array.isArray(declarations) || declarations.length < 1) {
+  if (!Array.isArray(declarations) || declarations.length < Math.max(1, declarationCount)) {
     throw new Error('All declarations must be accepted before submitting.')
   }
 
@@ -126,7 +158,7 @@ function assertSubmitReady(data: Record<string, unknown> | undefined) {
   }
 }
 
-export const lockSubmittedApplications: CollectionBeforeChangeHook = ({
+export const lockSubmittedApplications: CollectionBeforeChangeHook = async ({
   data,
   operation,
   originalDoc,
@@ -140,15 +172,25 @@ export const lockSubmittedApplications: CollectionBeforeChangeHook = ({
     throw new Error('Submitted applications cannot be edited.')
   }
 
-  if (data?.status === 'submitted' && originalDoc?.status === 'draft') {
-    assertSubmitReady({ ...originalDoc, ...data })
+  const { submittedAt: _submittedAt, ...editable } = data ?? {}
+
+  if (editable.status === 'submitted' && originalDoc?.status === 'draft') {
+    const program = await loadProgram(
+      req,
+      relationId(editable.program) ?? relationId(originalDoc?.program),
+    )
+    if (!programAcceptsSubmissions(program)) {
+      throw new APIError(PROGRAM_CLOSED, 403)
+    }
+
+    assertSubmitReady({ ...originalDoc, ...editable }, program?.declarations?.length ?? 0)
     return {
-      ...data,
+      ...editable,
       submittedAt: new Date().toISOString(),
     }
   }
 
-  return data
+  return editable
 }
 
 export const validateApplicationWordLimits: CollectionBeforeValidateHook = ({ data }) => {
@@ -303,11 +345,18 @@ export const sendSubmissionConfirmationEmail: CollectionAfterChangeHook = async 
     return doc
   }
 
-  await req.payload.sendEmail({
-    to: applicant.email,
-    subject: `${program.name} — application received`,
-    html: `<p>${program.confirmationEmailBody}</p>`,
-  })
+  try {
+    await req.payload.sendEmail({
+      to: applicant.email,
+      subject: `${program.name} — application received`,
+      html: `<p>${program.confirmationEmailBody}</p>`,
+    })
+  } catch (error) {
+    req.payload.logger.error({
+      err: error,
+      msg: `Submission confirmation email failed for application ${doc.id}`,
+    })
+  }
 
   return doc
 }

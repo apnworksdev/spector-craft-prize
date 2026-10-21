@@ -4,7 +4,7 @@
 }
 
 .section {
-  max-width: 960px;
+  max-width: var(--portal-width);
   margin: 0 auto;
   display: grid;
   gap: 16px;

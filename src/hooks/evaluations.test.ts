@@ -1,10 +1,28 @@
 import { APIError } from 'payload'
 import { describe, expect, it, vi } from 'vitest'
 
-import { enforceEvaluationTarget } from '@/hooks/evaluations'
+import { deleteJurorEvaluations, enforceEvaluationTarget } from '@/hooks/evaluations'
 
 const juror = { id: 2, collection: 'users' as const, role: 'juror' as const }
 const admin = { id: 1, collection: 'users' as const, role: 'admin' as const }
+
+describe('deleteJurorEvaluations', () => {
+  it('deletes evaluations owned by the user being removed', async () => {
+    const deleteMany = vi.fn(async () => undefined)
+
+    await deleteJurorEvaluations({
+      id: 2,
+      req: { payload: { delete: deleteMany } },
+    } as never)
+
+    expect(deleteMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'evaluations',
+        where: { juror: { equals: 2 } },
+      }),
+    )
+  })
+})
 
 describe('enforceEvaluationTarget', () => {
   it('lets jurors score a submitted application they can read even if the selection flag is hidden', async () => {

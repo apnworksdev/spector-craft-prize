@@ -1,17 +1,57 @@
 .shell {
-  --fg-color: #1a1a1a;
-  --bg-color: #fff;
+  --portal-accent: var(--teal);
+  --portal-accent-hover: #2f5561;
   --portal-muted: #6b6b6b;
   --portal-line: #ececec;
-  --portal-accent: #3a6573;
+  --portal-border: #e4e4e4;
+  --portal-border-strong: #d8d8d8;
+  --portal-border-dashed: #d5d5d5;
+  --portal-bubble-border: #b7c9cf;
+  --portal-bubble-fill: #c5d6dc;
+  --portal-error: #b42318;
+  --portal-success: #18794e;
+  --portal-ink: #1a1a1a;
+  --portal-surface: var(--white);
+  --portal-surface-muted: #fafafa;
+  --portal-surface-sunken: #f6f6f6;
+  --portal-media: #f4f4f4;
+  --portal-button: #f2f2f2;
+  --portal-button-hover: #e7e7e7;
+  --fg-color: var(--portal-accent);
+  --bg-color: var(--portal-surface);
   --selection-background-color: var(--portal-accent);
-  --selection-foreground-color: #fff;
+  --selection-foreground-color: var(--portal-surface);
+
+  --portal-radius: 12px;
+  --portal-radius-lg: 16px;
+  --portal-radius-pill: 999px;
+  --portal-tracking: 0.01em;
+  --portal-tracking-tight: -0.01em;
+  --portal-tracking-header: -0.02em;
+  --portal-tracking-ui: 0.03em;
+  --portal-tracking-caps: 0.04em;
+  --portal-font-xs: 12px;
+  --portal-font-sm: 13px;
+  --portal-font-md: 14px;
+  --portal-font-button: 15px;
+  --portal-font-lead: 17px;
+  --portal-font-section: 22px;
+  --portal-font-title: clamp(28px, 3vw, 36px);
+  --portal-width: 960px;
+  --portal-width-narrow: 720px;
+  --portal-scrim: rgb(26 26 26 / 72%);
+  --portal-scrim-soft: rgb(26 26 26 / 40%);
+  --portal-shadow: 0 24px 80px rgb(26 26 26 / 16%);
+  --portal-ring: 0 0 0 3px color-mix(in srgb, var(--portal-accent) 16%, transparent);
+  --portal-ring-input: 0 0 0 3px color-mix(in srgb, var(--portal-accent) 20%, transparent);
+  --portal-ring-error: 0 0 0 3px color-mix(in srgb, var(--portal-error) 15%, transparent);
+
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--bg-color);
   color: var(--fg-color);
-  letter-spacing: 0;
+  letter-spacing: var(--portal-tracking);
   user-select: text;
 }
 
@@ -25,9 +65,9 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-  border-radius: 999px;
-  background: #1a1a1a;
-  color: #fff;
+  border-radius: var(--portal-radius-pill);
+  background: var(--portal-ink);
+  color: var(--portal-surface);
 }
 
 a.skip:focus,
@@ -38,7 +78,7 @@ a.skip:focus-visible {
   overflow: visible;
   clip-path: none;
   white-space: normal;
-  outline: 2px solid #1a1a1a;
+  outline: 2px solid var(--portal-ink);
   outline-offset: 3px;
 }
 
@@ -49,19 +89,19 @@ a.skip:focus-visible {
   gap: 24px;
   padding: 28px var(--side-margin);
   border-bottom: 1px solid var(--portal-line);
-  font-size: 14px;
+  font-size: var(--portal-font-md);
 }
 
 .headerTitle {
-  font-size: 15px;
-  letter-spacing: -0.02em;
+  font-size: var(--portal-font-button);
+  letter-spacing: var(--portal-tracking-header);
 }
 
 .headerMeta {
   display: flex;
   align-items: center;
   gap: 22px;
-  color: var(--portal-muted);
+  color: inherit;
 }
 
 .main {
@@ -71,10 +111,10 @@ a.skip:focus-visible {
 
 .flowLayout {
   width: 100%;
-  max-width: 960px;
+  max-width: var(--portal-width);
   margin: 0 auto;
   display: grid;
-  gap: 48px;
+  gap: 28px;
 }
 
 .programMeta {
@@ -82,14 +122,20 @@ a.skip:focus-visible {
   gap: 6px;
 }
 
-.flowLayout .programMeta {
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--portal-line);
+.flowMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 18px;
+  color: inherit;
+  font-size: var(--portal-font-md);
+  letter-spacing: var(--portal-tracking-caps);
+  text-transform: uppercase;
 }
 
 .welcomeLayout {
   width: 100%;
-  max-width: 960px;
+  max-width: var(--portal-width);
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.7fr);
@@ -103,9 +149,212 @@ a.skip:focus-visible {
   border-top: 1px solid var(--portal-line);
 }
 
-.stepperGroup {
+.progress {
   display: grid;
-  gap: 10px;
+  gap: 8px;
+}
+
+.progressMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--portal-font-sm);
+  color: var(--portal-muted);
+  letter-spacing: var(--portal-tracking-tight);
+}
+
+.progressLabel {
+  color: var(--portal-muted);
+}
+
+.progressValue {
+  color: var(--portal-accent);
+}
+
+.progressTrack {
+  height: 6px;
+  border-radius: var(--portal-radius-pill);
+  background: var(--portal-line);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--portal-accent);
+  transition: width 0.2s ease;
+}
+
+.welcomeStatus {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--portal-line);
+}
+
+.bubbleNav {
+  display: grid;
+  gap: 14px;
+}
+
+.bubbleTrack {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 4px 2px;
+  min-width: 0;
+}
+
+.bubbleTrackSub {
+  padding-left: 0;
+}
+
+.bubbleSlot {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  list-style: none;
+}
+
+.bubbleSlot:last-child {
+  flex: 0 0 auto;
+}
+
+.bubbleLine {
+  flex: 1 1 12px;
+  height: 1px;
+  min-width: 10px;
+  background: var(--portal-border);
+}
+
+.bubbleLineFilled {
+  background: var(--portal-accent);
+}
+
+.bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-height: 40px;
+  padding: 8px 18px;
+  border: 1.5px solid var(--portal-border-strong);
+  border-radius: var(--portal-radius);
+  background-color: var(--portal-surface);
+  background-image: linear-gradient(
+    to right,
+    var(--portal-bubble-fill) var(--bubble-fill, 0%),
+    var(--portal-surface) var(--bubble-fill, 0%)
+  );
+  color: var(--portal-accent);
+  font-size: var(--portal-font-md);
+  line-height: 1;
+  letter-spacing: var(--portal-tracking-ui);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bubbleCompact {
+  min-height: 34px;
+  padding: 6px 14px;
+  font-size: var(--portal-font-sm);
+}
+
+.bubble[data-started] {
+  border-color: var(--portal-bubble-border);
+  color: var(--portal-accent);
+}
+
+.bubble[data-complete] {
+  border-color: var(--portal-accent);
+  background-color: var(--portal-accent);
+  background-image: none;
+  color: var(--portal-surface);
+}
+
+.bubble[data-active] {
+  border-color: var(--portal-accent);
+  color: var(--portal-accent);
+  box-shadow: var(--portal-ring);
+}
+
+.bubble[data-active][data-complete] {
+  color: var(--portal-surface);
+}
+
+.bubbleButton {
+  cursor: pointer;
+}
+
+.bubbleButton:focus-visible {
+  outline: 2px solid var(--portal-ink);
+  outline-offset: 3px;
+}
+
+.wizardActions {
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  margin-top: 8px;
+  padding-top: 20px;
+}
+
+.wizardActionsEnd {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+@media (hover: hover) {
+  .bubbleButton:hover:not([data-complete]) {
+    border-color: var(--portal-accent);
+    color: var(--portal-accent);
+  }
+
+  .bubbleButton[data-complete]:hover {
+    background: var(--portal-accent-hover);
+    border-color: var(--portal-accent-hover);
+    color: var(--portal-surface);
+  }
+}
+
+@media (max-width: 800px) {
+  .bubbleTrack {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .bubble {
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: var(--portal-font-sm);
+  }
+
+  .bubbleCompact {
+    min-height: 32px;
+    padding: 6px 10px;
+    font-size: var(--portal-font-xs);
+  }
+
+  .wizardActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .wizardActionsEnd {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}
+
+.sectionError {
+  color: var(--portal-error);
+  font-size: var(--portal-font-sm);
+  letter-spacing: var(--portal-tracking-tight);
 }
 
 .wizardFieldset {
@@ -133,58 +382,7 @@ a.skip:focus-visible {
 }
 
 .criteriaTitle {
-  letter-spacing: -0.01em;
-}
-
-.stepper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 22px;
-  font-size: 13px;
-  color: var(--portal-muted);
-}
-
-.step,
-.stepActive,
-.stepFilled {
-  background: none;
-  border: 0;
-  padding: 0;
-  font: inherit;
-  color: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-}
-
-.step {
-  opacity: 0.45;
-}
-
-.stepActive {
-  opacity: 1;
-  color: var(--portal-accent);
-  text-decoration: none;
-}
-
-.stepFilled {
-  opacity: 1;
-}
-
-.stepLink {
-  cursor: pointer;
-}
-
-@media (hover: hover) {
-  .stepLink:hover {
-    color: var(--portal-accent);
-    opacity: 1;
-  }
-}
-
-.stepLink:focus-visible {
-  outline: 2px solid #1a1a1a;
-  outline-offset: 3px;
-  border-radius: 4px;
+  letter-spacing: var(--portal-tracking);
 }
 
 @media (max-width: 800px) {

@@ -1,6 +1,7 @@
 'use client'
 
 import { ApplicationWizard } from '@/components/Portal/ApplicationWizard'
+import { useWizardFieldError } from '@/components/Portal/WizardFieldErrors'
 import { BIO_SUMMARY_MAX_WORDS } from '@/lib/portal-media'
 import { PORTAL_PATHS, type WizardStep } from '@/lib/portal'
 import type { Application } from '@/payload-types'
@@ -11,11 +12,51 @@ type BioStepFormProps = {
   application: Application
   readOnly: boolean
   busy?: boolean
-  onBack?: () => void
+  onBack?: (data: Partial<Application>) => void
   onContinue?: (data: Partial<Application>) => void
   onSaveAndExit?: (data: Partial<Application>) => void
   onSelectStep?: (step: WizardStep, data: Partial<Application>) => void
   reachedIndex?: number
+}
+
+function BioFields({ application, readOnly }: { application: Application; readOnly: boolean }) {
+  const educationalError = useWizardFieldError('educationalBackground')
+  const summaryError = useWizardFieldError('biographicalSummary')
+
+  return (
+    <>
+      <Title as="h2" caps>
+        Biographical information
+      </Title>
+      <TextArea
+        defaultValue={application.educationalBackground ?? ''}
+        error={educationalError}
+        label="Educational background*"
+        name="educationalBackground"
+        readOnly={readOnly}
+      />
+      <TextArea
+        defaultValue={application.recentExhibitions ?? ''}
+        label="Recent exhibitions (if any)"
+        name="recentExhibitions"
+        readOnly={readOnly}
+      />
+      <TextArea
+        defaultValue={application.awardsRecognition ?? ''}
+        label="Awards/recognition (if any)"
+        name="awardsRecognition"
+        readOnly={readOnly}
+      />
+      <TextArea
+        defaultValue={application.biographicalSummary ?? ''}
+        error={summaryError}
+        hint={`Provide a concise biographical note highlighting key aspects of your background, education, and career development. ${BIO_SUMMARY_MAX_WORDS} words maximum.`}
+        label="Biographical summary*"
+        name="biographicalSummary"
+        readOnly={readOnly}
+      />
+    </>
+  )
 }
 
 export function BioStepForm({
@@ -59,28 +100,7 @@ export function BioStepForm({
       readOnly={readOnly}
       step="bio"
     >
-      <Title as="h2">Biographical information</Title>
-      <TextArea
-        defaultValue={application.educationalBackground ?? ''}
-        label="Educational background*"
-        name="educationalBackground"
-      />
-      <TextArea
-        defaultValue={application.recentExhibitions ?? ''}
-        label="Recent exhibitions (if any)"
-        name="recentExhibitions"
-      />
-      <TextArea
-        defaultValue={application.awardsRecognition ?? ''}
-        label="Awards/recognition (if any)"
-        name="awardsRecognition"
-      />
-      <TextArea
-        defaultValue={application.biographicalSummary ?? ''}
-        hint={`Provide a concise biographical note highlighting key aspects of your background, education, and career development. ${BIO_SUMMARY_MAX_WORDS} words maximum.`}
-        label="Biographical summary*"
-        name="biographicalSummary"
-      />
+      <BioFields application={application} readOnly={readOnly} />
     </ApplicationWizard>
   )
 }

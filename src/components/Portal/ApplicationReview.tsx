@@ -101,7 +101,9 @@ export function ApplicationReview({
         </Stack>
       ) : (
         <Stack>
-          <Title as="h2">Personal information</Title>
+          <Title as="h2" caps>
+            Personal information
+          </Title>
           <Readout label="Full name" value={application.fullName} />
           <Readout label="Artist name" value={application.artistName} />
           <Readout label="Date of birth" value={application.dateOfBirth?.slice(0, 10)} />
@@ -116,7 +118,9 @@ export function ApplicationReview({
           <Readout label="Website/portfolio URL" value={application.website} />
           <Readout label="Social media" value={application.socialMedia} />
 
-          <Title as="h2">Eligibility confirmation</Title>
+          <Title as="h2" caps>
+            Eligibility confirmation
+          </Title>
           <Readout label="Years of practice" value={application.yearsOfPractice} />
           <Readout label="Educational/training background" value={application.trainingBackground} />
           <Readout label="Primary craft discipline" value={application.primaryCraftDiscipline} />
@@ -131,7 +135,9 @@ export function ApplicationReview({
             }
           />
 
-          <Title as="h2">Biographical information</Title>
+          <Title as="h2" caps>
+            Biographical information
+          </Title>
           <Readout label="Educational background" value={application.educationalBackground} />
           <Readout label="Recent exhibitions" value={application.recentExhibitions} />
           <Readout label="Awards/recognition" value={application.awardsRecognition} />

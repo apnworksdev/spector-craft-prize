@@ -88,6 +88,7 @@ export function governmentIdError(file: FileLike): string | true {
 }
 
 type SubmissionFileRef = {
+  id?: number
   url?: string | null
   filename?: string | null
 }

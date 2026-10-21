@@ -1,3 +1,4 @@
+import { isAdmin } from '@/access/roles'
 import { PortalShell } from '@/components/Portal/PortalShell'
 import { Actions, Button, Input, Panel, Stack, Text, TextLink, Title } from '@/components/Portal/ui'
 import { applicationLabel, displayName, PORTAL_PATHS } from '@/lib/portal'
@@ -17,12 +18,13 @@ export default async function JuryListPage({ searchParams }: PageProps) {
   const userRef = { ...user, collection: 'users' as const }
   const applications = await payload.find({
     collection: 'applications',
-    where: {
-      and: [{ status: { equals: 'submitted' } }, { selectedForEvaluation: { equals: true } }],
-    },
+    where: isAdmin(user)
+      ? { and: [{ status: { equals: 'submitted' } }, { selectedForEvaluation: { equals: true } }] }
+      : undefined,
     depth: 1,
     limit: 200,
     user: userRef,
+    overrideAccess: false,
   })
   const scored = await payload.find({
     collection: 'evaluations',
@@ -30,6 +32,7 @@ export default async function JuryListPage({ searchParams }: PageProps) {
     limit: 500,
     depth: 0,
     user: userRef,
+    overrideAccess: false,
   })
   const scoredIds = new Set(
     scored.docs.map((evaluation) =>
@@ -42,9 +45,7 @@ export default async function JuryListPage({ searchParams }: PageProps) {
       return true
     }
 
-    const applicant = typeof application.applicant === 'object' ? application.applicant : null
-    const name = (applicant ? displayName(applicant) : '').toLowerCase()
-    return name.includes(query)
+    return applicationLabel(application).toLowerCase().includes(query)
   })
 
   return (

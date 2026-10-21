@@ -25,10 +25,10 @@ import { Summit } from './globals/Summit'
 import { Terms } from './globals/Terms'
 import { backfillApplicationFileLinks } from './hooks/applications'
 import { seedDefaultProgram } from './hooks/seedProgram'
-import { portalConsoleEmailAdapter } from './lib/email/consoleAdapter'
+import { portalEmailAdapter } from './lib/email/adapter'
 import { getServerURL } from './lib/env'
 import { MAX_UPLOAD_BYTES } from './lib/upload'
-import { r2Storage } from './storage/r2'
+import { r2Storage, r2SubmissionsStorage } from './storage/r2'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -79,7 +79,7 @@ export default buildConfig({
       FixedToolbarFeature(),
     ],
   }),
-  email: portalConsoleEmailAdapter,
+  email: portalEmailAdapter(),
   secret: payloadSecret,
   serverURL,
   cors: [serverURL],
@@ -102,7 +102,7 @@ export default buildConfig({
       fileSize: MAX_UPLOAD_BYTES,
     },
   },
-  plugins: [r2Storage],
+  plugins: [r2Storage, r2SubmissionsStorage],
   onInit: async (payload) => {
     await seedDefaultProgram(payload)
     await backfillApplicationFileLinks(payload)

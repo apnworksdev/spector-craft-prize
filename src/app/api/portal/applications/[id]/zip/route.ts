@@ -18,7 +18,11 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const { id } = await context.params
-  const application = await loadApplicationForDownload(Number(id), user)
+  const application = await loadApplicationForDownload(Number(id), user).catch(() => null)
+  if (!application) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
   const zip = await buildApplicationZip(application, user, request.headers.get('cookie') ?? '')
 
   return new NextResponse(Buffer.from(zip), {

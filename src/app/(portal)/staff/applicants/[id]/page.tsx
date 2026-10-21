@@ -59,18 +59,20 @@ export default async function StaffApplicantDetailPage({ params, searchParams }:
           view={view === 'media' ? 'media' : 'forms'}
         />
         <EvaluationSummary evaluations={evaluations.docs} />
-        <form
-          action={async () => {
-            'use server'
-            await toggleEvaluationAction(application.id)
-          }}
-        >
-          <Button type="submit" variant="primary">
-            {application.selectedForEvaluation
-              ? 'Remove from evaluation'
-              : 'Select for evaluation'}
-          </Button>
-        </form>
+        {application.status === 'submitted' ? (
+          <form
+            action={async () => {
+              'use server'
+              await toggleEvaluationAction(application.id)
+            }}
+          >
+            <Button type="submit" variant="primary">
+              {application.selectedForEvaluation
+                ? 'Remove from evaluation'
+                : 'Select for evaluation'}
+            </Button>
+          </form>
+        ) : null}
       </Panel>
     </PortalShell>
   )

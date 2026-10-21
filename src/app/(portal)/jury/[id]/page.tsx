@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 
+import { isAdmin } from '@/access/roles'
 import { ApplicationReview } from '@/components/Portal/ApplicationReview'
 import { JuryScoreForm } from '@/components/Portal/JuryScoreForm'
 import { PortalShell } from '@/components/Portal/PortalShell'
@@ -27,8 +28,16 @@ export default async function JuryApplicationPage({ params, searchParams }: Page
       id: Number(id),
       depth: 1,
       user: userRef,
+      overrideAccess: false,
     })
   } catch {
+    notFound()
+  }
+
+  if (
+    application.status !== 'submitted' ||
+    (isAdmin(user) && !application.selectedForEvaluation)
+  ) {
     notFound()
   }
 
@@ -40,6 +49,7 @@ export default async function JuryApplicationPage({ params, searchParams }: Page
     limit: 1,
     depth: 0,
     user: userRef,
+    overrideAccess: false,
   })
   const mine = evaluation.docs[0]
 

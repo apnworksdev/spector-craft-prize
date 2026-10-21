@@ -11,7 +11,6 @@ import {
 import { assignSubmissionFileOwner, validateSubmissionFileRules } from '@/hooks/submissionFiles'
 import {
   APPLICATION_IMAGE_TYPES,
-  APPLICATION_VIDEO_MAX_BYTES,
   APPLICATION_VIDEO_TYPES,
   GOVERNMENT_ID_TYPES,
 } from '@/lib/portal-media'
@@ -38,9 +37,6 @@ export const SubmissionFiles: CollectionConfig = {
     staticDir: path.resolve(dirname, '../../submission-files'),
     mimeTypes: [...APPLICATION_IMAGE_TYPES, ...APPLICATION_VIDEO_TYPES, ...GOVERNMENT_ID_TYPES],
     filesRequiredOnCreate: true,
-    limits: {
-      fileSize: APPLICATION_VIDEO_MAX_BYTES,
-    },
   },
   fields: [
     {

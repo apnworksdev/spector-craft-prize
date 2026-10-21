@@ -89,14 +89,14 @@ export async function ensureApplicationForLiveProgram() {
   return ensureApplicantApplication(applicant.id, program.id)
 }
 
-export async function setProgramStatusFromForm(formData: FormData) {
+export async function setProgramStatusFromForm(formData: FormData): Promise<void> {
   const programId = Number(formData.get('programId'))
   const status = String(formData.get('status') || '') as 'draft' | 'live' | 'closed'
   if (!programId || !['draft', 'live', 'closed'].includes(status)) {
-    return { ok: false, error: 'Invalid program update.' }
+    return
   }
 
-  return setProgramStatus(programId, status)
+  await setProgramStatus(programId, status)
 }
 
 export async function setProgramStatus(programId: number, status: 'draft' | 'live' | 'closed') {
@@ -143,6 +143,18 @@ export async function setSelectedForEvaluation(applicationId: number, selected: 
   }
 
   const payload = await getPayloadClient()
+  const application = await payload.findByID({
+    collection: 'applications',
+    id: applicationId,
+    depth: 0,
+    user: { ...staff, collection: 'users' },
+    overrideAccess: false,
+  })
+
+  if (application.status !== 'submitted') {
+    return { ok: false, error: 'Only submitted applications can be selected for evaluation.' }
+  }
+
   await payload.update({
     collection: 'applications',
     id: applicationId,
@@ -157,37 +169,46 @@ export async function setSelectedForEvaluation(applicationId: number, selected: 
   return { ok: true }
 }
 
-export async function createJurorUser(formData: FormData) {
+export async function createJurorUser(formData: FormData): Promise<void> {
   const staff = await getStaffSession()
   if (!staff || !isAdmin(staff)) {
-    return { ok: false, error: 'Unauthorized' }
+    redirect(`${PORTAL_PATHS.staff}/login`)
   }
 
   const email = String(formData.get('email') || '').trim()
   const password = String(formData.get('password') || '')
   const firstName = String(formData.get('firstName') || '').trim()
   const lastName = String(formData.get('lastName') || '').trim()
+  let error = ''
   if (!email || !password || !firstName || !lastName) {
-    return { ok: false, error: 'All fields are required.' }
+    error = 'All fields are required.'
+  } else {
+    try {
+      const payload = await getPayloadClient()
+      await payload.create({
+        collection: 'users',
+        data: {
+          email,
+          password,
+          firstName,
+          lastName,
+          role: 'juror',
+          canJury: false,
+        },
+        user: { ...staff, collection: 'users' },
+        overrideAccess: false,
+      })
+    } catch (createError) {
+      error = createError instanceof Error ? createError.message : 'Could not create juror.'
+    }
   }
 
-  const payload = await getPayloadClient()
-  await payload.create({
-    collection: 'users',
-    data: {
-      email,
-      password,
-      firstName,
-      lastName,
-      role: 'juror',
-      canJury: false,
-    },
-    user: { ...staff, collection: 'users' },
-    overrideAccess: false,
-  })
-
   revalidatePath(PORTAL_PATHS.staffUsers)
-  redirect(PORTAL_PATHS.staffUsers)
+  redirect(
+    error
+      ? `${PORTAL_PATHS.staffUsers}?error=${encodeURIComponent(error)}`
+      : PORTAL_PATHS.staffUsers,
+  )
 }
 
 export async function saveEvaluation(
