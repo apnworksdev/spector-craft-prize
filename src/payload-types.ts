@@ -355,7 +355,7 @@ export interface Application {
    */
   whyPrize?: string | null;
   /**
-   * Add several views of the same work in one upload and fill in the details once. To title a different work or a piece in a series, add another set. Images should have a white or neutral background. Maximum 5 images. JPEG, PNG, or WebP, at least 800 × 600 px, max 2 MB each.
+   * Add several views of the same work in one upload and fill in the details once. To title a different work or a piece in a series, add another set. Images should have a white or neutral background. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.
    */
   workImages?:
     | {
@@ -373,7 +373,7 @@ export interface Application {
       }[]
     | null;
   /**
-   * Representative works that highlight your artistic development. Optional. You can group several images of one work, or add a separate set for each piece. Maximum 5 images. JPEG, PNG, or WebP, at least 800 × 600 px, max 2 MB each.
+   * Representative works that highlight your artistic development. Optional. You can group several images of one work, or add a separate set for each piece. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.
    */
   portfolioImages?:
     | {

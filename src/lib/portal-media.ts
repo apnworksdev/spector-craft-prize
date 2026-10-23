@@ -1,6 +1,4 @@
 export const APPLICATION_IMAGE_MAX = 5
-export const APPLICATION_IMAGE_MIN_WIDTH = 800
-export const APPLICATION_IMAGE_MIN_HEIGHT = 600
 export const APPLICATION_IMAGE_MAX_BYTES = 2 * 1024 * 1024
 export const APPLICATION_VIDEO_MAX_BYTES = 10 * 1024 * 1024
 export const APPLICATION_VIDEO_MAX_SECONDS = 90
@@ -21,10 +19,10 @@ export const GOVERNMENT_ID_TYPES = [
 ] as const
 
 export const APPLICATION_IMAGE_HELP =
-  'Add several views of the same work in one upload and fill in the details once. To title a different work or a piece in a series, add another set. Images should have a white or neutral background. Maximum 5 images. JPEG, PNG, or WebP, at least 800 × 600 px, max 2 MB each.'
+  'Add several views of the same work in one upload and fill in the details once. To title a different work or a piece in a series, add another set. Images should have a white or neutral background. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.'
 
 export const PORTFOLIO_IMAGE_HELP =
-  'Representative works that highlight your artistic development. Optional. You can group several images of one work, or add a separate set for each piece. Maximum 5 images. JPEG, PNG, or WebP, at least 800 × 600 px, max 2 MB each.'
+  'Representative works that highlight your artistic development. Optional. You can group several images of one work, or add a separate set for each piece. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.'
 
 export const APPLICATION_VIDEO_HELP =
   'Optional. Short video showing your work or process. MP4, maximum 90 seconds, maximum 10 MB.'
@@ -46,14 +44,6 @@ export function applicationImageError(file: FileLike): string | true {
 
   if (typeof file.filesize === 'number' && file.filesize > APPLICATION_IMAGE_MAX_BYTES) {
     return 'Each image must be 2 MB or smaller.'
-  }
-
-  if (
-    typeof file.width === 'number' &&
-    typeof file.height === 'number' &&
-    (file.width < APPLICATION_IMAGE_MIN_WIDTH || file.height < APPLICATION_IMAGE_MIN_HEIGHT)
-  ) {
-    return `Images must be at least ${APPLICATION_IMAGE_MIN_WIDTH} × ${APPLICATION_IMAGE_MIN_HEIGHT} px.`
   }
 
   return true

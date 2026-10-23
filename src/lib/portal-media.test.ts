@@ -34,6 +34,28 @@ describe('applicationImageError', () => {
   it('rejects invalid image files', () => {
     expect(applicationImageError({ mimeType: 'image/gif' })).toBe('Images must be JPEG, PNG, or WebP.')
   })
+
+  it('does not enforce minimum dimensions', () => {
+    expect(
+      applicationImageError({
+        mimeType: 'image/jpeg',
+        filesize: 500_000,
+        width: 400,
+        height: 300,
+      }),
+    ).toBe(true)
+  })
+
+  it('rejects images over 2 MB', () => {
+    expect(
+      applicationImageError({
+        mimeType: 'image/jpeg',
+        filesize: 3 * 1024 * 1024,
+        width: 400,
+        height: 300,
+      }),
+    ).toBe('Each image must be 2 MB or smaller.')
+  })
 })
 
 describe('applicationVideoError', () => {
