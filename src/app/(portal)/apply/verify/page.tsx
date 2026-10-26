@@ -1,6 +1,6 @@
 import { PortalShell } from '@/components/Portal/PortalShell'
 import { Panel, Text, TextLink, Title } from '@/components/Portal/ui'
-import { getServerURL } from '@/lib/env'
+import { getPayloadClient } from '@/lib/payload'
 import { PORTAL_PATHS } from '@/lib/portal'
 
 type PageProps = {
@@ -14,15 +14,19 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
   let ok = false
 
   if (token) {
-    const response = await fetch(`${getServerURL()}/api/applicants/verify/${token}`, {
-      method: 'POST',
-      cache: 'no-store',
-    })
-
-    ok = response.ok
-    message = response.ok
-      ? 'Your email is verified. You can log in now.'
-      : 'This verification link is invalid or expired.'
+    try {
+      const payload = await getPayloadClient()
+      ok = await payload.verifyEmail({
+        collection: 'applicants',
+        token,
+      })
+      message = ok
+        ? 'Your email is verified. You can log in now.'
+        : 'This verification link is invalid or expired.'
+    } catch {
+      ok = false
+      message = 'This verification link is invalid or expired.'
+    }
   }
 
   return (

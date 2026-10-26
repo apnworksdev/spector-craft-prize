@@ -17,16 +17,46 @@ type AuthFormsProps = {
   resetToken?: string
 }
 
+function isUnverifiedLoginError(message: string) {
+  return /verify your email/i.test(message)
+}
+
 export function AuthForms({ mode, collection, redirectTo, resetToken }: AuthFormsProps) {
   const router = useRouter()
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState('')
+
+  async function resendVerification(email: string) {
+    setError('')
+    setMessage('')
+    setResending(true)
+
+    try {
+      const response = await fetch('/api/portal/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(result.message || 'Could not resend verification email.')
+      }
+      setMessage(result.message || 'If that account needs verification, we sent a new email.')
+    } catch (resendError) {
+      setError(resendError instanceof Error ? resendError.message : 'Could not resend verification email.')
+    } finally {
+      setResending(false)
+    }
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError('')
     setMessage('')
+    setPendingVerificationEmail('')
     setLoading(true)
 
     const form = event.currentTarget
@@ -69,12 +99,13 @@ export function AuthForms({ mode, collection, redirectTo, resetToken }: AuthForm
       }
 
       if (mode === 'signup') {
+        const email = String(formData.get('email') || '')
         const createResponse = await fetch(`${serverURL}/api/${collection}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({
-            email: String(formData.get('email') || ''),
+            email,
             password: String(formData.get('password') || ''),
             firstName: String(formData.get('firstName') || ''),
             lastName: String(formData.get('lastName') || ''),
@@ -86,17 +117,19 @@ export function AuthForms({ mode, collection, redirectTo, resetToken }: AuthForm
           throw new Error(createResult.errors?.[0]?.message || 'Sign up failed.')
         }
 
+        setPendingVerificationEmail(email)
         setMessage('Check your email to verify your account before logging in.')
         setLoading(false)
         return
       }
 
+      const email = String(formData.get('email') || '')
       const response = await fetch(`${serverURL}/api/${collection}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          email: String(formData.get('email') || ''),
+          email,
           password: String(formData.get('password') || ''),
         }),
       })
@@ -104,7 +137,11 @@ export function AuthForms({ mode, collection, redirectTo, resetToken }: AuthForm
       const result = await response.json().catch(() => ({}))
 
       if (!response.ok) {
-        throw new Error(result.errors?.[0]?.message || 'Authentication failed.')
+        const loginError = result.errors?.[0]?.message || 'Authentication failed.'
+        if (collection === 'applicants' && isUnverifiedLoginError(loginError)) {
+          setPendingVerificationEmail(email)
+        }
+        throw new Error(loginError)
       }
 
       router.push(redirectTo)
@@ -150,6 +187,16 @@ export function AuthForms({ mode, collection, redirectTo, resetToken }: AuthForm
                 ? 'Log in'
                 : 'Reset password'}
         </Button>
+        {pendingVerificationEmail ? (
+          <Button
+            disabled={resending}
+            onClick={() => void resendVerification(pendingVerificationEmail)}
+            type="button"
+            variant="secondary"
+          >
+            {resending ? 'Sending…' : 'Resend verification email'}
+          </Button>
+        ) : null}
         {mode === 'login' && collection === 'applicants' ? (
           <>
             <TextLink href={PORTAL_PATHS.signup}>Sign up</TextLink>

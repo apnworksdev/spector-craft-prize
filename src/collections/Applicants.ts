@@ -2,10 +2,13 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly, isAdmin, isApplicantUser } from '@/access/roles'
 import { deleteApplicantDependents } from '@/hooks/applicants'
+import {
+  RESEND_TEMPLATE_ALREADY_SENT,
+  sendResetPasswordTemplate,
+  sendVerifyEmailTemplate,
+} from '@/lib/email/resendTemplates'
 import { getServerURL } from '@/lib/env'
 import { PORTAL_PATHS, SUPPORT_EMAIL } from '@/lib/portal'
-
-const serverURL = getServerURL()
 
 export const Applicants: CollectionConfig = {
   slug: 'applicants',
@@ -17,15 +20,41 @@ export const Applicants: CollectionConfig = {
   auth: {
     verify: {
       generateEmailSubject: () => 'Verify your Spector Craft Prize account',
-      generateEmailHTML: (args) => {
-        const url = `${serverURL}${PORTAL_PATHS.verify}?token=${args?.token ?? ''}`
+      generateEmailHTML: async (args) => {
+        const token = encodeURIComponent(args?.token ?? '')
+        const url = `${getServerURL()}${PORTAL_PATHS.verify}?token=${token}`
+        const email = typeof args?.user?.email === 'string' ? args.user.email : ''
+
+        if (email) {
+          try {
+            if (await sendVerifyEmailTemplate(email, url)) {
+              return RESEND_TEMPLATE_ALREADY_SENT
+            }
+          } catch (error) {
+            console.error('Verify email template failed; falling back to inline HTML.', error)
+          }
+        }
+
         return `<p>Please verify your email to continue your application.</p><p><a href="${url}">Verify email</a></p>`
       },
     },
     forgotPassword: {
       generateEmailSubject: () => 'Reset your Spector Craft Prize password',
-      generateEmailHTML: (args) => {
-        const url = `${serverURL}${PORTAL_PATHS.resetPassword}?token=${args?.token ?? ''}`
+      generateEmailHTML: async (args) => {
+        const token = encodeURIComponent(args?.token ?? '')
+        const url = `${getServerURL()}${PORTAL_PATHS.resetPassword}?token=${token}`
+        const email = typeof args?.user?.email === 'string' ? args.user.email : ''
+
+        if (email) {
+          try {
+            if (await sendResetPasswordTemplate(email, url)) {
+              return RESEND_TEMPLATE_ALREADY_SENT
+            }
+          } catch (error) {
+            console.error('Reset password template failed; falling back to inline HTML.', error)
+          }
+        }
+
         return `<p>Reset your password using the link below.</p><p><a href="${url}">Reset password</a></p><p>If you did not request this, contact ${SUPPORT_EMAIL}.</p>`
       },
     },
