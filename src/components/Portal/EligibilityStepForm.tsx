@@ -1,11 +1,21 @@
 'use client'
 
+import { useState } from 'react'
+
 import { ApplicationWizard } from '@/components/Portal/ApplicationWizard'
 import { useWizardFieldError } from '@/components/Portal/WizardFieldErrors'
+import {
+  OTHER_OPTION,
+  PRIMARY_CRAFT_DISCIPLINE_OPTIONS,
+  TRAINING_BACKGROUND_OPTIONS,
+  YEARS_OF_PRACTICE_OPTIONS,
+  resolveSelectWithOther,
+  splitSelectWithOther,
+} from '@/lib/eligibility-options'
 import { PORTAL_PATHS, type WizardStep } from '@/lib/portal'
 import type { Application } from '@/payload-types'
 
-import { SelectField, TextArea, TextField, Title } from './ui'
+import { SelectField, TextField, Title } from './ui'
 
 type EligibilityStepFormProps = {
   application: Application
@@ -31,6 +41,62 @@ function valueOf(form: HTMLFormElement, name: string) {
   return ''
 }
 
+function SelectWithOther({
+  label,
+  name,
+  options,
+  value,
+  error,
+  readOnly,
+  otherLabel = 'Please specify*',
+}: {
+  label: string
+  name: string
+  options: readonly string[]
+  value: string | null | undefined
+  error?: string
+  readOnly?: boolean
+  otherLabel?: string
+}) {
+  const initial = splitSelectWithOther(value, options)
+  const [choice, setChoice] = useState(initial.choice)
+  const [other, setOther] = useState(initial.other)
+  const showOther = choice === OTHER_OPTION
+
+  return (
+    <>
+      <SelectField
+        disabled={readOnly}
+        error={showOther ? undefined : error}
+        label={label}
+        name={`${name}Choice`}
+        onChange={(event) => setChoice(event.target.value)}
+        value={choice}
+      >
+        <option value="">Select</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+        <option value={OTHER_OPTION}>{OTHER_OPTION}</option>
+      </SelectField>
+      {showOther ? (
+        <TextField
+          error={error}
+          label={otherLabel}
+          name={`${name}Other`}
+          onChange={(event) => setOther(event.target.value)}
+          readOnly={readOnly}
+          value={other}
+        />
+      ) : (
+        <input name={`${name}Other`} type="hidden" value="" />
+      )}
+    </>
+  )
+}
+
 function EligibilityFields({
   application,
   readOnly,
@@ -48,29 +114,39 @@ function EligibilityFields({
       <Title as="h2" caps>
         Eligibility confirmation
       </Title>
-      <TextField
+      <SelectField
         defaultValue={application.yearsOfPractice ?? ''}
+        disabled={readOnly}
         error={yearsError}
         label="Years of practice*"
         name="yearsOfPractice"
-        readOnly={readOnly}
-      />
-      <TextArea
-        defaultValue={application.trainingBackground ?? ''}
+      >
+        <option value="">Select</option>
+        {YEARS_OF_PRACTICE_OPTIONS.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </SelectField>
+      <SelectWithOther
         error={trainingError}
         label="Educational/training background*"
         name="trainingBackground"
+        options={TRAINING_BACKGROUND_OPTIONS}
         readOnly={readOnly}
+        value={application.trainingBackground}
       />
-      <TextField
-        defaultValue={application.primaryCraftDiscipline ?? ''}
+      <SelectWithOther
         error={disciplineError}
         label="Primary craft discipline*"
         name="primaryCraftDiscipline"
+        options={PRIMARY_CRAFT_DISCIPLINE_OPTIONS}
         readOnly={readOnly}
+        value={application.primaryCraftDiscipline}
       />
       <SelectField
         defaultValue={application.usCitizenOrResident ?? ''}
+        disabled={readOnly}
         error={citizenError}
         label="Are you a United States citizen or resident?*"
         name="usCitizenOrResident"
@@ -104,8 +180,14 @@ export function EligibilityStepForm({
         const citizenship = valueOf(form, 'usCitizenOrResident')
         return {
           yearsOfPractice: valueOf(form, 'yearsOfPractice'),
-          trainingBackground: valueOf(form, 'trainingBackground'),
-          primaryCraftDiscipline: valueOf(form, 'primaryCraftDiscipline'),
+          trainingBackground: resolveSelectWithOther(
+            valueOf(form, 'trainingBackgroundChoice'),
+            valueOf(form, 'trainingBackgroundOther'),
+          ),
+          primaryCraftDiscipline: resolveSelectWithOther(
+            valueOf(form, 'primaryCraftDisciplineChoice'),
+            valueOf(form, 'primaryCraftDisciplineOther'),
+          ),
           usCitizenOrResident: citizenship === 'yes' || citizenship === 'no' ? citizenship : null,
         }
       }}
