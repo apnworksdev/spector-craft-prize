@@ -6,16 +6,40 @@ import {
   evaluationsUpdate,
 } from '@/access/evaluations'
 import { adminOnly, isAdmin } from '@/access/roles'
-import { assignEvaluationJuror, enforceEvaluationTarget } from '@/hooks/evaluations'
-import { JURY_SCORE_FIELDS, JURY_SCORE_MAX, JURY_SCORE_MIN } from '@/lib/jury-scores'
+import {
+  assignEvaluationJuror,
+  assignEvaluationTotal,
+  enforceEvaluationTarget,
+  refreshApplicationPanelGradeAfterChange,
+  refreshApplicationPanelGradeAfterDelete,
+  syncEvaluationIdentity,
+} from '@/hooks/evaluations'
+import {
+  JURY_SCORE_FIELDS,
+  JURY_SCORE_MAX,
+  JURY_SCORE_MIN,
+  JURY_SCORE_TOTAL_MAX,
+} from '@/lib/jury-scores'
 
 export const Evaluations: CollectionConfig = {
   slug: 'evaluations',
   admin: {
-    defaultColumns: ['application', 'juror', 'updatedAt'],
+    defaultColumns: [
+      'listTitle',
+      'application',
+      'juror',
+      'artisticExcellence',
+      'culturalSignificance',
+      'growthPotential',
+      'missionAlignment',
+      'total',
+      'updatedAt',
+    ],
     hidden: ({ user }) => user?.role !== 'admin',
     group: 'Submissions',
-    useAsTitle: 'id',
+    useAsTitle: 'listTitle',
+    description:
+      'All juror scores on one list. Total is the sum of the four criteria (max 20). Filter by application or juror as needed.',
   },
   access: {
     admin: ({ req }) => isAdmin(req.user),
@@ -25,7 +49,14 @@ export const Evaluations: CollectionConfig = {
     delete: adminOnly,
   },
   hooks: {
-    beforeChange: [enforceEvaluationTarget, assignEvaluationJuror],
+    beforeChange: [
+      enforceEvaluationTarget,
+      assignEvaluationJuror,
+      assignEvaluationTotal,
+      syncEvaluationIdentity,
+    ],
+    afterChange: [refreshApplicationPanelGradeAfterChange],
+    afterDelete: [refreshApplicationPanelGradeAfterDelete],
   },
   indexes: [
     {
@@ -35,10 +66,30 @@ export const Evaluations: CollectionConfig = {
   ],
   fields: [
     {
+      name: 'listTitle',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        description: 'Applicant and juror. This is the evaluation title and URL.',
+      },
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      index: true,
+      admin: {
+        hidden: true,
+      },
+    },
+    {
       name: 'application',
       type: 'relationship',
       relationTo: 'applications',
       required: true,
+      admin: {
+        description: 'Shown by applicant name when the application list title is set.',
+      },
     },
     {
       name: 'juror',
@@ -59,6 +110,19 @@ export const Evaluations: CollectionConfig = {
         description: `${field.title}. ${JURY_SCORE_MIN}–${JURY_SCORE_MAX}.`,
       },
     })),
+    {
+      name: 'total',
+      type: 'number',
+      min: JURY_SCORE_FIELDS.length * JURY_SCORE_MIN,
+      max: JURY_SCORE_TOTAL_MAX,
+      admin: {
+        readOnly: true,
+        description: `Sum of the four criteria (max ${JURY_SCORE_TOTAL_MAX}).`,
+        components: {
+          Cell: '/components/Admin/PanelMedianCell#PanelMedianCell',
+        },
+      },
+    },
     {
       name: 'notes',
       type: 'textarea',

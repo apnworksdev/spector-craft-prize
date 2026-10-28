@@ -4,9 +4,12 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import {
+  firstInvalidField,
   focusFirstInvalidField,
   mergeApplication,
   validateSubmitReady,
+  wizardStepForField,
+  type FieldErrors,
 } from '@/lib/application-validation'
 import { submitApplication } from '@/lib/portal-actions'
 import { enqueueApplicationSave } from '@/lib/application-save-queue'
@@ -20,8 +23,10 @@ type SubmitStepProps = {
   applicationId: number
   program: Program
   readOnly: boolean
+  sectionsReady?: boolean
   declarationState: Array<{ accepted?: boolean | null }> | null | undefined
   onGovernmentIdError?: (message: string) => void
+  onGoToMissingField?: (errors: FieldErrors) => void
 }
 
 export function SubmitStep({
@@ -29,8 +34,10 @@ export function SubmitStep({
   applicationId,
   program,
   readOnly,
+  sectionsReady = true,
   declarationState,
   onGovernmentIdError,
+  onGoToMissingField,
 }: SubmitStepProps) {
   const router = useRouter()
   const [error, setError] = useState('')
@@ -50,18 +57,24 @@ export function SubmitStep({
 
     const merged = mergeApplication(application, { declarationsAccepted })
     const validationErrors = validateSubmitReady(merged, program)
-    const { governmentId: governmentIdError, ...declarationOnlyErrors } = validationErrors
 
-    if (Object.keys(declarationOnlyErrors).length > 0) {
-      setDeclarationErrors(declarationOnlyErrors)
-      focusFirstInvalidField(declarationOnlyErrors)
-      setLoading(false)
-      return
-    }
+    if (Object.keys(validationErrors).length > 0) {
+      const field = firstInvalidField(validationErrors)
+      const targetStep = field ? wizardStepForField(field) : 'submit'
 
-    if (governmentIdError) {
-      onGovernmentIdError?.(governmentIdError)
-      focusFirstInvalidField({ governmentId: governmentIdError })
+      if (targetStep === 'submit') {
+        const { governmentId: governmentIdError, ...declarationOnlyErrors } = validationErrors
+        if (Object.keys(declarationOnlyErrors).length > 0) {
+          setDeclarationErrors(declarationOnlyErrors)
+        }
+        if (governmentIdError) {
+          onGovernmentIdError?.(governmentIdError)
+        }
+        focusFirstInvalidField(validationErrors)
+      } else {
+        onGoToMissingField?.(validationErrors)
+      }
+
       setLoading(false)
       return
     }
@@ -85,8 +98,10 @@ export function SubmitStep({
 
   return (
     <FormSection>
-      <Title as="h2">Submit</Title>
-      <Text>{program.readyToSubmitMessage}</Text>
+      <Title as="h2" caps>
+        Submit
+      </Title>
+      <Text>{sectionsReady ? program.readyToSubmitMessage : program.incompleteMessage}</Text>
       <Stack dense>
         {(program.declarations ?? []).map((entry, index) => (
           <Checkbox

@@ -29,12 +29,11 @@ describe('submissionFilesUpdate', () => {
 })
 
 describe('submissionFilesRead', () => {
-  it('lets jurors read only non-id files on selected submitted applications', () => {
+  it('lets jurors read only non-id files on submitted applications', () => {
     expect(submissionFilesRead({ req: { user: juror } } as never)).toEqual({
       and: [
         { kind: { not_equals: 'id' } },
         { 'application.status': { equals: 'submitted' } },
-        { 'application.selectedForEvaluation': { equals: true } },
       ],
     })
   })

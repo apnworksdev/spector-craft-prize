@@ -4,6 +4,7 @@ import { useId } from 'react'
 
 import { ApplicationWizard } from '@/components/Portal/ApplicationWizard'
 import { useWizardFieldError } from '@/components/Portal/WizardFieldErrors'
+import type { FieldErrors } from '@/lib/application-validation'
 import { countryNameSuggestions } from '@/lib/countries'
 import { PORTAL_PATHS, type WizardStep } from '@/lib/portal'
 import type { Application } from '@/payload-types'
@@ -18,7 +19,8 @@ type PersonalStepFormProps = {
   onContinue?: (data: Partial<Application>) => void
   onSaveAndExit?: (data: Partial<Application>) => void
   onSelectStep?: (step: WizardStep, data: Partial<Application>) => void
-  reachedIndex?: number
+  initialFieldErrors?: FieldErrors
+  focusToken?: number
 }
 
 function valueOf(form: HTMLFormElement, name: string) {
@@ -186,13 +188,15 @@ export function PersonalStepForm({
   onContinue,
   onSaveAndExit,
   onSelectStep,
-  reachedIndex,
+  initialFieldErrors,
+  focusToken,
 }: PersonalStepFormProps) {
   return (
     <ApplicationWizard
       application={application}
       applicationId={application.id}
       busy={busy}
+      focusToken={focusToken}
       getData={(form) => ({
         fullName: valueOf(form, 'fullName'),
         artistName: valueOf(form, 'artistName'),
@@ -208,12 +212,12 @@ export function PersonalStepForm({
         website: valueOf(form, 'website'),
         socialMedia: valueOf(form, 'socialMedia'),
       })}
+      initialFieldErrors={initialFieldErrors}
       nextHref={onContinue ? undefined : `${PORTAL_PATHS.application}/eligibility`}
       onBack={onBack}
       onContinue={onContinue}
       onSaveAndExit={onSaveAndExit}
       onSelectStep={onSelectStep}
-      reachedIndex={reachedIndex}
       readOnly={readOnly}
       step="personal"
     >

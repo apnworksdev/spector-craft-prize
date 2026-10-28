@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOnly, isAdmin, isApplicantUser } from '@/access/roles'
-import { deleteApplicantDependents } from '@/hooks/applicants'
+import { deleteApplicantDependents, syncApplicantIdentity } from '@/hooks/applicants'
 import {
   RESEND_TEMPLATE_ALREADY_SENT,
   sendResetPasswordTemplate,
@@ -13,9 +13,9 @@ import { PORTAL_PATHS, SUPPORT_EMAIL } from '@/lib/portal'
 export const Applicants: CollectionConfig = {
   slug: 'applicants',
   admin: {
-    useAsTitle: 'email',
+    useAsTitle: 'listTitle',
     hidden: ({ user }) => user?.role !== 'admin',
-    defaultColumns: ['email', 'firstName', 'lastName', 'updatedAt'],
+    defaultColumns: ['listTitle', 'email', 'updatedAt'],
   },
   auth: {
     verify: {
@@ -100,9 +100,27 @@ export const Applicants: CollectionConfig = {
     delete: adminOnly,
   },
   hooks: {
+    beforeChange: [syncApplicantIdentity],
     beforeDelete: [deleteApplicantDependents],
   },
   fields: [
+    {
+      name: 'listTitle',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        description: 'Name shown in the CMS. The public URL uses this name.',
+      },
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      index: true,
+      admin: {
+        hidden: true,
+      },
+    },
     {
       name: 'firstName',
       type: 'text',

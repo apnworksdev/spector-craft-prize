@@ -3,7 +3,8 @@ import type { Payload } from 'payload'
 const DEFAULT_PROGRAM = {
   name: 'The Spector Craft Prize for Emerging Artists 2026–2027',
   slug: 'emerging-artists-2026-2027',
-  deadline: '2027-03-04T12:00:00.000Z',
+  code: 'SCP26',
+  deadline: '2027-02-15T12:00:00.000Z',
   status: 'draft' as const,
   welcomeMessage: [
     'The Spector Craft Prize for Emerging Artists celebrates the next generation of visionary craft artists whose work reflects technical excellence, innovative design, and a thoughtful engagement with American culture. Through this award, the program highlights artists who are pushing the boundaries of material and process—those whose creative voices promise meaningful contributions to the future of the field.',
@@ -53,11 +54,20 @@ export async function seedDefaultProgram(payload: Payload) {
         program.welcomeMessage.includes(
           'For questions about our policies, please use the contact information on the right.',
         )
-      if (welcomeNeedsUpdate || program.incompleteMessage === previousIncomplete) {
+      const codeNeedsUpdate = !program.code?.trim()
+      const deadlineNeedsUpdate = program.deadline?.startsWith('2027-03-04')
+      if (
+        welcomeNeedsUpdate ||
+        program.incompleteMessage === previousIncomplete ||
+        codeNeedsUpdate ||
+        deadlineNeedsUpdate
+      ) {
         await payload.update({
           collection: 'programs',
           id: program.id,
           data: {
+            ...(codeNeedsUpdate ? { code: DEFAULT_PROGRAM.code } : {}),
+            ...(deadlineNeedsUpdate ? { deadline: DEFAULT_PROGRAM.deadline } : {}),
             welcomeMessage: welcomeNeedsUpdate
               ? DEFAULT_PROGRAM.welcomeMessage
               : program.welcomeMessage,

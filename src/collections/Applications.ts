@@ -16,6 +16,7 @@ import {
   linkSubmissionFilesToApplication,
   lockSubmittedApplications,
   sendSubmissionConfirmationEmail,
+  syncApplicationListTitle,
   validateApplicationWordLimits,
 } from '@/hooks/applications'
 import { deleteApplicationEvaluations } from '@/hooks/evaluations'
@@ -89,8 +90,17 @@ function workImageArray(name: string, description: string): Field {
 export const Applications: CollectionConfig = {
   slug: 'applications',
   admin: {
-    useAsTitle: 'id',
-    defaultColumns: ['applicant', 'program', 'status', 'updatedAt'],
+    useAsTitle: 'listTitle',
+    defaultColumns: [
+      'listTitle',
+      'program',
+      'status',
+      'selectedForEvaluation',
+      'panelMedian',
+      'evaluationCount',
+      'updatedAt',
+    ],
+    listSearchableFields: ['listTitle', 'fullName', 'artistName', 'email'],
     group: 'Submissions',
   },
   access: {
@@ -101,7 +111,12 @@ export const Applications: CollectionConfig = {
     delete: applicationsDelete,
   },
   hooks: {
-    beforeChange: [enforceApplicantOwnership, assertApplicationFileOwnership, lockSubmittedApplications],
+    beforeChange: [
+      syncApplicationListTitle,
+      enforceApplicantOwnership,
+      assertApplicationFileOwnership,
+      lockSubmittedApplications,
+    ],
     beforeValidate: [validateApplicationWordLimits],
     afterChange: [linkSubmissionFilesToApplication, sendSubmissionConfirmationEmail],
     beforeDelete: [deleteApplicationEvaluations],
@@ -113,6 +128,77 @@ export const Applications: CollectionConfig = {
     },
   ],
   fields: [
+    {
+      name: 'panelMedian',
+      type: 'number',
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        description: 'Median of juror totals, out of 20. Sort and filter the list by this column.',
+        components: {
+          Field: '/components/Admin/PanelMedianField#PanelMedianField',
+          Cell: '/components/Admin/PanelMedianCell#PanelMedianCell',
+        },
+      },
+      access: {
+        update: () => false,
+      },
+    },
+    {
+      name: 'evaluations',
+      type: 'join',
+      collection: 'evaluations',
+      on: 'application',
+      admin: {
+        position: 'sidebar',
+        allowCreate: false,
+        defaultColumns: ['juror'],
+      },
+      defaultSort: '-updatedAt',
+    },
+    {
+      name: 'selectedForEvaluation',
+      type: 'checkbox',
+      defaultValue: false,
+      access: {
+        read: notJurorField,
+        update: adminField,
+      },
+      admin: {
+        description: 'When checked, jurors can view this submitted application.',
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'evaluationCount',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        hidden: true,
+        disableListFilter: false,
+      },
+      access: {
+        update: () => false,
+      },
+    },
+    {
+      name: 'listTitle',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        description: 'Artist or full name — used as the CMS title and in Evaluations.',
+      },
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      unique: true,
+      index: true,
+      admin: {
+        hidden: true,
+      },
+    },
     {
       name: 'applicant',
       type: 'relationship',
@@ -155,18 +241,6 @@ export const Applications: CollectionConfig = {
       },
     },
     {
-      name: 'selectedForEvaluation',
-      type: 'checkbox',
-      defaultValue: false,
-      access: {
-        read: notJurorField,
-        update: adminField,
-      },
-      admin: {
-        description: 'When checked, jurors can view this submitted application.',
-      },
-    },
-    {
       type: 'tabs',
       tabs: [
         {
@@ -200,6 +274,12 @@ export const Applications: CollectionConfig = {
           label: 'Eligibility',
           fields: [
             { name: 'yearsOfPractice', type: 'text' },
+            {
+              name: 'practiceBeganDetails',
+              type: 'textarea',
+              label:
+                'State the month and year when your professional craft practice began. If your professional practice began more than seven years ago (before February 2020) due to a significant life interruption or career shift, please explain these circumstances and provide a clear timeline of your practice.',
+            },
             { name: 'trainingBackground', type: 'textarea' },
             { name: 'primaryCraftDiscipline', type: 'text' },
             {

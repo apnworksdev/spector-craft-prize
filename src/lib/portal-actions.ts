@@ -1,9 +1,11 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { after } from 'next/server'
 import { redirect } from 'next/navigation'
 
 import { canAccessJuryView, isAdmin } from '@/access/roles'
+import { syncApplicationPanelGrade } from '@/hooks/evaluations'
 import { applicationReadyToSubmit } from '@/lib/application-progress'
 import {
   isValidJuryScore,
@@ -13,8 +15,50 @@ import {
 import { getApplicantSession, getStaffSession } from '@/lib/portal-auth'
 import { ensureApplicantApplication, getLiveProgram } from '@/lib/portal-data'
 import { getPayloadClient } from '@/lib/payload'
-import { PORTAL_PATHS } from '@/lib/portal'
+import { applicationStaffPath, PORTAL_PATHS } from '@/lib/portal'
 import type { Application } from '@/payload-types'
+
+const APPLICANT_BLOCKED_FIELDS = new Set([
+  'id',
+  'applicant',
+  'program',
+  'status',
+  'submittedAt',
+  'selectedForEvaluation',
+  'panelMedian',
+  'evaluationCount',
+  'listTitle',
+  'slug',
+  'evaluations',
+  'createdAt',
+  'updatedAt',
+])
+
+/** Empty strings break Postgres dates/numbers; store null instead. */
+function sanitizeApplicantApplicationData(data: Partial<Application>): Partial<Application> {
+  const next: Record<string, unknown> = {}
+
+  for (const [key, value] of Object.entries(data)) {
+    if (APPLICANT_BLOCKED_FIELDS.has(key)) {
+      continue
+    }
+    if (value === '') {
+      next[key] = null
+      continue
+    }
+    next[key] = value
+  }
+
+  return next as Partial<Application>
+}
+
+function saveErrorMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : 'Save failed.'
+  if (message.startsWith('Failed query:')) {
+    return 'Could not save this step. Check the fields and try again.'
+  }
+  return message
+}
 
 export async function updateApplicationFields(
   applicationId: number,
@@ -25,19 +69,24 @@ export async function updateApplicationFields(
     return { ok: false, error: 'You must be logged in.' }
   }
 
+  const sanitized = sanitizeApplicantApplicationData(data)
+  if (Object.keys(sanitized).length === 0) {
+    return { ok: true }
+  }
+
   try {
     const payload = await getPayloadClient()
     await payload.update({
       collection: 'applications',
       id: applicationId,
-      data,
+      data: sanitized,
       depth: 0,
       user: { ...applicant, collection: 'applicants' },
       overrideAccess: false,
     })
     return { ok: true }
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : 'Save failed.' }
+    return { ok: false, error: saveErrorMessage(error) }
   }
 }
 
@@ -163,7 +212,7 @@ export async function setSelectedForEvaluation(applicationId: number, selected: 
     overrideAccess: false,
   })
 
-  revalidatePath(`${PORTAL_PATHS.staffApplicants}/${applicationId}`)
+  revalidatePath(applicationStaffPath(application))
   revalidatePath(PORTAL_PATHS.staffEvaluation)
   revalidatePath(PORTAL_PATHS.jury)
   return { ok: true }
@@ -265,6 +314,11 @@ export async function saveEvaluation(
       overrideAccess: false,
     })
 
+    const saveContext = {
+      deferPanelGrade: true,
+      evaluationTargetChecked: true,
+    }
+
     if (existing.docs[0]) {
       await payload.update({
         collection: 'evaluations',
@@ -272,6 +326,7 @@ export async function saveEvaluation(
         data: scores,
         user,
         overrideAccess: false,
+        context: saveContext,
       })
     } else {
       await payload.create({
@@ -283,14 +338,21 @@ export async function saveEvaluation(
         },
         user,
         overrideAccess: false,
+        context: saveContext,
       })
     }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Could not save score.' }
   }
 
-  revalidatePath(`${PORTAL_PATHS.jury}/${applicationId}`)
-  revalidatePath(`${PORTAL_PATHS.staffApplicants}/${applicationId}`)
-  revalidatePath(PORTAL_PATHS.jury)
+  revalidatePath(PORTAL_PATHS.jury, 'layout')
+  after(async () => {
+    try {
+      await syncApplicationPanelGrade(payload, applicationId)
+      revalidatePath(PORTAL_PATHS.staff, 'layout')
+    } catch (error) {
+      payload.logger.error({ err: error, msg: 'Could not refresh the panel grade' })
+    }
+  })
   return { ok: true }
 }

@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { ApplicationWizard } from '@/components/Portal/ApplicationWizard'
 import { useWizardFieldError } from '@/components/Portal/WizardFieldErrors'
+import type { FieldErrors } from '@/lib/application-validation'
 import {
   OTHER_OPTION,
   PRIMARY_CRAFT_DISCIPLINE_OPTIONS,
@@ -15,7 +16,7 @@ import {
 import { PORTAL_PATHS, type WizardStep } from '@/lib/portal'
 import type { Application } from '@/payload-types'
 
-import { SelectField, TextField, Title } from './ui'
+import { SelectField, TextArea, TextField, Title } from './ui'
 
 type EligibilityStepFormProps = {
   application: Application
@@ -25,7 +26,8 @@ type EligibilityStepFormProps = {
   onContinue?: (data: Partial<Application>) => void
   onSaveAndExit?: (data: Partial<Application>) => void
   onSelectStep?: (step: WizardStep, data: Partial<Application>) => void
-  reachedIndex?: number
+  initialFieldErrors?: FieldErrors
+  focusToken?: number
 }
 
 function valueOf(form: HTMLFormElement, name: string) {
@@ -128,6 +130,12 @@ function EligibilityFields({
           </option>
         ))}
       </SelectField>
+      <TextArea
+        defaultValue={application.practiceBeganDetails ?? ''}
+        label="State the month and year when your professional craft practice began. If your professional practice began more than seven years ago (before February 2020) due to a significant life interruption or career shift, please explain these circumstances and provide a clear timeline of your practice."
+        name="practiceBeganDetails"
+        readOnly={readOnly}
+      />
       <SelectWithOther
         error={trainingError}
         label="Educational/training background*"
@@ -168,7 +176,8 @@ export function EligibilityStepForm({
   onContinue,
   onSaveAndExit,
   onSelectStep,
-  reachedIndex,
+  initialFieldErrors,
+  focusToken,
 }: EligibilityStepFormProps) {
   return (
     <ApplicationWizard
@@ -176,10 +185,12 @@ export function EligibilityStepForm({
       applicationId={application.id}
       backHref={onBack ? undefined : `${PORTAL_PATHS.application}/personal`}
       busy={busy}
+      focusToken={focusToken}
       getData={(form) => {
         const citizenship = valueOf(form, 'usCitizenOrResident')
         return {
           yearsOfPractice: valueOf(form, 'yearsOfPractice'),
+          practiceBeganDetails: valueOf(form, 'practiceBeganDetails'),
           trainingBackground: resolveSelectWithOther(
             valueOf(form, 'trainingBackgroundChoice'),
             valueOf(form, 'trainingBackgroundOther'),
@@ -191,12 +202,12 @@ export function EligibilityStepForm({
           usCitizenOrResident: citizenship === 'yes' || citizenship === 'no' ? citizenship : null,
         }
       }}
+      initialFieldErrors={initialFieldErrors}
       nextHref={onContinue ? undefined : `${PORTAL_PATHS.application}/bio`}
       onBack={onBack}
       onContinue={onContinue}
       onSaveAndExit={onSaveAndExit}
       onSelectStep={onSelectStep}
-      reachedIndex={reachedIndex}
       readOnly={readOnly}
       step="eligibility"
     >

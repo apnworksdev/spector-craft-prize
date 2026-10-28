@@ -65,6 +65,13 @@ describe('applicationVideoError', () => {
 })
 
 describe('governmentIdError', () => {
+  it('accepts jpg, png, and pdf', () => {
+    expect(governmentIdError({ mimeType: 'image/jpeg' })).toBe(true)
+    expect(governmentIdError({ mimeType: 'image/jpg' })).toBe(true)
+    expect(governmentIdError({ mimeType: 'image/png' })).toBe(true)
+    expect(governmentIdError({ mimeType: 'application/pdf' })).toBe(true)
+  })
+
   it('accepts pdf and webp ids', () => {
     expect(governmentIdError({ mimeType: 'application/pdf' })).toBe(true)
     expect(governmentIdError({ mimeType: 'image/webp' })).toBe(true)
@@ -72,14 +79,14 @@ describe('governmentIdError', () => {
 })
 
 describe('submissionFileUrl', () => {
-  it('uses the populated file url when present', () => {
+  it('uses the portal route when the file id is present', () => {
     expect(submissionFileUrl({ id: 3, url: '/api/submission-files/file/bowl.jpg' })).toBe(
-      '/api/submission-files/file/bowl.jpg',
+      '/api/portal/submission-files/3',
     )
   })
 
-  it('falls back to the filename route', () => {
-    expect(submissionFileUrl({ id: 3, filename: 'bowl.jpg' })).toBe(
+  it('falls back to the filename route when id is missing', () => {
+    expect(submissionFileUrl({ filename: 'bowl.jpg' })).toBe(
       '/api/submission-files/file/bowl.jpg',
     )
   })

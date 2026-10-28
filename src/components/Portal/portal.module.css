@@ -34,11 +34,11 @@
   --portal-font-sm: 13px;
   --portal-font-md: 14px;
   --portal-font-button: 15px;
-  --portal-font-lead: 17px;
+  --portal-font-lead: 14px;
   --portal-font-section: 22px;
-  --portal-font-title: clamp(28px, 3vw, 36px);
-  --portal-width: 960px;
-  --portal-width-narrow: 720px;
+  --portal-font-title: 28px;
+  --portal-width: 1060px;
+  --portal-width-narrow: 780px;
   --portal-scrim: rgb(26 26 26 / 72%);
   --portal-scrim-soft: rgb(26 26 26 / 40%);
   --portal-shadow: 0 24px 80px rgb(26 26 26 / 16%);
@@ -138,9 +138,14 @@ a.skip:focus-visible {
   max-width: var(--portal-width);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.7fr);
-  gap: 32px 48px;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 32px 120px;
   align-items: start;
+}
+
+.welcomeLayout h1,
+.welcomeTitle {
+  font-size: var(--portal-font-title);
 }
 
 .welcomeLayout .programMeta {
@@ -207,6 +212,8 @@ a.skip:focus-visible {
 }
 
 .bubbleTrackSub {
+  flex-wrap: wrap;
+  row-gap: 10px;
   padding-left: 0;
 }
 
@@ -257,8 +264,9 @@ a.skip:focus-visible {
 
 .bubbleCompact {
   min-height: 34px;
-  padding: 6px 14px;
-  font-size: var(--portal-font-sm);
+  padding: 8px 12px;
+  font-size: var(--portal-font-md);
+  text-align: center;
 }
 
 .bubble[data-started] {
@@ -370,6 +378,12 @@ a.skip:focus-visible {
   display: grid;
   gap: 32px;
   min-width: 0;
+}
+
+.wizardFields h2 {
+  font-size: var(--portal-font-md);
+  line-height: 1.2;
+  letter-spacing: var(--portal-tracking-ui);
 }
 
 .criteria {

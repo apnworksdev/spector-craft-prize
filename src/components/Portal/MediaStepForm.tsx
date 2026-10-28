@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 
 import { enqueueApplicationSave } from '@/lib/application-save-queue'
+import type { FieldErrors } from '@/lib/application-validation'
 import {
   ADDITIONAL_DETAILS_MAX_WORDS,
   APPLICATION_IMAGE_HELP,
@@ -59,7 +60,8 @@ type MediaStepFormProps = {
   onDraft?: (data: Partial<Application>) => void
   onSaveAndExit?: (data: Partial<Application>) => void
   onSelectStep?: (step: WizardStep, data: Partial<Application>) => void
-  reachedIndex?: number
+  initialFieldErrors?: FieldErrors
+  focusToken?: number
 }
 
 type Editor = { kind: 'image'; list: ImageList; setId: string | null } | { kind: 'video' }
@@ -135,7 +137,9 @@ function WorkImagesIntro() {
 
   return (
     <>
-      <Title as="h2">Images of submitted work*</Title>
+      <Title as="h2" caps>
+        Images of submitted work*
+      </Title>
       <Text variant="hint">{APPLICATION_IMAGE_HELP}</Text>
       {workImagesError ? (
         <Text className={styles.sectionError} variant="error">
@@ -155,7 +159,8 @@ export function MediaStepForm({
   onDraft,
   onSaveAndExit,
   onSelectStep,
-  reachedIndex,
+  initialFieldErrors,
+  focusToken,
 }: MediaStepFormProps) {
   const [images, setImages] = useState(() => imageEntries(application.workImages))
   const [portfolio, setPortfolio] = useState(() => imageEntries(application.portfolioImages))
@@ -421,17 +426,18 @@ export function MediaStepForm({
       applicationId={application.id}
       backHref={onBack ? undefined : PORTAL_PATHS.work}
       busy={busy}
+      focusToken={focusToken}
       getData={() => mediaPayload(images, portfolio, videoId)}
+      initialFieldErrors={initialFieldErrors}
       nextHref={onContinue ? undefined : PORTAL_PATHS.submit}
       onBack={onBack}
       onContinue={onContinue}
       onSaveAndExit={onSaveAndExit}
       onSelectStep={onSelectStep}
-      reachedIndex={reachedIndex}
       readOnly={readOnly}
       step="media"
     >
-      <FormSection id="workImages">
+      <FormSection id="workImages" tabIndex={-1}>
         <WorkImagesIntro />
         <MediaList>
           {renderSets('work', images)}
@@ -444,7 +450,9 @@ export function MediaStepForm({
       </FormSection>
 
       <FormSection>
-        <Title as="h2">Career portfolio</Title>
+        <Title as="h2" caps>
+          Career portfolio
+        </Title>
         <Text variant="hint">{PORTFOLIO_IMAGE_HELP}</Text>
         <MediaList>
           {renderSets('portfolio', portfolio)}
@@ -457,7 +465,9 @@ export function MediaStepForm({
       </FormSection>
 
       <FormSection>
-        <Title as="h2">Video</Title>
+        <Title as="h2" caps>
+          Video
+        </Title>
         <Text variant="hint">{APPLICATION_VIDEO_HELP}</Text>
         <MediaList>
           {videoId ? (

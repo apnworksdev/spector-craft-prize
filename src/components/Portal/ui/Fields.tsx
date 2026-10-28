@@ -60,27 +60,79 @@ function describedBy(ids: Array<string | undefined>, existing?: string) {
   return [...ids, existing].filter(Boolean).join(' ') || undefined
 }
 
+function EyeIcon({ crossed }: { crossed?: boolean }) {
+  return (
+    <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18">
+      <path
+        d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.75"
+      />
+      <circle cx="12" cy="12" r="2.75" stroke="currentColor" strokeWidth="1.75" />
+      {crossed ? (
+        <path
+          d="M4 20 20 4"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="1.75"
+        />
+      ) : null}
+    </svg>
+  )
+}
+
 export function TextField({
   label,
   hint,
   note,
   error,
   className,
+  type = 'text',
   ...input
 }: FieldChrome & InputHTMLAttributes<HTMLInputElement>) {
   const id = useId()
   const hintId = hint ? `${id}-hint` : undefined
   const noteId = note ? `${id}-note` : undefined
   const errorId = error ? `${id}-error` : undefined
+  const isPassword = type === 'password'
+  const [passwordVisible, setPasswordVisible] = useState(false)
+
+  const control = (
+    <input
+      {...input}
+      aria-describedby={describedBy([hintId, noteId, errorId], input['aria-describedby'])}
+      aria-invalid={error ? true : input['aria-invalid']}
+      className={controlClass(
+        styles.input,
+        error,
+        [isPassword ? styles.passwordInput : null, className].filter(Boolean).join(' ') || undefined,
+      )}
+      type={isPassword ? (passwordVisible ? 'text' : 'password') : type}
+    />
+  )
 
   return (
     <Field error={error} errorId={errorId} hint={hint} hintId={hintId} label={label} note={note} noteId={noteId}>
-      <input
-        {...input}
-        aria-describedby={describedBy([hintId, noteId, errorId], input['aria-describedby'])}
-        aria-invalid={error ? true : input['aria-invalid']}
-        className={controlClass(styles.input, error, className)}
-      />
+      {isPassword ? (
+        <span className={styles.passwordField}>
+          {control}
+          <button
+            aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+            aria-pressed={passwordVisible}
+            className={styles.passwordToggle}
+            disabled={input.disabled}
+            onClick={() => setPasswordVisible((visible) => !visible)}
+            onMouseDown={(event) => event.preventDefault()}
+            type="button"
+          >
+            <EyeIcon crossed={passwordVisible} />
+          </button>
+        </span>
+      ) : (
+        control
+      )}
     </Field>
   )
 }

@@ -90,12 +90,14 @@ export function Title({
   variant,
   caps = false,
   children,
+  className,
   id,
 }: {
   as?: 'h1' | 'h2' | 'p'
   variant?: 'page' | 'section'
   caps?: boolean
   children: ReactNode
+  className?: string
   id?: string
 }) {
   const resolvedVariant = variant ?? (Tag === 'h2' ? 'section' : 'page')
@@ -105,6 +107,7 @@ export function Title({
       className={cx(
         resolvedVariant === 'section' ? styles.sectionTitle : styles.title,
         caps && styles.capsTitle,
+        className,
       )}
       id={id}
     >
@@ -142,6 +145,34 @@ export function Text({
   )
 }
 
-export function Table({ children }: { children: ReactNode }) {
-  return <table className={styles.table}>{children}</table>
+export function Table({
+  children,
+  variant = 'plain',
+}: {
+  children: ReactNode
+  variant?: 'plain' | 'framed'
+}) {
+  const table = (
+    <table className={cx(styles.table, variant === 'framed' && styles.tableFramed)}>{children}</table>
+  )
+
+  if (variant === 'framed') {
+    return <div className={styles.tableFrame}>{table}</div>
+  }
+
+  return table
+}
+
+export function StatusBadge({
+  tone,
+  children,
+}: {
+  tone: 'complete' | 'incomplete'
+  children: ReactNode
+}) {
+  return (
+    <span className={tone === 'complete' ? styles.statusComplete : styles.status}>
+      {children}
+    </span>
+  )
 }

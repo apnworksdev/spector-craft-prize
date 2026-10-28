@@ -2,6 +2,11 @@ import type { Access, Where } from 'payload'
 
 import { isAdmin, isApplicantUser, isJuror } from '@/access/roles'
 
+// Do not filter on `application.selectedForEvaluation` here: that field is not
+// readable by jurors (`notJurorField`), and nested Where clauses against it make
+// Payload's `/api/submission-files/file/...` handler return 403 even for media
+// the jury portal is allowed to show. Application collection access already
+// scopes jurors to selected apps; portal media re-checks readability.
 const jurorSubmissionFilesRead: Where = {
   and: [
     {
@@ -12,11 +17,6 @@ const jurorSubmissionFilesRead: Where = {
     {
       'application.status': {
         equals: 'submitted',
-      },
-    },
-    {
-      'application.selectedForEvaluation': {
-        equals: true,
       },
     },
   ],

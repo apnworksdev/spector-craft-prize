@@ -1,8 +1,9 @@
 import {
-  evaluationAverage,
-  formatJuryScore,
+  evaluationTotal,
+  formatJuryTotal,
   JURY_SCORE_FIELDS,
-  meanEvaluationAverage,
+  meanEvaluationTotal,
+  medianEvaluationTotal,
   type JuryScoreValues,
 } from '@/lib/jury-scores'
 import { displayName } from '@/lib/portal'
@@ -22,7 +23,8 @@ type EvaluationRow = JuryScoreValues & {
 }
 
 export function EvaluationSummary({ evaluations }: { evaluations: EvaluationRow[] }) {
-  const panelAverage = meanEvaluationAverage(evaluations)
+  const panelMedian = medianEvaluationTotal(evaluations)
+  const panelMean = meanEvaluationTotal(evaluations)
 
   return (
     <Stack>
@@ -31,8 +33,11 @@ export function EvaluationSummary({ evaluations }: { evaluations: EvaluationRow[
         <Text>No scores yet.</Text>
       ) : (
         <>
-          {panelAverage != null ? (
-            <Readout label="Panel average" value={formatJuryScore(panelAverage)} />
+          {panelMedian != null ? (
+            <Readout label="Panel median" value={formatJuryTotal(panelMedian)} />
+          ) : null}
+          {panelMean != null && panelMean !== panelMedian ? (
+            <Readout label="Panel average" value={formatJuryTotal(panelMean)} />
           ) : null}
           <Table>
             <thead>
@@ -41,7 +46,7 @@ export function EvaluationSummary({ evaluations }: { evaluations: EvaluationRow[
                 {JURY_SCORE_FIELDS.map((field) => (
                   <th key={field.name}>{field.title}</th>
                 ))}
-                <th>Average</th>
+                <th>Total</th>
               </tr>
             </thead>
             <tbody>
@@ -55,7 +60,7 @@ export function EvaluationSummary({ evaluations }: { evaluations: EvaluationRow[
                   {JURY_SCORE_FIELDS.map((field) => (
                     <td key={field.name}>{evaluation[field.name]}</td>
                   ))}
-                  <td>{formatJuryScore(evaluationAverage(evaluation))}</td>
+                  <td>{formatJuryTotal(evaluationTotal(evaluation))}</td>
                 </tr>
               ))}
             </tbody>

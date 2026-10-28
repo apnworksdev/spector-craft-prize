@@ -23,8 +23,18 @@ import { Press } from './globals/Press'
 import { Privacy } from './globals/Privacy'
 import { Summit } from './globals/Summit'
 import { Terms } from './globals/Terms'
-import { backfillApplicationFileLinks } from './hooks/applications'
+import { backfillApplicantIdentities } from './hooks/applicants'
+import {
+  backfillApplicationFileLinks,
+  backfillApplicationListTitles,
+} from './hooks/applications'
+import {
+  backfillApplicationPanelGrades,
+  backfillEvaluationIdentities,
+  backfillEvaluationTotals,
+} from './hooks/evaluations'
 import { seedDefaultProgram } from './hooks/seedProgram'
+import { backfillUserListTitles } from './hooks/users-backfill'
 import { portalEmailAdapter } from './lib/email/adapter'
 import { getServerURL } from './lib/env'
 import { MAX_UPLOAD_BYTES } from './lib/upload'
@@ -106,5 +116,11 @@ export default buildConfig({
   onInit: async (payload) => {
     await seedDefaultProgram(payload)
     await backfillApplicationFileLinks(payload)
+    await backfillApplicantIdentities(payload)
+    await backfillApplicationListTitles(payload)
+    await backfillUserListTitles(payload)
+    await backfillEvaluationTotals(payload)
+    await backfillEvaluationIdentities(payload)
+    await backfillApplicationPanelGrades(payload)
   },
 })

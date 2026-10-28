@@ -1,12 +1,27 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
 
 import { adminOnly, isStaffUser } from '@/access/roles'
+
+const normalizeProgramCode: CollectionBeforeValidateHook = ({ data }) => {
+  if (!data || typeof data.code !== 'string') {
+    return data
+  }
+
+  const code = data.code
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 12)
+
+  return { ...data, code }
+}
 
 export const Programs: CollectionConfig = {
   slug: 'programs',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'status', 'deadline', 'updatedAt'],
+    defaultColumns: ['name', 'code', 'status', 'deadline', 'updatedAt'],
     group: 'Submissions',
   },
   access: {
@@ -15,6 +30,9 @@ export const Programs: CollectionConfig = {
     update: adminOnly,
     delete: adminOnly,
     admin: ({ req }) => isStaffUser(req.user),
+  },
+  hooks: {
+    beforeValidate: [normalizeProgramCode],
   },
   fields: [
     {
@@ -29,6 +47,16 @@ export const Programs: CollectionConfig = {
       unique: true,
       admin: {
         description: 'Stable id, e.g. emerging-artists-2026-2027',
+      },
+    },
+    {
+      name: 'code',
+      type: 'text',
+      unique: true,
+      maxLength: 12,
+      admin: {
+        description:
+          'Short program code for jury/staff downloads, e.g. SCP26. Used in PDF and ZIP filenames with the applicant name. Required for clear download names.',
       },
     },
     {

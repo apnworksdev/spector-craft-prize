@@ -33,6 +33,14 @@ function r2RemotePatterns(): Array<{
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Keep Zeist available to the PDF generator in serverless/Netlify builds.
+  outputFileTracingIncludes: {
+    '/api/portal/applications/[id]/pdf': [
+      './src/fonts/ZeistL1Web-Book.ttf',
+      './src/fonts/ZeistL1Web-Book.woff2',
+      './src/fonts/ZeistL1Web-Book.woff',
+    ],
+  },
   async headers() {
     return [
       {

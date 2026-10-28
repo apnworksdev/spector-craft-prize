@@ -9,7 +9,8 @@ import {
 
 import { isAdmin, isApplicantUser } from '@/access/roles'
 import { applicationFileIds } from '@/lib/application-files'
-import { relationId } from '@/lib/portal'
+import { programCodeForDownload, relationId } from '@/lib/portal'
+import { publicSlug, uniquePublicSlug } from '@/lib/public-slug'
 import { programAcceptsSubmissions } from '@/lib/program-deadline'
 import { wordCountError } from '@/lib/word-count'
 import {
@@ -37,6 +38,111 @@ async function loadProgram(req: PayloadRequest, programId: number | null) {
     })
   } catch {
     return null
+  }
+}
+
+function readText(
+  data: Record<string, unknown> | undefined,
+  originalDoc: Record<string, unknown> | undefined,
+  key: string,
+): string {
+  const next = data?.[key]
+  if (typeof next === 'string' && next.trim()) {
+    return next
+  }
+  const previous = originalDoc?.[key]
+  return typeof previous === 'string' ? previous : ''
+}
+
+async function applicantPersonSlug(
+  req: PayloadRequest,
+  applicantId: number | null,
+  listTitle: string,
+): Promise<string> {
+  if (!applicantId) {
+    return publicSlug(listTitle)
+  }
+
+  try {
+    const applicant = await req.payload.findByID({
+      collection: 'applicants',
+      depth: 0,
+      id: applicantId,
+      overrideAccess: true,
+      req,
+    })
+    const slug = typeof applicant.slug === 'string' ? applicant.slug.trim().toLowerCase() : ''
+    if (slug) {
+      return slug
+    }
+
+    const name =
+      [applicant.firstName, applicant.lastName].filter((part) => part?.trim()).join(' ').trim() ||
+      applicant.email ||
+      listTitle
+    return publicSlug(name)
+  } catch {
+    return publicSlug(listTitle)
+  }
+}
+
+/** CMS title stays the artist name. The URL is `{program code}-{applicant slug}`. */
+export const syncApplicationListTitle: CollectionBeforeChangeHook = async ({
+  data,
+  originalDoc,
+  req,
+}) => {
+  if (!data) {
+    return data
+  }
+
+  const record = data as Record<string, unknown>
+  const keys = Object.keys(record)
+  if (
+    keys.length > 0 &&
+    keys.every((key) => key === 'panelMedian' || key === 'evaluationCount')
+  ) {
+    return data
+  }
+
+  const previous = originalDoc as Record<string, unknown> | undefined
+  const listTitle =
+    readText(record, previous, 'artistName').trim() ||
+    readText(record, previous, 'fullName').trim() ||
+    'Application'
+  const programId = relationId(record.program) ?? relationId(previous?.program)
+  let code = 'app'
+  if (programId) {
+    try {
+      const program = await req.payload.findByID({
+        collection: 'programs',
+        depth: 0,
+        id: programId,
+        overrideAccess: true,
+        req,
+      })
+      code = programCodeForDownload(program).toLowerCase()
+    } catch {
+      code = 'app'
+    }
+  }
+
+  const person = await applicantPersonSlug(
+    req,
+    relationId(record.applicant) ?? relationId(previous?.applicant),
+    listTitle,
+  )
+  const base = `${code}-${person}`
+  const current = typeof previous?.slug === 'string' ? previous.slug.trim().toLowerCase() : ''
+  const slug =
+    current === base || current.startsWith(`${base}-`)
+      ? current
+      : await uniquePublicSlug(req.payload, 'applications', base, originalDoc?.id)
+
+  return {
+    ...data,
+    listTitle,
+    slug,
   }
 }
 
@@ -68,7 +174,17 @@ export const assertApplicationFileOwnership: CollectionBeforeChangeHook = async 
   originalDoc,
   req,
 }) => {
-  if (isAdmin(req.user)) {
+  if (isAdmin(req.user) || req.context?.allowSystemApplicationUpdate) {
+    return data
+  }
+
+  const touchesFiles =
+    data != null &&
+    ('workImages' in data ||
+      'portfolioImages' in data ||
+      'workVideo' in data ||
+      'governmentId' in data)
+  if (!touchesFiles) {
     return data
   }
 
@@ -158,13 +274,27 @@ function assertSubmitReady(data: Record<string, unknown> | undefined, declaratio
   }
 }
 
+const SYSTEM_APPLICATION_FIELDS = new Set(['panelMedian', 'evaluationCount', 'listTitle', 'slug'])
+
+function isSystemApplicationUpdate(
+  data: Record<string, unknown> | undefined,
+  req: { context?: Record<string, unknown>; user?: unknown },
+) {
+  if (req.context?.allowSystemApplicationUpdate || !req.user) {
+    return true
+  }
+
+  const keys = Object.keys(data ?? {})
+  return keys.length > 0 && keys.every((key) => SYSTEM_APPLICATION_FIELDS.has(key))
+}
+
 export const lockSubmittedApplications: CollectionBeforeChangeHook = async ({
   data,
   operation,
   originalDoc,
   req,
 }) => {
-  if (operation !== 'update' || isAdmin(req.user)) {
+  if (operation !== 'update' || isAdmin(req.user) || isSystemApplicationUpdate(data, req)) {
     return data
   }
 
@@ -289,6 +419,10 @@ export async function syncApplicationFileLinks(
 }
 
 export const linkSubmissionFilesToApplication: CollectionAfterChangeHook = async ({ doc, req }) => {
+  if (req.context?.allowSystemApplicationUpdate) {
+    return doc
+  }
+
   await syncApplicationFileLinks(req.payload, doc, req)
   return doc
 }
@@ -314,6 +448,47 @@ export async function backfillApplicationFileLinks(payload: Payload) {
     payload.logger.warn({
       err: error,
       msg: 'Skipped application file backfill — applications collection is unavailable',
+    })
+  }
+}
+
+export async function backfillApplicationListTitles(payload: Payload) {
+  try {
+    const result = await payload.find({
+      collection: 'applications',
+      depth: 1,
+      limit: 1000,
+      overrideAccess: true,
+      pagination: false,
+    })
+
+    for (const doc of result.docs) {
+      const listTitle = doc.artistName?.trim() || doc.fullName?.trim() || 'Application'
+      const code = programCodeForDownload(doc.program).toLowerCase()
+      const applicantSlug =
+        doc.applicant &&
+        typeof doc.applicant === 'object' &&
+        typeof doc.applicant.slug === 'string'
+          ? doc.applicant.slug.trim().toLowerCase()
+          : ''
+      const base = `${code}-${applicantSlug || publicSlug(listTitle)}`
+      const slug = doc.slug?.trim().toLowerCase() ?? ''
+      if (doc.listTitle === listTitle && (slug === base || slug.startsWith(`${base}-`))) {
+        continue
+      }
+
+      await payload.update({
+        collection: 'applications',
+        id: doc.id,
+        data: { listTitle },
+        overrideAccess: true,
+        context: { allowSystemApplicationUpdate: true },
+      })
+    }
+  } catch (error) {
+    payload.logger.warn({
+      err: error,
+      msg: 'Skipped application listTitle backfill',
     })
   }
 }

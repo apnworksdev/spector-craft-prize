@@ -5,6 +5,7 @@ import {
   assertApplicationFileOwnership,
   enforceApplicantOwnership,
   lockSubmittedApplications,
+  syncApplicationListTitle,
 } from '@/hooks/applications'
 
 const applicant = { id: 5, collection: 'applicants' as const }
@@ -122,6 +123,98 @@ describe('lockSubmittedApplications', () => {
 
     expect(result).toEqual({ fullName: 'B' })
   })
+
+  it('allows grade sync that only writes panel fields', async () => {
+    await expect(
+      lockSubmittedApplications({
+        data: { panelMedian: 15, evaluationCount: 1 },
+        operation: 'update',
+        originalDoc: { ...completeDraft, status: 'submitted' },
+        req: { user: applicant, payload: payloadWithProgram(openProgram) },
+      } as never),
+    ).resolves.toEqual({ panelMedian: 15, evaluationCount: 1 })
+  })
+
+  it('allows system backfill updates on submitted applications', async () => {
+    await expect(
+      lockSubmittedApplications({
+        data: { listTitle: 'Ada Lovelace' },
+        operation: 'update',
+        originalDoc: { ...completeDraft, status: 'submitted' },
+        req: {
+          user: null,
+          context: { allowSystemApplicationUpdate: true },
+          payload: payloadWithProgram(openProgram),
+        },
+      } as never),
+    ).resolves.toEqual({ listTitle: 'Ada Lovelace' })
+  })
+})
+
+describe('syncApplicationListTitle', () => {
+  it('builds the slug from the program code and the applicant slug', async () => {
+    const findByID = vi.fn(async ({ collection }: { collection: string }) => {
+      if (collection === 'programs') {
+        return { id: 1, code: 'SCP26' }
+      }
+      return { id: 6, slug: 'naz-sahin', firstName: 'Naz', lastName: 'Sahin' }
+    })
+
+    await expect(
+      syncApplicationListTitle({
+        data: { artistName: 'Naz Sahin', applicant: 6, program: 1 },
+        req: { payload: { findByID, find: vi.fn(async () => ({ docs: [] })) } },
+      } as never),
+    ).resolves.toMatchObject({ listTitle: 'Naz Sahin', slug: 'scp26-naz-sahin' })
+  })
+
+  it('keeps the slug when the artist name changes', async () => {
+    const findByID = vi.fn(async ({ collection }: { collection: string }) => {
+      if (collection === 'programs') {
+        return { id: 1, code: 'SCP26' }
+      }
+      return { id: 6, slug: 'naz-sahin' }
+    })
+
+    await expect(
+      syncApplicationListTitle({
+        data: { artistName: 'Naz Studio', applicant: 6, program: 1 },
+        originalDoc: { slug: 'scp26-naz-sahin', applicant: 6, program: 1 },
+        req: { payload: { findByID, find: vi.fn(async () => ({ docs: [] })) } },
+      } as never),
+    ).resolves.toMatchObject({ listTitle: 'Naz Studio', slug: 'scp26-naz-sahin' })
+  })
+
+  it('does not load the program when only the panel grade changes', async () => {
+    const findByID = vi.fn()
+
+    await expect(
+      syncApplicationListTitle({
+        data: { panelMedian: 16, evaluationCount: 2 },
+        originalDoc: { slug: 'scp26-naz-sahin', listTitle: 'Naz Sahin' },
+        req: { payload: { findByID } },
+      } as never),
+    ).resolves.toEqual({ panelMedian: 16, evaluationCount: 2 })
+
+    expect(findByID).not.toHaveBeenCalled()
+  })
+
+  it('replaces a name-only slug with the program and applicant', async () => {
+    const findByID = vi.fn(async ({ collection }: { collection: string }) => {
+      if (collection === 'programs') {
+        return { id: 1, code: 'SCP27' }
+      }
+      return { id: 6, slug: 'naz-sahin' }
+    })
+
+    await expect(
+      syncApplicationListTitle({
+        data: { fullName: 'Naz Sahin', applicant: 6, program: 1 },
+        originalDoc: { slug: 'naz-sahin', applicant: 6, program: 1, fullName: 'Naz Sahin' },
+        req: { payload: { findByID, find: vi.fn(async () => ({ docs: [] })) } },
+      } as never),
+    ).resolves.toMatchObject({ slug: 'scp27-naz-sahin' })
+  })
 })
 
 describe('assertApplicationFileOwnership', () => {
@@ -156,6 +249,20 @@ describe('assertApplicationFileOwnership', () => {
         req: { user: applicant, payload: { find } },
       } as never),
     ).resolves.toEqual({ workImages: [{ file: 3 }] })
+  })
+
+  it('does not look up files when the update does not change them', async () => {
+    const find = vi.fn()
+
+    await expect(
+      assertApplicationFileOwnership({
+        data: { panelMedian: 16, evaluationCount: 2 },
+        originalDoc: { applicant: 5, workImages: [{ file: 3 }] },
+        req: { user: applicant, payload: { find } },
+      } as never),
+    ).resolves.toEqual({ panelMedian: 16, evaluationCount: 2 })
+
+    expect(find).not.toHaveBeenCalled()
   })
 
   it('does not extra-restrict admins', async () => {

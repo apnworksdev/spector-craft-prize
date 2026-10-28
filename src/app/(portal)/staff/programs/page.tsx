@@ -30,6 +30,7 @@ export default async function StaffProgramsPage() {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Code</th>
               <th>Deadline</th>
               <th>Status</th>
               <th>Set status</th>
@@ -39,6 +40,7 @@ export default async function StaffProgramsPage() {
             {programs.docs.map((program) => (
               <tr key={program.id}>
                 <td>{program.name}</td>
+                <td>{program.code?.trim() || '—'}</td>
                 <td>{formatPortalDate(program.deadline, 'short') ?? '—'}</td>
                 <td>{program.status}</td>
                 <td>

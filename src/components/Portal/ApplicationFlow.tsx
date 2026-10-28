@@ -9,10 +9,14 @@ import { MediaStepForm } from '@/components/Portal/MediaStepForm'
 import { PersonalStepForm } from '@/components/Portal/PersonalStepForm'
 import { SubmitStepForm } from '@/components/Portal/SubmitStepForm'
 import { WorkStepForm } from '@/components/Portal/WorkStepForm'
-import { furthestAllowedStep } from '@/lib/application-progress'
+import {
+  firstInvalidField,
+  wizardStepForField,
+  type FieldErrors,
+} from '@/lib/application-validation'
 import { enqueueApplicationSave } from '@/lib/application-save-queue'
 import {
-  formatPortalDate,
+  applicationDeadlineLabel,
   PORTAL_PATHS,
   WIZARD_STEP_HREF,
   WIZARD_STEPS,
@@ -41,46 +45,36 @@ export function ApplicationFlow({
   const [draft, setDraft] = useState(application)
   const [error, setError] = useState('')
   const [savingExit, setSavingExit] = useState(false)
-  const [furthestIndex, setFurthestIndex] = useState(() => {
-    if (readOnly) {
-      return WIZARD_STEPS.length - 1
-    }
-
-    // Unlock through the first incomplete step (e.g. bio done → work is clickable even if half-filled).
-    return Math.max(
-      WIZARD_STEPS.indexOf(initialStep),
-      WIZARD_STEPS.indexOf(furthestAllowedStep(application)),
-    )
-  })
+  const [focusCue, setFocusCue] = useState<{ token: number; errors: FieldErrors } | null>(null)
   const draftRef = useRef(application)
 
-  function reach(target: WizardStep) {
-    setFurthestIndex((current) => Math.max(current, WIZARD_STEPS.indexOf(target)))
+  function handleGoToMissingField(errors: FieldErrors) {
+    const field = firstInvalidField(errors)
+    if (!field) {
+      return
+    }
+
+    const target = wizardStepForField(field)
+    setFocusCue((previous) => ({
+      token: (previous?.token ?? 0) + 1,
+      errors,
+    }))
+    setError('')
+    setStep(target)
+    router.replace(WIZARD_STEP_HREF[target], { scroll: false })
   }
 
-  async function handleContinue(from: WizardStep, data: Partial<Application>) {
+  function handleContinue(from: WizardStep, data: Partial<Application>) {
     if (readOnly) {
       return
     }
 
-    const nextDraft = { ...draftRef.current, ...data }
     const next = WIZARD_STEPS[WIZARD_STEPS.indexOf(from) + 1]
     if (!next) {
       return
     }
 
-    setError('')
-    const result = await enqueueApplicationSave(application.id, data)
-    if (!result.ok) {
-      setError(result.error)
-      return
-    }
-
-    draftRef.current = nextDraft
-    setDraft(nextDraft)
-    reach(next)
-    setStep(next)
-    router.replace(WIZARD_STEP_HREF[next], { scroll: false })
+    navigateToStep(next, data)
   }
 
   async function handleSaveAndExit(data: Partial<Application>) {
@@ -139,15 +133,10 @@ export function ApplicationFlow({
       return
     }
 
-    reach(previous)
     navigateToStep(previous, data)
   }
 
   function handleSelectStep(target: WizardStep, data: Partial<Application>) {
-    if (WIZARD_STEPS.indexOf(target) > furthestIndex) {
-      return
-    }
-
     navigateToStep(target, data)
   }
 
@@ -158,7 +147,8 @@ export function ApplicationFlow({
       step === 'submit' ? undefined : (data: Partial<Application>) => handleContinue(step, data),
     onSaveAndExit: handleSaveAndExit,
     onSelectStep: handleSelectStep,
-    reachedIndex: furthestIndex,
+    initialFieldErrors: focusCue?.errors,
+    focusToken: focusCue?.token,
   }
 
   const rulesDocument = program.rulesDocument
@@ -166,7 +156,7 @@ export function ApplicationFlow({
     rulesDocument && typeof rulesDocument === 'object' && rulesDocument.url
       ? rulesDocument.url
       : null
-  const deadline = formatPortalDate(program.deadline)
+  const deadline = applicationDeadlineLabel(program.deadline)
 
   return (
     <div className={styles.flowLayout}>
@@ -208,6 +198,7 @@ export function ApplicationFlow({
             draftRef.current = nextDraft
             setDraft(nextDraft)
           }}
+          onGoToMissingField={handleGoToMissingField}
           program={program}
           readOnly={readOnly}
           {...navigation}

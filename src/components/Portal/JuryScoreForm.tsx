@@ -1,19 +1,27 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-import { saveEvaluation } from '@/lib/portal-actions'
 import {
+  evaluationTotal,
+  formatJuryTotal,
   JURY_SCORE_FIELDS,
   JURY_SCORE_MAX,
   JURY_SCORE_MIN,
+  JURY_SCORE_TOTAL_MAX,
   type JuryScoreValues,
 } from '@/lib/jury-scores'
+import { saveEvaluation } from '@/lib/portal-actions'
+import { PORTAL_PATHS } from '@/lib/portal'
 
-import { Button, FormStack, SelectField, Text, TextArea, Title } from './ui'
+import { Button, SelectField, Text, TextArea } from './ui'
+import styles from './JuryScoreForm.module.css'
+import layoutStyles from './JuryApplicationLayout.module.css'
 
 type JuryScoreFormProps = {
   applicationId: number
+  returnTo?: string
   initial?: (JuryScoreValues & { notes?: string | null }) | null
 }
 
@@ -24,7 +32,8 @@ const emptyScores = {
   missionAlignment: 0,
 }
 
-export function JuryScoreForm({ applicationId, initial }: JuryScoreFormProps) {
+export function JuryScoreForm({ applicationId, returnTo, initial }: JuryScoreFormProps) {
+  const router = useRouter()
   const [scores, setScores] = useState<JuryScoreValues>({
     artisticExcellence: initial?.artisticExcellence ?? emptyScores.artisticExcellence,
     culturalSignificance: initial?.culturalSignificance ?? emptyScores.culturalSignificance,
@@ -33,27 +42,39 @@ export function JuryScoreForm({ applicationId, initial }: JuryScoreFormProps) {
   })
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
+  const hasAllScores = JURY_SCORE_FIELDS.every((field) => scores[field.name] >= JURY_SCORE_MIN)
+  const liveTotal = hasAllScores ? formatJuryTotal(evaluationTotal(scores)) : null
 
   return (
-    <FormStack
+    <form
+      className={styles.form}
       onSubmit={async (event) => {
         event.preventDefault()
         setSaving(true)
         setError('')
-        setSaved(false)
-        const result = await saveEvaluation(applicationId, { ...scores, notes })
-        setSaving(false)
-        if (!result.ok) {
-          setError(result.error)
-          return
+        try {
+          const result = await saveEvaluation(applicationId, { ...scores, notes })
+          if (!result.ok) {
+            setSaving(false)
+            setError(result.error)
+            return
+          }
+          router.push(returnTo || PORTAL_PATHS.jury)
+        } catch {
+          setSaving(false)
+          setError('Could not save score.')
         }
-        setSaved(true)
       }}
     >
-      <Title as="h2">Score</Title>
-      <Text>Score each criterion from {JURY_SCORE_MIN} to {JURY_SCORE_MAX}. Other jurors cannot see your scores.</Text>
+      <h2 className={layoutStyles.asideTitle} id="jury-score-heading">
+        Score
+      </h2>
+      <p className={layoutStyles.asideLead}>
+        Score each criterion from {JURY_SCORE_MIN} to {JURY_SCORE_MAX} (total out of{' '}
+        {JURY_SCORE_TOTAL_MAX}). Other jurors cannot see your scores.
+      </p>
+      {liveTotal ? <p className={styles.average}>Total: {liveTotal}</p> : null}
       {JURY_SCORE_FIELDS.map((field) => (
         <SelectField
           key={field.name}
@@ -69,23 +90,26 @@ export function JuryScoreForm({ applicationId, initial }: JuryScoreFormProps) {
           value={scores[field.name] || ''}
         >
           <option value="">Select</option>
-          {Array.from({ length: JURY_SCORE_MAX }, (_, index) => index + JURY_SCORE_MIN).map((value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
+          {Array.from({ length: JURY_SCORE_MAX }, (_, index) => index + JURY_SCORE_MIN).map(
+            (value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ),
+          )}
         </SelectField>
       ))}
-      <TextArea
-        label="Notes"
-        onChange={(event) => setNotes(event.target.value)}
-        value={notes}
-      />
+      <div className={styles.notes}>
+        <TextArea
+          label="Notes"
+          onChange={(event) => setNotes(event.target.value)}
+          value={notes}
+        />
+      </div>
       {error ? <Text variant="error">{error}</Text> : null}
-      {saved ? <Text variant="success">Score saved.</Text> : null}
       <Button disabled={saving} type="submit" variant="primary">
-        Save score
+        {saving ? 'Saving…' : 'Submit scores'}
       </Button>
-    </FormStack>
+    </form>
   )
 }

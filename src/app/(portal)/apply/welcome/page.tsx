@@ -5,6 +5,7 @@ import { applicationHasStarted, furthestAllowedStep, stepComplete } from '@/lib/
 import { requireApplicant } from '@/lib/portal-auth'
 import { isApplicationReadOnly, resolveApplicantPortal } from '@/lib/portal-data'
 import {
+  applicationDeadlineLabel,
   displayName,
   formatPortalDate,
   INFO_EMAIL,
@@ -58,7 +59,7 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
     rulesDocument && typeof rulesDocument === 'object' && rulesDocument.url
       ? rulesDocument.url
       : null
-  const deadline = formatPortalDate(program.deadline)
+  const deadline = applicationDeadlineLabel(program.deadline)
   const acceptingSubmissions = programAcceptsSubmissions(program)
   const paragraphs = program.welcomeMessage
     .split(/\n\s*\n/)
@@ -82,7 +83,9 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
               </Button>
             </div>
           ) : null}
-          <Title>Welcome to The Spector Craft Prize for Emerging Artists Submissions Portal.</Title>
+          <Title className={styles.welcomeTitle}>
+            Welcome to The Spector Craft Prize for Emerging Artists Submissions Portal
+          </Title>
           {paragraphs.map((paragraph) => (
             <Text key={paragraph}>{paragraph}</Text>
           ))}
@@ -98,7 +101,8 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
             ))}
           </ol>
           <Text>
-            For questions about our policies, please use the contact information on the right.
+            For all general inquiries about our policies, email{' '}
+            <TextLink href={`mailto:${INFO_EMAIL}`}>{INFO_EMAIL}</TextLink>.
           </Text>
           <Text>
             For technical assistance with this submission process, please click the Help link above

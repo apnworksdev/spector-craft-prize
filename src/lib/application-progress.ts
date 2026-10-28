@@ -115,10 +115,10 @@ export function furthestAllowedStep(application: Application): WizardStep {
   return 'submit'
 }
 
-export function canOpenStep(application: Application, step: WizardStep): boolean {
-  const order: WizardStep[] = ['personal', 'eligibility', 'bio', 'work', 'media', 'submit']
-  const allowed = furthestAllowedStep(application)
-  return order.indexOf(step) <= order.indexOf(allowed)
+export function canOpenStep(_application: Application, _step: WizardStep): boolean {
+  // Applicants may move freely between sections with incomplete required fields.
+  // Final submit still enforces completeness via submit validation.
+  return true
 }
 
 export function applicationSectionsComplete(application: Application): boolean {

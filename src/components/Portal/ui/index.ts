@@ -8,6 +8,7 @@ export {
   Panel,
   PanelForm,
   Stack,
+  StatusBadge,
   Table,
   Text,
   Title,

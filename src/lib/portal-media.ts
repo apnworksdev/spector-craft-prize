@@ -13,10 +13,20 @@ export const APPLICATION_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 export const APPLICATION_VIDEO_TYPES = ['video/mp4'] as const
 export const GOVERNMENT_ID_TYPES = [
   'image/jpeg',
+  'image/jpg',
   'image/png',
   'image/webp',
   'application/pdf',
 ] as const
+
+/** Picker list. Extensions are included so JPG and PNG are offered, not only PDF. */
+export const GOVERNMENT_ID_ACCEPT = [
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.pdf',
+  ...GOVERNMENT_ID_TYPES,
+].join(',')
 
 export const APPLICATION_IMAGE_HELP =
   'Add several views of the same work in one upload and fill in the details once. To title a different work or a piece in a series, add another set. Images should have a white or neutral background. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.'
@@ -64,10 +74,11 @@ export function applicationVideoError(file: FileLike): string | true {
 }
 
 export function governmentIdError(file: FileLike): string | true {
-  const type = file.mimeType || ''
+  const raw = file.mimeType || ''
+  const type = raw === 'image/pjpeg' ? 'image/jpeg' : raw
 
   if (type && !GOVERNMENT_ID_TYPES.includes(type as (typeof GOVERNMENT_ID_TYPES)[number])) {
-    return 'Government ID must be JPEG, PNG, WebP, or PDF.'
+    return 'Government ID must be JPG, PNG, or PDF.'
   }
 
   if (typeof file.filesize === 'number' && file.filesize > 10 * 1024 * 1024) {
@@ -83,6 +94,12 @@ type SubmissionFileRef = {
   filename?: string | null
 }
 
+/**
+ * Portal media URLs go through `/api/portal/submission-files/:id`, which uses the
+ * same staff/applicant session checks as PDF/ZIP and reads private R2 bytes
+ * server-side. Preferring Payload's `/api/submission-files/file/...` (or a raw
+ * `file.url`) caused intermittent 403s for jury media after HMR/restarts.
+ */
 export function submissionFileUrl(
   file: SubmissionFileRef | number | null | undefined,
 ): string | null {
@@ -90,8 +107,8 @@ export function submissionFileUrl(
     return null
   }
 
-  if (file.url?.trim()) {
-    return file.url
+  if (typeof file.id === 'number' && Number.isFinite(file.id)) {
+    return `/api/portal/submission-files/${file.id}`
   }
 
   if (file.filename?.trim()) {

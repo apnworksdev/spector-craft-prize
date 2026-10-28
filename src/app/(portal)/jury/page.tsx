@@ -1,28 +1,34 @@
+import { redirect } from 'next/navigation'
+
 import { isAdmin } from '@/access/roles'
 import { PortalShell } from '@/components/Portal/PortalShell'
-import { Actions, Button, Input, Panel, Stack, Text, TextLink, Title } from '@/components/Portal/ui'
-import { applicationLabel, displayName, PORTAL_PATHS } from '@/lib/portal'
+import { Panel, Stack, Text, TextLink, Title } from '@/components/Portal/ui'
+import {
+  juryScoreByApplication,
+  programIdFromApplication,
+  uniqueProgramsFromApplications,
+} from '@/lib/jury-list'
+import { displayName, PORTAL_PATHS, programJuryPath } from '@/lib/portal'
 import { requireJuryAccess } from '@/lib/portal-auth'
 import { getPayloadClient } from '@/lib/payload'
 
 type PageProps = {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ program?: string; q?: string; status?: string }>
 }
 
-export default async function JuryListPage({ searchParams }: PageProps) {
+export default async function JuryProgramPickerPage({ searchParams }: PageProps) {
   const user = await requireJuryAccess()
-  const { q = '' } = await searchParams
-  const query = q.trim().toLowerCase()
+  const { program: programParam = '', q = '', status = '' } = await searchParams
   const payload = await getPayloadClient()
-
   const userRef = { ...user, collection: 'users' as const }
+
   const applications = await payload.find({
     collection: 'applications',
     where: isAdmin(user)
       ? { and: [{ status: { equals: 'submitted' } }, { selectedForEvaluation: { equals: true } }] }
       : undefined,
     depth: 1,
-    limit: 200,
+    limit: 500,
     user: userRef,
     overrideAccess: false,
   })
@@ -34,19 +40,41 @@ export default async function JuryListPage({ searchParams }: PageProps) {
     user: userRef,
     overrideAccess: false,
   })
-  const scoredIds = new Set(
-    scored.docs.map((evaluation) =>
-      typeof evaluation.application === 'object' ? evaluation.application.id : evaluation.application,
-    ),
-  )
+  const scoredIds = new Set(juryScoreByApplication(scored.docs).keys())
+  const programs = uniqueProgramsFromApplications(applications.docs)
 
-  const visible = applications.docs.filter((application) => {
-    if (!query) {
-      return true
+  // Legacy `/jury?program=1` → `/jury/scp26`
+  const legacyProgramId = Number(programParam)
+  if (legacyProgramId) {
+    const legacyProgram =
+      programs.find((program) => program.id === legacyProgramId) ??
+      (await payload
+        .findByID({
+          collection: 'programs',
+          id: legacyProgramId,
+          depth: 0,
+          user: userRef,
+          overrideAccess: false,
+        })
+        .catch(() => null))
+    if (legacyProgram) {
+      redirect(
+        programJuryPath(legacyProgram, {
+          ...(q ? { q } : {}),
+          ...(status && status !== 'all' ? { status } : {}),
+        }),
+      )
     }
+  }
 
-    return applicationLabel(application).toLowerCase().includes(query)
-  })
+  if (programs.length === 1) {
+    redirect(
+      programJuryPath(programs[0], {
+        ...(q ? { q } : {}),
+        ...(status && status !== 'all' ? { status } : {}),
+      }),
+    )
+  }
 
   return (
     <PortalShell
@@ -56,29 +84,34 @@ export default async function JuryListPage({ searchParams }: PageProps) {
       userLabel={displayName(user)}
     >
       <Panel width="wide">
-        <Title>Applications selected for evaluation</Title>
-        <Actions action={PORTAL_PATHS.jury} as="form">
-          <Input
-            aria-label="Search applications"
-            defaultValue={q}
-            name="q"
-            placeholder="Search"
-            type="search"
-          />
-          <Button type="submit">Search</Button>
-        </Actions>
-        {visible.length === 0 ? (
-          <Text>No applications.</Text>
+        <Title>Select a program</Title>
+        <Text>Choose a program to review applications selected for evaluation.</Text>
+        {programs.length === 0 ? (
+          <Text>No applications are available for evaluation.</Text>
         ) : (
           <Stack as="ul">
-            {visible.map((application) => (
-              <li key={application.id}>
-                <TextLink href={`${PORTAL_PATHS.jury}/${application.id}`}>
-                  {applicationLabel(application)}
-                  {scoredIds.has(application.id) ? ' · Scored' : ''}
-                </TextLink>
-              </li>
-            ))}
+            {programs.map((program) => {
+              const count = applications.docs.filter(
+                (application) => programIdFromApplication(application) === program.id,
+              ).length
+              const completed = applications.docs.filter(
+                (application) =>
+                  programIdFromApplication(application) === program.id &&
+                  scoredIds.has(application.id),
+              ).length
+
+              return (
+                <li key={program.id}>
+                  <TextLink href={programJuryPath(program)}>
+                    {program.code?.trim() ? `${program.code} · ` : ''}
+                    {program.name}
+                  </TextLink>
+                  <Text variant="hint">
+                    {completed} of {count} scored
+                  </Text>
+                </li>
+              )
+            })}
           </Stack>
         )}
       </Panel>

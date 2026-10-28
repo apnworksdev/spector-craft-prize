@@ -5,9 +5,14 @@ import { type FormEvent, useEffect, useRef, useState } from 'react'
 
 import { WizardBubbleNav } from '@/components/Portal/WizardBubbleNav'
 import { WizardFieldErrorsProvider } from '@/components/Portal/WizardFieldErrors'
-import { mergeApplication, validateWizardStep, focusFirstInvalidField } from '@/lib/application-validation'
+import {
+  mergeApplication,
+  validateWizardStep,
+  focusFirstInvalidField,
+  type FieldErrors,
+} from '@/lib/application-validation'
 import { enqueueApplicationSave } from '@/lib/application-save-queue'
-import { PORTAL_PATHS, WIZARD_STEPS, type WizardStep } from '@/lib/portal'
+import { PORTAL_PATHS, type WizardStep } from '@/lib/portal'
 import type { Application } from '@/payload-types'
 
 import { Actions, Button, FormStack, Panel, Text, TextLink } from './ui'
@@ -26,7 +31,9 @@ type ApplicationWizardProps = {
   onContinue?: (data: Partial<Application>) => void | Promise<void>
   onSaveAndExit?: (data: Partial<Application>) => void
   onSelectStep?: (step: WizardStep, data: Partial<Application>) => void
-  reachedIndex?: number
+  /** Errors from a failed submit attempt; paired with focusToken to re-focus. */
+  initialFieldErrors?: FieldErrors
+  focusToken?: number
   children: React.ReactNode
 }
 
@@ -43,7 +50,8 @@ export function ApplicationWizard({
   onContinue,
   onSaveAndExit,
   onSelectStep,
-  reachedIndex,
+  initialFieldErrors,
+  focusToken,
   children,
 }: ApplicationWizardProps) {
   const router = useRouter()
@@ -59,9 +67,17 @@ export function ApplicationWizard({
     setLiveApplication(application ?? null)
   }, [application])
 
-  const currentIndex = WIZARD_STEPS.indexOf(step)
-  const openedThrough = reachedIndex ?? currentIndex
+  useEffect(() => {
+    if (focusToken == null || !initialFieldErrors || Object.keys(initialFieldErrors).length === 0) {
+      return
+    }
 
+    setFieldErrors(initialFieldErrors)
+    const frame = window.requestAnimationFrame(() => {
+      focusFirstInvalidField(initialFieldErrors)
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [focusToken, initialFieldErrors])
   function refreshLivePreview(form: HTMLFormElement) {
     if (!application) {
       return
@@ -70,13 +86,14 @@ export function ApplicationWizard({
     setLiveApplication(mergeApplication(application, getData(form)))
   }
 
-  function validateCurrentStep(form: HTMLFormElement) {
+  function validateCurrentStep(form: HTMLFormElement, requireComplete = false) {
     if (!application) {
       return {}
     }
 
     const merged = mergeApplication(application, getData(form))
-    const errors = validateWizardStep(step, merged)
+    // Continue / forward nav allows incomplete sections; still catch invalid filled values.
+    const errors = validateWizardStep(step, merged, { requireComplete })
     setFieldErrors(errors)
     if (Object.keys(errors).length > 0) {
       focusFirstInvalidField(errors)
@@ -110,7 +127,8 @@ export function ApplicationWizard({
       return
     }
 
-    const errors = validateCurrentStep(event.currentTarget)
+    // Continue checks this step only. Bubbles skip validation. Submit checks everything.
+    const errors = validateCurrentStep(event.currentTarget, true)
     if (Object.keys(errors).length > 0) {
       return
     }
@@ -132,14 +150,6 @@ export function ApplicationWizard({
       return
     }
 
-    const targetIndex = WIZARD_STEPS.indexOf(target)
-    if (targetIndex > currentIndex && !readOnly) {
-      const errors = validateCurrentStep(formRef.current)
-      if (Object.keys(errors).length > 0) {
-        return
-      }
-    }
-
     setFieldErrors({})
     setError('')
     onSelectStep(target, getData(formRef.current))
@@ -152,7 +162,6 @@ export function ApplicationWizard({
       <WizardBubbleNav
         application={progressApplication ?? undefined}
         onSelectStep={onSelectStep ? trySelectStep : undefined}
-        openedThrough={openedThrough}
         step={step}
       />
 

@@ -253,6 +253,47 @@
   cursor: not-allowed;
 }
 
+.passwordField {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.passwordInput {
+  padding-right: 48px;
+}
+
+.passwordToggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: calc(var(--portal-radius) - 2px);
+  background: transparent;
+  color: var(--portal-accent);
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.passwordToggle:focus-visible {
+  outline: 2px solid var(--portal-ink);
+  outline-offset: 1px;
+}
+
+.passwordToggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -332,6 +373,10 @@
   .select:hover:not(:disabled):not(:focus),
   .dropzone:hover:not(:has(.fileInputHidden:disabled)):not(:focus-within) {
     border-color: var(--portal-accent);
+  }
+
+  .passwordToggle:hover:not(:disabled) {
+    color: var(--portal-accent-hover);
   }
 
   .button:hover {
@@ -561,6 +606,80 @@
   color: var(--portal-muted);
   font-size: var(--portal-font-sm);
   font-weight: 400;
+}
+
+.tableFrame {
+  overflow-x: auto;
+  border: 1px solid var(--portal-border);
+  border-radius: var(--portal-radius);
+  background: var(--portal-surface);
+}
+
+.tableFramed {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table.tableFramed th,
+.table.tableFramed td {
+  padding: 14px 16px;
+  vertical-align: middle;
+}
+
+.table.tableFramed th:first-child,
+.table.tableFramed td:first-child {
+  width: 100%;
+}
+
+.table.tableFramed th {
+  background: var(--portal-surface-sunken);
+  border-bottom: 1px solid var(--portal-border);
+  font-size: var(--portal-font-xs);
+  font-weight: 500;
+  letter-spacing: var(--portal-tracking-caps);
+  text-transform: uppercase;
+}
+
+.table.tableFramed td {
+  color: var(--portal-ink);
+  border-bottom: 1px solid var(--portal-line);
+}
+
+.table.tableFramed th[data-align='end'],
+.table.tableFramed td[data-align='end'] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table.tableFramed tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table.tableFramed tbody tr:hover td {
+  background: var(--portal-surface-muted);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid var(--portal-border-strong);
+  border-radius: var(--portal-radius-pill);
+  background: var(--portal-surface-sunken);
+  color: var(--portal-muted);
+  font-size: var(--portal-font-xs);
+  letter-spacing: var(--portal-tracking-ui);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.statusComplete {
+  composes: status;
+  border-color: var(--portal-bubble-border);
+  background: color-mix(in srgb, var(--portal-accent) 8%, var(--portal-surface));
+  color: var(--portal-accent);
 }
 
 @media (prefers-reduced-motion: no-preference) {

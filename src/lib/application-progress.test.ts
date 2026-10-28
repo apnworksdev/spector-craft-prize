@@ -4,6 +4,7 @@ import {
   applicationProgressPercent,
   canOpenStep,
   formsFillRatio,
+  furthestAllowedStep,
   stepComplete,
   stepFillRatio,
 } from '@/lib/application-progress'
@@ -41,19 +42,19 @@ const eligibility = {
 }
 
 describe('application progress', () => {
-  it('blocks later steps until personal is complete', () => {
+  it('allows opening later steps even when earlier sections are incomplete', () => {
     const draft = application()
     expect(stepComplete(draft, 'personal')).toBe(false)
-    expect(canOpenStep(draft, 'bio')).toBe(false)
+    expect(canOpenStep(draft, 'bio')).toBe(true)
+    expect(canOpenStep(draft, 'submit')).toBe(true)
   })
 
-  it('allows bio after personal and eligibility', () => {
+  it('still reports the first incomplete step for resume links', () => {
     const draft = application({
       ...personal,
       ...eligibility,
     })
-    expect(canOpenStep(draft, 'bio')).toBe(true)
-    expect(canOpenStep(draft, 'work')).toBe(false)
+    expect(furthestAllowedStep(draft)).toBe('bio')
   })
 
   it('allows work as soon as biography is complete, even if work is empty', () => {
@@ -63,8 +64,8 @@ describe('application progress', () => {
       educationalBackground: 'Studied ceramics.',
       biographicalSummary: 'A short biography.',
     })
-    expect(canOpenStep(draft, 'work')).toBe(true)
-    expect(canOpenStep(draft, 'media')).toBe(false)
+    expect(furthestAllowedStep(draft)).toBe('work')
+    expect(canOpenStep(draft, 'media')).toBe(true)
   })
 
   it('reports zero progress for an empty draft', () => {
@@ -93,6 +94,7 @@ describe('application progress', () => {
       whyPrize: 'Why this prize.',
     })
     expect(canOpenStep(draft, 'media')).toBe(true)
-    expect(canOpenStep(draft, 'submit')).toBe(false)
+    expect(canOpenStep(draft, 'submit')).toBe(true)
+    expect(furthestAllowedStep(draft)).toBe('media')
   })
 })

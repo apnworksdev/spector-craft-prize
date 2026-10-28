@@ -83,7 +83,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    applications: {
+      evaluations: 'evaluations';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     applicants: ApplicantsSelect<false> | ApplicantsSelect<true>;
@@ -176,6 +180,10 @@ export interface ApplicantAuthOperations {
  */
 export interface User {
   id: number;
+  /**
+   * Name used in CMS lists and Evaluations (falls back to email).
+   */
+  listTitle?: string | null;
   firstName?: string | null;
   lastName?: string | null;
   /**
@@ -211,6 +219,11 @@ export interface User {
  */
 export interface Applicant {
   id: number;
+  /**
+   * Name shown in the CMS. The public URL uses this name.
+   */
+  listTitle?: string | null;
+  slug?: string | null;
   firstName: string;
   lastName: string;
   updatedAt: string;
@@ -245,6 +258,10 @@ export interface Program {
    * Stable id, e.g. emerging-artists-2026-2027
    */
   slug: string;
+  /**
+   * Short program code for jury/staff downloads, e.g. SCP26. Used in PDF and ZIP filenames with the applicant name. Required for clear download names.
+   */
+  code?: string | null;
   deadline: string;
   /**
    * Applicants can sign up and submit only when Live.
@@ -297,14 +314,29 @@ export interface Document {
  */
 export interface Application {
   id: number;
-  applicant: number | Applicant;
-  program: number | Program;
-  status: 'draft' | 'submitted';
-  submittedAt?: string | null;
+  /**
+   * Median of juror totals, out of 20. Sort and filter the list by this column.
+   */
+  panelMedian?: number | null;
+  evaluations?: {
+    docs?: (number | Evaluation)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   /**
    * When checked, jurors can view this submitted application.
    */
   selectedForEvaluation?: boolean | null;
+  evaluationCount?: number | null;
+  /**
+   * Artist or full name — used as the CMS title and in Evaluations.
+   */
+  listTitle?: string | null;
+  slug?: string | null;
+  applicant: number | Applicant;
+  program: number | Program;
+  status: 'draft' | 'submitted';
+  submittedAt?: string | null;
   fullName?: string | null;
   artistName?: string | null;
   dateOfBirth?: string | null;
@@ -320,6 +352,7 @@ export interface Application {
   socialMedia?: string | null;
   personalNotes?: string | null;
   yearsOfPractice?: string | null;
+  practiceBeganDetails?: string | null;
   trainingBackground?: string | null;
   primaryCraftDiscipline?: string | null;
   /**
@@ -405,6 +438,48 @@ export interface Application {
   createdAt: string;
 }
 /**
+ * All juror scores on one list. Total is the sum of the four criteria (max 20). Filter by application or juror as needed.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "evaluations".
+ */
+export interface Evaluation {
+  id: number;
+  /**
+   * Applicant and juror. This is the evaluation title and URL.
+   */
+  listTitle?: string | null;
+  slug?: string | null;
+  /**
+   * Shown by applicant name when the application list title is set.
+   */
+  application: number | Application;
+  juror: number | User;
+  /**
+   * Artistic excellence. 1–5.
+   */
+  artisticExcellence: number;
+  /**
+   * Cultural significance. 1–5.
+   */
+  culturalSignificance: number;
+  /**
+   * Growth potential. 1–5.
+   */
+  growthPotential: number;
+  /**
+   * Mission alignment. 1–5.
+   */
+  missionAlignment: number;
+  /**
+   * Sum of the four criteria (max 20).
+   */
+  total?: number | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "submission-files".
  */
@@ -425,34 +500,6 @@ export interface SubmissionFile {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "evaluations".
- */
-export interface Evaluation {
-  id: number;
-  application: number | Application;
-  juror: number | User;
-  /**
-   * Artistic excellence. 1–5.
-   */
-  artisticExcellence: number;
-  /**
-   * Cultural significance. 1–5.
-   */
-  culturalSignificance: number;
-  /**
-   * Growth potential. 1–5.
-   */
-  growthPotential: number;
-  /**
-   * Mission alignment. 1–5.
-   */
-  missionAlignment: number;
-  notes?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * Images or short compressed videos. Max 30 MB. Videos should be H.264 MP4 around 1080p — not camera originals.
@@ -915,6 +962,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  listTitle?: T;
   firstName?: T;
   lastName?: T;
   role?: T;
@@ -941,6 +989,8 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "applicants_select".
  */
 export interface ApplicantsSelect<T extends boolean = true> {
+  listTitle?: T;
+  slug?: T;
   firstName?: T;
   lastName?: T;
   updatedAt?: T;
@@ -969,6 +1019,7 @@ export interface ApplicantsSelect<T extends boolean = true> {
 export interface ProgramsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
+  code?: T;
   deadline?: T;
   status?: T;
   rulesDocument?: T;
@@ -991,11 +1042,16 @@ export interface ProgramsSelect<T extends boolean = true> {
  * via the `definition` "applications_select".
  */
 export interface ApplicationsSelect<T extends boolean = true> {
+  panelMedian?: T;
+  evaluations?: T;
+  selectedForEvaluation?: T;
+  evaluationCount?: T;
+  listTitle?: T;
+  slug?: T;
   applicant?: T;
   program?: T;
   status?: T;
   submittedAt?: T;
-  selectedForEvaluation?: T;
   fullName?: T;
   artistName?: T;
   dateOfBirth?: T;
@@ -1011,6 +1067,7 @@ export interface ApplicationsSelect<T extends boolean = true> {
   socialMedia?: T;
   personalNotes?: T;
   yearsOfPractice?: T;
+  practiceBeganDetails?: T;
   trainingBackground?: T;
   primaryCraftDiscipline?: T;
   usCitizenOrResident?: T;
@@ -1067,12 +1124,15 @@ export interface ApplicationsSelect<T extends boolean = true> {
  * via the `definition` "evaluations_select".
  */
 export interface EvaluationsSelect<T extends boolean = true> {
+  listTitle?: T;
+  slug?: T;
   application?: T;
   juror?: T;
   artisticExcellence?: T;
   culturalSignificance?: T;
   growthPotential?: T;
   missionAlignment?: T;
+  total?: T;
   notes?: T;
   updatedAt?: T;
   createdAt?: T;

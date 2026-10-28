@@ -12,6 +12,23 @@ type StaffNavProps = {
   user: User
 }
 
+const STAFF_SECTIONS = new Set(['programs', 'users', 'evaluation', 'login'])
+
+function applicationsNavActive(pathname: string | null): boolean {
+  if (!pathname) {
+    return false
+  }
+  if (
+    pathname === PORTAL_PATHS.staffApplicants ||
+    pathname.startsWith(`${PORTAL_PATHS.staffApplicants}/`)
+  ) {
+    return true
+  }
+
+  const parts = pathname.split('/').filter(Boolean)
+  return parts[0] === 'staff' && parts.length >= 3 && !STAFF_SECTIONS.has(parts[1] ?? '')
+}
+
 export function StaffNav({ user }: StaffNavProps) {
   const pathname = usePathname()
 
@@ -24,7 +41,7 @@ export function StaffNav({ user }: StaffNavProps) {
         Programs
       </TextLink>
       <TextLink
-        active={pathname?.startsWith(PORTAL_PATHS.staffApplicants)}
+        active={applicationsNavActive(pathname)}
         href={PORTAL_PATHS.staffApplicants}
       >
         Applications

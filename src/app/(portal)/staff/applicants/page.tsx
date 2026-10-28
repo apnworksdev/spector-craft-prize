@@ -12,7 +12,7 @@ import {
   Title,
 } from '@/components/Portal/ui'
 import { applicantBucket, type ApplicantBucket } from '@/lib/applicant-status'
-import { applicationLabel, displayName, PORTAL_PATHS } from '@/lib/portal'
+import { applicationLabel, applicationStaffPath, displayName, PORTAL_PATHS } from '@/lib/portal'
 import { requireAdmin } from '@/lib/portal-auth'
 import { getPayloadClient } from '@/lib/payload'
 
@@ -103,7 +103,7 @@ export default async function StaffApplicantsPage({ searchParams }: PageProps) {
                 <Stack as="ul">
                   {buckets[bucket.key].map((application) => (
                     <li key={application.id}>
-                      <TextLink href={`${PORTAL_PATHS.staffApplicants}/${application.id}`}>
+                      <TextLink href={applicationStaffPath(application)}>
                         {applicationLabel(application)}
                       </TextLink>
                     </li>

@@ -1,3 +1,5 @@
+import { publicSlug } from '@/lib/public-slug'
+
 export const PORTAL_PATHS = {
   login: '/apply',
   signup: '/apply/signup',
@@ -55,7 +57,166 @@ export function applicationLabel(application: {
   }
 
   const applicant = typeof application.applicant === 'object' ? application.applicant : null
-  return applicant ? displayName(applicant) : `Application ${application.id}`
+  return applicant ? displayName(applicant) : 'Application'
+}
+
+type ApplicationPathFields = {
+  id: number
+  applicant?: unknown
+  artistName?: string | null
+  fullName?: string | null
+  program?: unknown
+  slug?: string | null
+}
+
+export function programPublicCode(program: unknown): string {
+  return programCodeForDownload(program).toLowerCase()
+}
+
+/** Person segment, unique inside one program: `naz-sahin`. */
+export function applicationPersonKey(application: ApplicationPathFields): string {
+  const slug = application.slug?.trim().toLowerCase() ?? ''
+  const prefix = `${programPublicCode(application.program)}-`
+  if (slug.startsWith(prefix)) {
+    return slug.slice(prefix.length)
+  }
+
+  const applicant =
+    application.applicant &&
+    typeof application.applicant === 'object' &&
+    'slug' in application.applicant &&
+    typeof application.applicant.slug === 'string'
+      ? application.applicant.slug.trim().toLowerCase()
+      : ''
+  if (applicant) {
+    return applicant
+  }
+
+  if (slug) {
+    return slug
+  }
+
+  return publicSlug(applicationLabel(application))
+}
+
+/** Stored application address: `scp26-naz-sahin`. */
+export function applicationPathKey(application: ApplicationPathFields): string {
+  const slug = application.slug?.trim().toLowerCase()
+  if (slug) {
+    return slug
+  }
+
+  return `${programPublicCode(application.program)}-${applicationPersonKey(application)}`
+}
+
+export function applicationStaffPath(application: ApplicationPathFields): string {
+  const code = programPublicCode(application.program)
+  return `${PORTAL_PATHS.staff}/${code}/${applicationPersonKey(application)}`
+}
+
+/** ASCII-safe segment for download filenames. */
+export function filenameSegment(value: string, maxLength = 48): string {
+  const cleaned = value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, maxLength)
+    .replace(/^-+|-+$/g, '')
+
+  return cleaned || 'untitled'
+}
+
+export function programCodeForDownload(program: unknown): string {
+  if (program && typeof program === 'object') {
+    const code = 'code' in program && typeof program.code === 'string' ? program.code.trim() : ''
+    if (code) {
+      return filenameSegment(code.toUpperCase(), 12)
+    }
+    const slug = 'slug' in program && typeof program.slug === 'string' ? program.slug.trim() : ''
+    if (slug) {
+      return filenameSegment(slug.toUpperCase(), 12)
+    }
+  }
+
+  return 'APP'
+}
+
+/**
+ * Download basename for jury/staff PDF and ZIP files:
+ * `{PROGRAM_CODE}_{Applicant-Name}` e.g. `SCP26_Ada-Lovelace`.
+ */
+export function applicationDownloadBasename(application: ApplicationPathFields): string {
+  const code = programCodeForDownload(application.program)
+  const name = filenameSegment(applicationLabel(application))
+  return `${code}_${name}`
+}
+
+/** Jury program list path: `/jury/scp26` */
+export function programJuryPath(
+  program: unknown,
+  query?: Record<string, string>,
+): string {
+  const code = programCodeForDownload(program).toLowerCase()
+  const path = `${PORTAL_PATHS.jury}/${code}`
+  if (!query || Object.keys(query).length === 0) {
+    return path
+  }
+
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(query)) {
+    if (value) {
+      params.set(key, value)
+    }
+  }
+  const qs = params.toString()
+  return qs ? `${path}?${qs}` : path
+}
+
+/** Jury detail path: `/jury/scp26/ada-lovelace` */
+export function applicationJuryPath(
+  application: ApplicationPathFields,
+  query?: Record<string, string>,
+): string {
+  const code = programCodeForDownload(application.program).toLowerCase()
+  const path = `${PORTAL_PATHS.jury}/${code}/${applicationPersonKey(application)}`
+  if (!query || Object.keys(query).length === 0) {
+    return path
+  }
+
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(query)) {
+    if (value) {
+      params.set(key, value)
+    }
+  }
+  const qs = params.toString()
+  return qs ? `${path}?${qs}` : path
+}
+
+export function applicationIdFromJurySlug(slug: string): number | null {
+  const match = /(?:^|-)(\d+)$/.exec(slug.trim())
+  if (!match) {
+    return null
+  }
+
+  const id = Number(match[1])
+  return Number.isFinite(id) ? id : null
+}
+
+export function contentDispositionAttachment(filename: string): string {
+  const safe = filename.replace(/["\\\r\n]/g, '_')
+  return `attachment; filename="${safe}"`
+}
+
+/** Applicant-facing deadline. The calendar day closes at 11:59 PM Eastern. */
+export function applicationDeadlineLabel(value: string | null | undefined): string | null {
+  const date = formatPortalDate(value)
+  if (!date) {
+    return null
+  }
+
+  return `${date} at 11:59PM EST`
 }
 
 export function formatPortalDate(

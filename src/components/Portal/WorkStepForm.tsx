@@ -2,6 +2,7 @@
 
 import { ApplicationWizard } from '@/components/Portal/ApplicationWizard'
 import { useWizardFieldError } from '@/components/Portal/WizardFieldErrors'
+import type { FieldErrors } from '@/lib/application-validation'
 import {
   ARTIST_STATEMENT_MAX_WORDS,
   WHY_PRIZE_MAX_WORDS,
@@ -21,7 +22,8 @@ type WorkStepFormProps = {
   onContinue?: (data: Partial<Application>) => void
   onSaveAndExit?: (data: Partial<Application>) => void
   onSelectStep?: (step: WizardStep, data: Partial<Application>) => void
-  reachedIndex?: number
+  initialFieldErrors?: FieldErrors
+  focusToken?: number
 }
 
 function valueOf(form: HTMLFormElement, name: string) {
@@ -83,32 +85,32 @@ function WorkFields({ application, readOnly }: { application: Application; readO
       <TextArea
         defaultValue={application.artistStatement ?? ''}
         error={artistStatementError}
-        hint={`How does your work contribute to craft's role in contemporary American culture? Describe your practice's relationship to traditional methods, materials, or lineages (if applicable), and how it combines tradition with innovation. Tell us how your community, locale, or personal identity informs your work. ${ARTIST_STATEMENT_MAX_WORDS} words maximum.`}
-        label="Statement of practice*"
+        hint="How does your work contribute to craft's role in contemporary American culture? Describe your practice's relationship to traditional methods, materials, or lineages (if applicable), and how it combines tradition with innovation. How do your experiences, community, or cultural context shape your artistic perspective and the ideas you explore through your work?"
+        label={`Statement of practice (${ARTIST_STATEMENT_MAX_WORDS} words maximum)*`}
         name="artistStatement"
         readOnly={readOnly}
       />
       <TextArea
         defaultValue={application.workDescription ?? ''}
         error={workDescriptionError}
-        hint={`Describe the process, materials, and techniques used to create the submitted work. How does the work demonstrate your expertise and technical skill? If assistants, fabricators, or industrial processes were involved, describe your own role in the making. ${WORK_DESCRIPTION_MAX_WORDS} words maximum.`}
-        label="Description of submitted work*"
+        hint="Describe the process, materials, and techniques used to create the submitted work. How does the work demonstrate your expertise and technical skill? If assistants, fabricators, or industrial processes were involved, describe your own role in the making."
+        label={`Process of submitted work (${WORK_DESCRIPTION_MAX_WORDS} words maximum)*`}
         name="workDescription"
         readOnly={readOnly}
       />
       <TextArea
         defaultValue={application.workSignificance ?? ''}
         error={workSignificanceError}
-        hint={`How does the submitted work reflect your distinct artistic voice? What significance does it hold within your broader practice? ${WORK_SIGNIFICANCE_MAX_WORDS} words maximum.`}
-        label="Significance*"
+        hint="How does the submitted work reflect your distinct artistic voice? What significance does it hold within your broader practice?"
+        label={`Significance of submitted work (${WORK_SIGNIFICANCE_MAX_WORDS} words maximum)*`}
         name="workSignificance"
         readOnly={readOnly}
       />
       <TextArea
         defaultValue={application.whyPrize ?? ''}
         error={whyPrizeError}
-        hint={`How would the Spector Craft Prize support your ongoing artistic practice? Be specific about where you are in your career and what areas of your practice you want to develop in particular. ${WHY_PRIZE_MAX_WORDS} words maximum.`}
-        label="Why the Spector Craft Prize?*"
+        hint="How would the Spector Craft Prize support your ongoing artistic practice and professional development? Be specific about where you are in your career, what areas you hope to develop, and what receiving the Prize would make possible for you at this stage."
+        label={`Why the Spector Craft Prize? (${WHY_PRIZE_MAX_WORDS} words maximum)*`}
         name="whyPrize"
         readOnly={readOnly}
       />
@@ -124,7 +126,8 @@ export function WorkStepForm({
   onContinue,
   onSaveAndExit,
   onSelectStep,
-  reachedIndex,
+  initialFieldErrors,
+  focusToken,
 }: WorkStepFormProps) {
   return (
     <ApplicationWizard
@@ -132,6 +135,7 @@ export function WorkStepForm({
       applicationId={application.id}
       backHref={onBack ? undefined : `${PORTAL_PATHS.application}/bio`}
       busy={busy}
+      focusToken={focusToken}
       getData={(form) => ({
         workTitle: valueOf(form, 'workTitle'),
         workYearCreated: valueOf(form, 'workYearCreated'),
@@ -142,12 +146,12 @@ export function WorkStepForm({
         workSignificance: valueOf(form, 'workSignificance'),
         whyPrize: valueOf(form, 'whyPrize'),
       })}
+      initialFieldErrors={initialFieldErrors}
       nextHref={onContinue ? undefined : PORTAL_PATHS.media}
       onBack={onBack}
       onContinue={onContinue}
       onSaveAndExit={onSaveAndExit}
       onSelectStep={onSelectStep}
-      reachedIndex={reachedIndex}
       readOnly={readOnly}
       step="work"
     >

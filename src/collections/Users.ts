@@ -2,13 +2,14 @@ import type { CollectionConfig } from 'payload'
 
 import { adminField, adminOnly, isAdmin } from '@/access/roles'
 import { deleteJurorEvaluations } from '@/hooks/evaluations'
+import { syncUserListTitle } from '@/hooks/users'
 import { usersRead, usersUpdate } from '@/access/users'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
-    useAsTitle: 'email',
-    defaultColumns: ['email', 'firstName', 'lastName', 'role', 'updatedAt'],
+    useAsTitle: 'listTitle',
+    defaultColumns: ['listTitle', 'email', 'role', 'updatedAt'],
   },
   auth: {
     cookies: {
@@ -24,9 +25,18 @@ export const Users: CollectionConfig = {
     delete: adminOnly,
   },
   hooks: {
+    beforeChange: [syncUserListTitle],
     beforeDelete: [deleteJurorEvaluations],
   },
   fields: [
+    {
+      name: 'listTitle',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        description: 'Name used in CMS lists and Evaluations (falls back to email).',
+      },
+    },
     {
       name: 'firstName',
       type: 'text',

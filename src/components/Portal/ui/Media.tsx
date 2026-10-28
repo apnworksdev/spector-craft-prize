@@ -101,8 +101,10 @@ function ImageLightbox({
 
 export function MediaGallery({
   items,
+  className,
 }: {
   items: Array<{ src: string; alt: string }>
+  className?: string
 }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
@@ -114,7 +116,7 @@ export function MediaGallery({
 
   return (
     <>
-      <div className={styles.mediaGallery}>
+      <div className={[styles.mediaGallery, className].filter(Boolean).join(' ')}>
         {items.map((item, index) => (
           <button
             aria-label={item.alt ? `View ${item.alt} larger` : 'View image larger'}

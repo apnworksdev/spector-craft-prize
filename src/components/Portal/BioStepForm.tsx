@@ -2,6 +2,7 @@
 
 import { ApplicationWizard } from '@/components/Portal/ApplicationWizard'
 import { useWizardFieldError } from '@/components/Portal/WizardFieldErrors'
+import type { FieldErrors } from '@/lib/application-validation'
 import { BIO_SUMMARY_MAX_WORDS } from '@/lib/portal-media'
 import { PORTAL_PATHS, type WizardStep } from '@/lib/portal'
 import type { Application } from '@/payload-types'
@@ -16,7 +17,8 @@ type BioStepFormProps = {
   onContinue?: (data: Partial<Application>) => void
   onSaveAndExit?: (data: Partial<Application>) => void
   onSelectStep?: (step: WizardStep, data: Partial<Application>) => void
-  reachedIndex?: number
+  initialFieldErrors?: FieldErrors
+  focusToken?: number
 }
 
 function BioFields({ application, readOnly }: { application: Application; readOnly: boolean }) {
@@ -67,7 +69,8 @@ export function BioStepForm({
   onContinue,
   onSaveAndExit,
   onSelectStep,
-  reachedIndex,
+  initialFieldErrors,
+  focusToken,
 }: BioStepFormProps) {
   return (
     <ApplicationWizard
@@ -75,6 +78,7 @@ export function BioStepForm({
       applicationId={application.id}
       backHref={onBack ? undefined : `${PORTAL_PATHS.application}/eligibility`}
       busy={busy}
+      focusToken={focusToken}
       getData={(form) => ({
         educationalBackground: String(
           (form.elements.namedItem('educationalBackground') as HTMLTextAreaElement | null)?.value ||
@@ -91,12 +95,12 @@ export function BioStepForm({
             '',
         ),
       })}
+      initialFieldErrors={initialFieldErrors}
       nextHref={onContinue ? undefined : PORTAL_PATHS.work}
       onBack={onBack}
       onContinue={onContinue}
       onSaveAndExit={onSaveAndExit}
       onSelectStep={onSelectStep}
-      reachedIndex={reachedIndex}
       readOnly={readOnly}
       step="bio"
     >

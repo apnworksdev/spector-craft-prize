@@ -3,7 +3,7 @@
 import type { CSSProperties } from 'react'
 
 import { formsFillRatio, stepFillRatio } from '@/lib/application-progress'
-import { FORM_STEPS, WIZARD_STEPS, type WizardStep } from '@/lib/portal'
+import { FORM_STEPS, type WizardStep } from '@/lib/portal'
 import type { Application } from '@/payload-types'
 
 import styles from './portal.module.css'
@@ -17,10 +17,10 @@ const PHASES: Array<{ key: PhaseKey; label: string; step: WizardStep }> = [
 ]
 
 const FORM_LABELS: Record<(typeof FORM_STEPS)[number], string> = {
-  personal: 'Personal',
-  eligibility: 'Eligibility',
-  bio: 'Biography',
-  work: 'Work',
+  personal: 'Personal information',
+  eligibility: 'Eligibility confirmation',
+  bio: 'Biographical information',
+  work: 'Submitted work',
 }
 
 function phaseRatio(phase: PhaseKey, application: Application): number {
@@ -43,14 +43,12 @@ function fillStyle(ratio: number): CSSProperties {
 type WizardBubbleNavProps = {
   step: WizardStep
   application?: Application
-  openedThrough: number
   onSelectStep?: (step: WizardStep) => void
 }
 
 export function WizardBubbleNav({
   step,
   application,
-  openedThrough,
   onSelectStep,
 }: WizardBubbleNavProps) {
   const activePhase: PhaseKey = (FORM_STEPS as readonly WizardStep[]).includes(step)
@@ -92,16 +90,10 @@ export function WizardBubbleNav({
     <nav aria-label="Application steps" className={styles.bubbleNav}>
       <ol className={styles.bubbleTrack}>
         {PHASES.map((phase, index) => {
-          const phaseIndex = WIZARD_STEPS.indexOf(phase.step)
           const active = phase.key === activePhase
           const ratio = application ? phaseRatio(phase.key, application) : 0
-          const canSelect = Boolean(onSelectStep) && phaseIndex <= openedThrough && !active
-          const nextPhase = PHASES[index + 1]
-          const lineFilled =
-            ratio >= 1 &&
-            nextPhase != null &&
-            (nextPhase.key === activePhase ||
-              PHASES.findIndex((item) => item.key === activePhase) > index)
+          const canSelect = Boolean(onSelectStep) && !active
+          const lineFilled = ratio >= 1
 
           return (
             <li className={styles.bubbleSlot} key={phase.key}>
@@ -125,12 +117,10 @@ export function WizardBubbleNav({
       {activePhase === 'forms' ? (
         <ol className={`${styles.bubbleTrack} ${styles.bubbleTrackSub}`}>
           {FORM_STEPS.map((key, index) => {
-            const stepIndex = WIZARD_STEPS.indexOf(key)
             const active = key === step
             const ratio = application ? stepFillRatio(application, key) : 0
-            const canSelect =
-              Boolean(onSelectStep) && !active && (ratio >= 1 || stepIndex <= openedThrough)
-            const lineFilled = ratio >= 1 && WIZARD_STEPS.indexOf(step) > stepIndex
+            const canSelect = Boolean(onSelectStep) && !active
+            const lineFilled = ratio >= 1
 
             return (
               <li className={styles.bubbleSlot} key={key}>

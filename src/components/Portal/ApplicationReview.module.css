@@ -1,0 +1,244 @@
+.review {
+  display: grid;
+  gap: 28px;
+}
+
+.header {
+  display: grid;
+  gap: 20px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--portal-line);
+}
+
+.tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--portal-border);
+  border-radius: var(--portal-radius);
+  background: var(--portal-surface-muted);
+}
+
+.tab,
+.tabActive {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 16px;
+  border-radius: calc(var(--portal-radius) - 2px);
+  color: var(--portal-accent);
+  font-size: var(--portal-font-md);
+  letter-spacing: var(--portal-tracking);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+.tabActive {
+  background: var(--portal-surface);
+  box-shadow: 0 1px 0 rgb(26 26 26 / 4%);
+}
+
+.tab:focus-visible,
+.tabActive:focus-visible {
+  outline: 2px solid var(--portal-ink);
+  outline-offset: 2px;
+}
+
+.downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: var(--portal-font-md);
+}
+
+.body {
+  display: grid;
+  gap: 28px;
+}
+
+.section {
+  display: grid;
+  gap: 18px;
+  padding-top: 4px;
+}
+
+.sectionTitle {
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--portal-line);
+  font-family: var(--font);
+  font-size: var(--portal-font-section);
+  line-height: 1.25;
+  letter-spacing: var(--portal-tracking);
+}
+
+.sectionTitleCaps {
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--portal-line);
+  font-family: var(--font);
+  font-size: var(--portal-font-button);
+  line-height: 1.25;
+  letter-spacing: var(--portal-tracking-caps);
+  text-transform: uppercase;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+}
+
+.fieldGridFull {
+  display: grid;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.fieldWide {
+  grid-column: 1 / -1;
+}
+
+.label {
+  color: inherit;
+  font-size: var(--portal-font-sm);
+  letter-spacing: var(--portal-tracking);
+}
+
+/* Match portal form control type exactly */
+.value {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--portal-border);
+  border-radius: var(--portal-radius);
+  background: var(--portal-surface-muted);
+  color: inherit;
+  font-size: inherit;
+  line-height: var(--line-height);
+  letter-spacing: var(--portal-tracking-tight);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.valueEmpty {
+  color: var(--portal-muted);
+}
+
+.empty {
+  margin: 0;
+  color: var(--portal-muted);
+  font-size: inherit;
+  line-height: var(--line-height);
+  letter-spacing: var(--portal-tracking-tight);
+}
+
+.workIntro {
+  display: grid;
+  gap: 18px;
+}
+
+.workTitle {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--portal-font-section);
+  line-height: 1.25;
+  letter-spacing: var(--portal-tracking);
+}
+
+.mediaSet {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--portal-line);
+  border-radius: var(--portal-radius-lg);
+  background: var(--portal-surface);
+}
+
+.mediaSetMeta {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mediaSetTitle {
+  margin: 0;
+  font-size: inherit;
+  line-height: var(--line-height);
+  letter-spacing: var(--portal-tracking-tight);
+}
+
+.mediaSetFacts {
+  margin: 0;
+  color: var(--portal-muted);
+  font-size: var(--portal-font-sm);
+  line-height: var(--line-height);
+  letter-spacing: var(--portal-tracking);
+}
+
+.mediaSetDetails {
+  margin: 0;
+  font-size: inherit;
+  line-height: var(--line-height);
+  letter-spacing: var(--portal-tracking-tight);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+div.gallery {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.playerWrap {
+  min-width: 0;
+}
+
+.playerWrap :global(video) {
+  width: 100%;
+  max-height: 520px;
+  border-radius: var(--portal-radius-lg);
+  background: var(--portal-media);
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--portal-accent-hover);
+  }
+}
+
+@media (max-width: 800px) {
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    align-items: stretch;
+  }
+
+  .downloads {
+    width: 100%;
+  }
+
+  .mediaSet {
+    padding: 16px;
+  }
+
+  div.gallery {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
