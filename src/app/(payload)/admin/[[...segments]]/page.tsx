@@ -18,11 +18,11 @@ type Args = {
   }>
 }
 
-function adminParams(segments: string[] | undefined) {
+function adminParams(segments: string[] | undefined): Promise<{ segments: string[] }> {
   // Payload only treats the dashboard as home when `segments` is undefined.
   // An empty array becomes `/admin/` and renders "Nothing found".
   if (!segments?.length) {
-    return Promise.resolve({})
+    return Promise.resolve({} as { segments: string[] })
   }
 
   return Promise.resolve({ segments })
