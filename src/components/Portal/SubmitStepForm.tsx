@@ -1,6 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { applicationSectionsComplete } from '@/lib/application-progress'
@@ -72,7 +71,6 @@ export function SubmitStepForm({
   initialFieldErrors,
   focusToken,
 }: SubmitStepFormProps) {
-  const router = useRouter()
   const [uploadError, setUploadError] = useState('')
   const [governmentIdError, setGovernmentIdError] = useState('')
   const [localPreview, setLocalPreview] = useState<FileFieldPreview | null>(null)
@@ -186,8 +184,16 @@ export function SubmitStepForm({
                 setLocalPreview({ kind: 'image', src: uploaded.url, name: file.name })
               }
 
-              onApplicationPatch?.({ governmentId: uploaded.id })
-              router.refresh()
+              onApplicationPatch?.({
+                governmentId: uploaded.url
+                  ? ({
+                      id: uploaded.id,
+                      url: uploaded.url,
+                      mimeType: file.type,
+                      filename: file.name,
+                    } as Application['governmentId'])
+                  : uploaded.id,
+              })
             }}
           />
         </div>

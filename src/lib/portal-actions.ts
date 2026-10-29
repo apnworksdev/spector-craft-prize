@@ -84,6 +84,9 @@ export async function updateApplicationFields(
       user: { ...applicant, collection: 'applicants' },
       overrideAccess: false,
     })
+    // Wizard steps are separate routes; without this, Continue remounts on a stale RSC payload.
+    revalidatePath(PORTAL_PATHS.application, 'layout')
+    revalidatePath(PORTAL_PATHS.welcome)
     return { ok: true }
   } catch (error) {
     return { ok: false, error: saveErrorMessage(error) }

@@ -104,7 +104,11 @@ export function ApplicationWizard({
   async function persist(form: HTMLFormElement, href?: string) {
     setSaving(true)
     setError('')
-    const result = await enqueueApplicationSave(applicationId, getData(form))
+    const data = getData(form)
+    if (application) {
+      setLiveApplication(mergeApplication(application, data))
+    }
+    const result = await enqueueApplicationSave(applicationId, data)
 
     if (!result.ok) {
       setError(result.error)
@@ -117,7 +121,6 @@ export function ApplicationWizard({
       return
     }
 
-    router.refresh()
     setSaving(false)
   }
 

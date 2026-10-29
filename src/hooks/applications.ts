@@ -9,6 +9,7 @@ import {
 
 import { isAdmin, isApplicantUser } from '@/access/roles'
 import { applicationFileIds } from '@/lib/application-files'
+import { sendApplicationSubmittedTemplate } from '@/lib/email/resendTemplates'
 import { programCodeForDownload, relationId } from '@/lib/portal'
 import { publicSlug, uniquePublicSlug } from '@/lib/public-slug'
 import { programAcceptsSubmissions } from '@/lib/program-deadline'
@@ -528,11 +529,28 @@ export const sendSubmissionConfirmationEmail: CollectionAfterChangeHook = async 
     return doc
   }
 
+  const subject = `${program.name} — application received`
+  const applicantName =
+    (typeof doc.fullName === 'string' && doc.fullName.trim()) ||
+    [applicant.firstName, applicant.lastName].filter(Boolean).join(' ').trim() ||
+    undefined
+
   try {
+    if (
+      await sendApplicationSubmittedTemplate({
+        to: applicant.email,
+        subject,
+        programName: program.name,
+        applicantName,
+      })
+    ) {
+      return doc
+    }
+
     await req.payload.sendEmail({
       to: applicant.email,
-      subject: `${program.name} — application received`,
-      html: `<p>${program.confirmationEmailBody}</p>`,
+      subject,
+      html: `<p>${program.confirmationEmailBody || 'We have received your application.'}</p>`,
     })
   } catch (error) {
     req.payload.logger.error({

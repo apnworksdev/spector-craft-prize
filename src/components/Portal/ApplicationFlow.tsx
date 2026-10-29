@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 
 import { BioStepForm } from '@/components/Portal/BioStepForm'
 import { EligibilityStepForm } from '@/components/Portal/EligibilityStepForm'
@@ -19,6 +19,7 @@ import {
   applicationDeadlineLabel,
   PORTAL_PATHS,
   programRulesHref,
+  wizardStepFromPathname,
   WIZARD_STEP_HREF,
   WIZARD_STEPS,
   type WizardStep,
@@ -30,24 +31,42 @@ import styles from './portal.module.css'
 
 type ApplicationFlowProps = {
   application: Application
-  initialStep: WizardStep
   program: Program
   readOnly: boolean
 }
 
-export function ApplicationFlow({
-  application,
-  initialStep,
-  program,
-  readOnly,
-}: ApplicationFlowProps) {
+export function ApplicationFlow({ application, program, readOnly }: ApplicationFlowProps) {
   const router = useRouter()
-  const [step, setStep] = useState(initialStep)
-  const [draft, setDraft] = useState(application)
+  const pathname = usePathname()
+  const step = wizardStepFromPathname(pathname)
+  const [draft, setDraftState] = useState(application)
   const [error, setError] = useState('')
   const [savingExit, setSavingExit] = useState(false)
   const [focusCue, setFocusCue] = useState<{ token: number; errors: FieldErrors } | null>(null)
   const draftRef = useRef(application)
+  const applicationIdRef = useRef(application.id)
+
+  function setDraft(next: Application) {
+    draftRef.current = next
+    setDraftState(next)
+  }
+
+  function patchDraft(data: Partial<Application>) {
+    const next = { ...draftRef.current, ...data }
+    draftRef.current = next
+    setDraftState(next)
+    return next
+  }
+
+  // Layout stays mounted across steps. Only reset if the applicant gets a different application.
+  useEffect(() => {
+    if (application.id === applicationIdRef.current) {
+      return
+    }
+    applicationIdRef.current = application.id
+    draftRef.current = application
+    setDraftState(application)
+  }, [application])
 
   function handleGoToMissingField(errors: FieldErrors) {
     const field = firstInvalidField(errors)
@@ -61,7 +80,6 @@ export function ApplicationFlow({
       errors,
     }))
     setError('')
-    setStep(target)
     router.replace(WIZARD_STEP_HREF[target], { scroll: false })
   }
 
@@ -84,9 +102,7 @@ export function ApplicationFlow({
       return
     }
 
-    const nextDraft = { ...draftRef.current, ...data }
-    draftRef.current = nextDraft
-    setDraft(nextDraft)
+    patchDraft(data)
     setSavingExit(true)
     setError('')
 
@@ -101,28 +117,22 @@ export function ApplicationFlow({
   }
 
   function navigateToStep(target: WizardStep, data: Partial<Application>) {
-    const from = step
-    if (target === from) {
+    if (target === step) {
       return
     }
 
     if (readOnly) {
       setError('')
-      setStep(target)
       router.replace(WIZARD_STEP_HREF[target], { scroll: false })
       return
     }
 
-    const nextDraft = { ...draftRef.current, ...data }
-    draftRef.current = nextDraft
-    setDraft(nextDraft)
+    patchDraft(data)
     setError('')
-    setStep(target)
     router.replace(WIZARD_STEP_HREF[target], { scroll: false })
 
     void enqueueApplicationSave(application.id, data).then((result) => {
       if (!result.ok) {
-        setStep(from)
         setError(result.error)
       }
     })
@@ -183,9 +193,7 @@ export function ApplicationFlow({
         <MediaStepForm
           application={draft}
           onDraft={(data) => {
-            const nextDraft = { ...draftRef.current, ...data }
-            draftRef.current = nextDraft
-            setDraft(nextDraft)
+            patchDraft(data)
           }}
           readOnly={readOnly}
           {...navigation}
@@ -195,9 +203,7 @@ export function ApplicationFlow({
         <SubmitStepForm
           application={draft}
           onApplicationPatch={(data) => {
-            const nextDraft = { ...draftRef.current, ...data }
-            draftRef.current = nextDraft
-            setDraft(nextDraft)
+            patchDraft(data)
           }}
           onGoToMissingField={handleGoToMissingField}
           program={program}

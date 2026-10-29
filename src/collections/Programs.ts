@@ -158,6 +158,10 @@ export const Programs: CollectionConfig = {
               name: 'confirmationEmailBody',
               type: 'textarea',
               required: true,
+              admin: {
+                description:
+                  'Fallback only — used if the Resend application-submitted template is not configured. Preferred copy lives in the Resend template.',
+              },
             },
             {
               name: 'declarations',

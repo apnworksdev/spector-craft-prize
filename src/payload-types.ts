@@ -288,6 +288,9 @@ export interface Program {
   helpMessage: string;
   incompleteMessage: string;
   readyToSubmitMessage: string;
+  /**
+   * Fallback only — used if the Resend application-submitted template is not configured. Preferred copy lives in the Resend template.
+   */
   confirmationEmailBody: string;
   declarations: {
     text: string;

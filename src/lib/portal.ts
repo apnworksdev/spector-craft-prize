@@ -31,6 +31,14 @@ export function wizardStepIndex(step: WizardStep): number {
   return WIZARD_STEPS.indexOf(step)
 }
 
+export function wizardStepFromPathname(pathname: string): WizardStep {
+  const segment = pathname.split('/').filter(Boolean).pop()
+  if (segment && (WIZARD_STEPS as readonly string[]).includes(segment)) {
+    return segment as WizardStep
+  }
+  return 'personal'
+}
+
 export function displayName(
   user:
     | {

@@ -199,7 +199,9 @@ export function MediaStepForm({
     void enqueueApplicationSave(application.id, data).then((result) => {
       if (!result.ok) {
         setFormError(result.error)
+        return
       }
+      setFormError('')
     })
   }
 

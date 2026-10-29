@@ -20,6 +20,10 @@ export function resetPasswordTemplateId() {
   return process.env.RESEND_TEMPLATE_RESET_PASSWORD?.trim() || ''
 }
 
+export function applicationSubmittedTemplateId() {
+  return process.env.RESEND_TEMPLATE_APPLICATION_SUBMITTED?.trim() || ''
+}
+
 export async function sendResendTemplate(args: {
   to: string
   templateId: string
@@ -87,5 +91,27 @@ export async function sendResetPasswordTemplate(to: string, resetUrl: string) {
     templateId,
     subject: 'Reset your Spector Craft Prize password',
     variables: { RESET_URL: resetUrl },
+  })
+}
+
+export async function sendApplicationSubmittedTemplate(args: {
+  to: string
+  subject: string
+  programName: string
+  applicantName?: string
+}) {
+  const templateId = applicationSubmittedTemplateId()
+  if (!templateId) {
+    return false
+  }
+
+  return sendResendTemplate({
+    to: args.to,
+    templateId,
+    subject: args.subject,
+    variables: {
+      PROGRAM_NAME: args.programName,
+      APPLICANT_NAME: args.applicantName?.trim() || 'there',
+    },
   })
 }
