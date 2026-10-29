@@ -6,12 +6,13 @@ import { enqueueApplicationSave } from '@/lib/application-save-queue'
 import type { FieldErrors } from '@/lib/application-validation'
 import {
   ADDITIONAL_DETAILS_MAX_WORDS,
-  APPLICATION_IMAGE_HELP,
+  APPLICATION_IMAGE_LIMITS,
   APPLICATION_IMAGE_MAX,
+  APPLICATION_IMAGE_NAMING,
   APPLICATION_IMAGE_TYPES,
   APPLICATION_VIDEO_HELP,
   APPLICATION_VIDEO_TYPES,
-  PORTFOLIO_IMAGE_HELP,
+  PORTFOLIO_IMAGE_LIMITS,
   submissionFileUrl,
 } from '@/lib/portal-media'
 import { PORTAL_PATHS, relationId, type WizardStep } from '@/lib/portal'
@@ -140,7 +141,8 @@ function WorkImagesIntro() {
       <Title as="h2" caps>
         Images of submitted work*
       </Title>
-      <Text variant="hint">{APPLICATION_IMAGE_HELP}</Text>
+      <Text variant="hint">{APPLICATION_IMAGE_NAMING}</Text>
+      <Text variant="hint">{APPLICATION_IMAGE_LIMITS}</Text>
       {workImagesError ? (
         <Text className={styles.sectionError} variant="error">
           {workImagesError}
@@ -453,7 +455,8 @@ export function MediaStepForm({
         <Title as="h2" caps>
           Career portfolio
         </Title>
-        <Text variant="hint">{PORTFOLIO_IMAGE_HELP}</Text>
+        <Text variant="hint">{APPLICATION_IMAGE_NAMING}</Text>
+        <Text variant="hint">{PORTFOLIO_IMAGE_LIMITS}</Text>
         <MediaList>
           {renderSets('portfolio', portfolio)}
           {!readOnly && portfolio.length < APPLICATION_IMAGE_MAX ? (

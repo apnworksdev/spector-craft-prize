@@ -1,15 +1,22 @@
 import type { Payload } from 'payload'
 
+import { DEFAULT_WELCOME_TITLE, SELECTION_CRITERIA } from '@/lib/portal'
+
 const DEFAULT_PROGRAM = {
   name: 'The Spector Craft Prize for Emerging Artists 2026–2027',
   slug: 'emerging-artists-2026-2027',
   code: 'SCP26',
   deadline: '2027-02-15T12:00:00.000Z',
   status: 'draft' as const,
+  welcomeTitle: DEFAULT_WELCOME_TITLE,
   welcomeMessage: [
     'The Spector Craft Prize for Emerging Artists celebrates the next generation of visionary craft artists whose work reflects technical excellence, innovative design, and a thoughtful engagement with American culture. Through this award, the program highlights artists who are pushing the boundaries of material and process—those whose creative voices promise meaningful contributions to the future of the field.',
     'Eligible applicants are within the first seven years of their professional craft practice and must be living and working in the United States.',
   ].join('\n\n'),
+  selectionCriteria: SELECTION_CRITERIA.map((item) => ({
+    title: item.title,
+    body: item.body,
+  })),
   helpMessage:
     'For technical assistance with this submission process, email support@spectorcraftprize.org or use the Help link in the portal header.',
   incompleteMessage:
@@ -56,11 +63,17 @@ export async function seedDefaultProgram(payload: Payload) {
         )
       const codeNeedsUpdate = !program.code?.trim()
       const deadlineNeedsUpdate = program.deadline?.startsWith('2027-03-04')
+      const titleNeedsUpdate = !program.welcomeTitle?.trim()
+      const criteriaNeedsUpdate =
+        !Array.isArray(program.selectionCriteria) || program.selectionCriteria.length === 0
+
       if (
         welcomeNeedsUpdate ||
         program.incompleteMessage === previousIncomplete ||
         codeNeedsUpdate ||
-        deadlineNeedsUpdate
+        deadlineNeedsUpdate ||
+        titleNeedsUpdate ||
+        criteriaNeedsUpdate
       ) {
         await payload.update({
           collection: 'programs',
@@ -68,6 +81,10 @@ export async function seedDefaultProgram(payload: Payload) {
           data: {
             ...(codeNeedsUpdate ? { code: DEFAULT_PROGRAM.code } : {}),
             ...(deadlineNeedsUpdate ? { deadline: DEFAULT_PROGRAM.deadline } : {}),
+            ...(titleNeedsUpdate ? { welcomeTitle: DEFAULT_PROGRAM.welcomeTitle } : {}),
+            ...(criteriaNeedsUpdate
+              ? { selectionCriteria: DEFAULT_PROGRAM.selectionCriteria }
+              : {}),
             welcomeMessage: welcomeNeedsUpdate
               ? DEFAULT_PROGRAM.welcomeMessage
               : program.welcomeMessage,

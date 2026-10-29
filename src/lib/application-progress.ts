@@ -22,6 +22,7 @@ export function isPersonalComplete(application: Application): boolean {
 export function isEligibilityComplete(application: Application): boolean {
   return (
     filled(application.yearsOfPractice) &&
+    filled(application.practiceBegan) &&
     filled(application.trainingBackground) &&
     filled(application.primaryCraftDiscipline) &&
     (application.usCitizenOrResident === 'yes' || application.usCitizenOrResident === 'no')
@@ -135,7 +136,7 @@ export function applicationReadyToSubmit(application: Application): boolean {
   return applicationSectionsComplete(application) && isSubmitComplete(application)
 }
 
-export const APPLICATION_PROGRESS_TOTAL = 25
+export const APPLICATION_PROGRESS_TOTAL = 27
 
 function countTrue(values: boolean[]): number {
   return values.filter(Boolean).length
@@ -161,6 +162,7 @@ export function applicationProgressChecks(application: Application): number {
     filled(application.phone),
     filled(application.email),
     filled(application.yearsOfPractice),
+    filled(application.practiceBegan),
     filled(application.trainingBackground),
     filled(application.primaryCraftDiscipline),
     application.usCitizenOrResident === 'yes' || application.usCitizenOrResident === 'no',
@@ -214,11 +216,12 @@ export function stepFillRatio(application: Application, step: WizardStep): numbe
       return ratio(
         countTrue([
           filled(application.yearsOfPractice),
+          filled(application.practiceBegan),
           filled(application.trainingBackground),
           filled(application.primaryCraftDiscipline),
           application.usCitizenOrResident === 'yes' || application.usCitizenOrResident === 'no',
         ]),
-        4,
+        5,
       )
     case 'bio':
       return ratio(
@@ -270,7 +273,7 @@ export function stepFillRatio(application: Application, step: WizardStep): numbe
 
 const FORM_FILL_WEIGHTS = {
   personal: 9,
-  eligibility: 4,
+  eligibility: 5,
   bio: 2,
   work: 8,
 } as const

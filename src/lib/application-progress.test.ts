@@ -36,6 +36,7 @@ const personal = {
 
 const eligibility = {
   yearsOfPractice: '4',
+  practiceBegan: 'March 2021',
   trainingBackground: 'Apprenticeship',
   primaryCraftDiscipline: 'Ceramics',
   usCitizenOrResident: 'yes' as const,
@@ -75,7 +76,7 @@ describe('application progress', () => {
   it('fills a step by the share of required fields', () => {
     const draft = application({ fullName: 'Ada Lovelace', email: 'ada@example.com' })
     expect(stepFillRatio(draft, 'personal')).toBeCloseTo(2 / 9)
-    expect(formsFillRatio(draft)).toBeCloseTo(2 / 23)
+    expect(formsFillRatio(draft)).toBeCloseTo(2 / 24)
   })
 
   it('allows media after the submitted work fields', () => {

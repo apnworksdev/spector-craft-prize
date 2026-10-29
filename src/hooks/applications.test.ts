@@ -36,6 +36,7 @@ const completeDraft = {
   phone: 'A',
   email: 'a@example.com',
   yearsOfPractice: '3',
+  practiceBegan: 'March 2021',
   trainingBackground: 'A',
   primaryCraftDiscipline: 'A',
   usCitizenOrResident: 'yes',

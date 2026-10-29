@@ -9,6 +9,7 @@ export const CMS_TAGS = {
   terms: 'cms:terms',
   privacy: 'cms:privacy',
   navigation: 'cms:navigation',
+  announcementBar: 'cms:announcement-bar',
   documents: 'cms:documents',
   editions: 'cms:editions',
   media: 'cms:media',
@@ -25,6 +26,7 @@ export type GlobalSlug =
   | 'terms'
   | 'privacy'
   | 'navigation'
+  | 'announcement-bar'
 
 export function tagsForGlobal(slug: GlobalSlug): string[] {
   switch (slug) {
@@ -44,6 +46,8 @@ export function tagsForGlobal(slug: GlobalSlug): string[] {
       return [CMS_TAGS.privacy]
     case 'navigation':
       return [CMS_TAGS.navigation, CMS_TAGS.documents]
+    case 'announcement-bar':
+      return [CMS_TAGS.announcementBar]
   }
 }
 
@@ -79,6 +83,8 @@ export function pathsForGlobal(slug: GlobalSlug): RevalidateTarget[] {
     case 'privacy':
       return [{ path: '/privacy' }]
     case 'navigation':
+      return SITE_LAYOUT_PATHS
+    case 'announcement-bar':
       return SITE_LAYOUT_PATHS
   }
 }

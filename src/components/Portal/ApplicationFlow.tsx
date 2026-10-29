@@ -18,6 +18,7 @@ import { enqueueApplicationSave } from '@/lib/application-save-queue'
 import {
   applicationDeadlineLabel,
   PORTAL_PATHS,
+  programRulesHref,
   WIZARD_STEP_HREF,
   WIZARD_STEPS,
   type WizardStep,
@@ -151,11 +152,9 @@ export function ApplicationFlow({
     focusToken: focusCue?.token,
   }
 
-  const rulesDocument = program.rulesDocument
-  const rulesHref =
-    rulesDocument && typeof rulesDocument === 'object' && rulesDocument.url
-      ? rulesDocument.url
-      : null
+  const rulesHref = programRulesHref(
+    typeof program.rulesDocument === 'object' ? program.rulesDocument : null,
+  )
   const deadline = applicationDeadlineLabel(program.deadline)
 
   return (
@@ -163,7 +162,9 @@ export function ApplicationFlow({
       <div className={styles.flowMeta}>
         <span>{program.name}</span>
         {deadline ? <span>Deadline {deadline}</span> : null}
-        {rulesHref ? <TextLink href={rulesHref}>Rules of Entry</TextLink> : null}
+        <TextLink href={rulesHref} target="_blank">
+          Rules of Entry
+        </TextLink>
       </div>
       {error ? <Text variant="error">{error}</Text> : null}
       {step === 'personal' ? (

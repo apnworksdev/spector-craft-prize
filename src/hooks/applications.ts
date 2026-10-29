@@ -237,6 +237,7 @@ function assertSubmitReady(data: Record<string, unknown> | undefined, declaratio
   requiredText(data, 'phone', 'Phone')
   requiredText(data, 'email', 'Email')
   requiredText(data, 'yearsOfPractice', 'Years of Practice')
+  requiredText(data, 'practiceBegan', 'Month and year practice began')
   requiredText(data, 'trainingBackground', 'Educational/Training Background')
   requiredText(data, 'primaryCraftDiscipline', 'Primary Craft Discipline')
   if (data?.usCitizenOrResident !== 'yes' && data?.usCitizenOrResident !== 'no') {
@@ -248,10 +249,10 @@ function assertSubmitReady(data: Record<string, unknown> | undefined, declaratio
   requiredText(data, 'workYearCreated', 'Year Created')
   requiredText(data, 'workDimensions', 'Dimensions')
   requiredText(data, 'workMaterials', 'Materials')
-  requiredText(data, 'artistStatement', 'Statement of practice')
-  requiredText(data, 'workDescription', 'Description of submitted work')
-  requiredText(data, 'workSignificance', 'Significance')
-  requiredText(data, 'whyPrize', 'Why the Spector Craft Prize')
+  requiredText(data, 'artistStatement', 'Statement of Practice')
+  requiredText(data, 'workDescription', 'Process of Submitted Work')
+  requiredText(data, 'workSignificance', 'Significance of Submitted Work')
+  requiredText(data, 'whyPrize', 'Why the Spector Craft Prize?')
 
   const images = data?.workImages
   if (!Array.isArray(images) || images.length < 1) {

@@ -1,0 +1,27 @@
+.bar {
+  display: block;
+  width: 100%;
+  padding: 18px var(--side-margin);
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.text {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1216px) {
+  .bar {
+    padding: 10px 20px;
+  }
+
+  .text {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+}

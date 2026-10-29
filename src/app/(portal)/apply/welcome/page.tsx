@@ -6,10 +6,12 @@ import { requireApplicant } from '@/lib/portal-auth'
 import { isApplicationReadOnly, resolveApplicantPortal } from '@/lib/portal-data'
 import {
   applicationDeadlineLabel,
+  DEFAULT_WELCOME_TITLE,
   displayName,
   formatPortalDate,
   INFO_EMAIL,
   PORTAL_PATHS,
+  programRulesHref,
   SELECTION_CRITERIA,
   SUPPORT_EMAIL,
   WIZARD_STEP_HREF,
@@ -54,17 +56,20 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
   const started = WIZARD_STEPS.some((step) => step !== 'submit' && stepComplete(application, step))
   const continueHref = WIZARD_STEP_HREF[furthestAllowedStep(application)]
   const showProgress = !readOnly && applicationHasStarted(application)
-  const rulesDocument = program.rulesDocument
-  const rulesHref =
-    rulesDocument && typeof rulesDocument === 'object' && rulesDocument.url
-      ? rulesDocument.url
-      : null
+  const rulesHref = programRulesHref(
+    typeof program.rulesDocument === 'object' ? program.rulesDocument : null,
+  )
   const deadline = applicationDeadlineLabel(program.deadline)
   const acceptingSubmissions = programAcceptsSubmissions(program)
   const paragraphs = program.welcomeMessage
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean)
+  const criteria =
+    Array.isArray(program.selectionCriteria) && program.selectionCriteria.length > 0
+      ? program.selectionCriteria
+      : SELECTION_CRITERIA
+  const welcomeTitle = program.welcomeTitle?.trim() || DEFAULT_WELCOME_TITLE
 
   return (
     <PortalShell showLogout userLabel={displayName(applicant)}>
@@ -83,16 +88,14 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
               </Button>
             </div>
           ) : null}
-          <Title className={styles.welcomeTitle}>
-            Welcome to The Spector Craft Prize for Emerging Artists Submissions Portal
-          </Title>
+          <Title className={styles.welcomeTitle}>{welcomeTitle}</Title>
           {paragraphs.map((paragraph) => (
             <Text key={paragraph}>{paragraph}</Text>
           ))}
           <Title as="h2">Selection criteria</Title>
           <ol className={styles.criteria}>
-            {SELECTION_CRITERIA.map((item, index) => (
-              <li className={styles.criteriaItem} key={item.title}>
+            {criteria.map((item, index) => (
+              <li className={styles.criteriaItem} key={`${item.title}-${index}`}>
                 <p className={styles.criteriaTitle}>
                   {index + 1}. {item.title}
                 </p>
@@ -114,11 +117,9 @@ export default async function ApplyWelcomePage({ searchParams }: PageProps) {
           <div className={styles.programMeta}>
             <Text>{program.name}</Text>
             {deadline ? <Text>Deadline: {deadline}</Text> : null}
-            {rulesHref ? (
-              <TextLink href={rulesHref}>Rules of Entry</TextLink>
-            ) : (
-              <Text>Rules of Entry</Text>
-            )}
+            <TextLink href={rulesHref} rel="noopener noreferrer" target="_blank">
+              Rules of Entry
+            </TextLink>
           </div>
           {showProgress ? <ApplicationProgressBar application={application} /> : null}
           {acceptingSubmissions && !readOnly ? (

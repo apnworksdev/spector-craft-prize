@@ -40,6 +40,9 @@ export const Evaluations: CollectionConfig = {
     useAsTitle: 'listTitle',
     description:
       'All juror scores on one list. Total is the sum of the four criteria (max 20). Filter by application or juror as needed.',
+    components: {
+      beforeListTable: ['/components/Admin/EvaluationsExportButton#EvaluationsExportButton'],
+    },
   },
   access: {
     admin: ({ req }) => isAdmin(req.user),

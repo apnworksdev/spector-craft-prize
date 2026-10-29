@@ -120,6 +120,17 @@ a.skip:focus-visible {
 .programMeta {
   display: grid;
   gap: 6px;
+  font-size: var(--portal-font-lead);
+  line-height: 1.5;
+  letter-spacing: var(--portal-tracking);
+}
+
+.programMeta :is(p, a, span) {
+  margin: 0;
+  max-width: none;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
 }
 
 .flowMeta {

@@ -15,6 +15,7 @@ export const GOVERNMENT_ID_TYPES = [
   'image/jpeg',
   'image/jpg',
   'image/png',
+  'image/x-png',
   'image/webp',
   'application/pdf',
 ] as const
@@ -28,17 +29,58 @@ export const GOVERNMENT_ID_ACCEPT = [
   ...GOVERNMENT_ID_TYPES,
 ].join(',')
 
-export const APPLICATION_IMAGE_HELP =
+const GOVERNMENT_ID_EXT_MIME: Record<string, (typeof GOVERNMENT_ID_TYPES)[number]> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  pdf: 'application/pdf',
+}
+
+/** Normalize browser/OS mime quirks; fall back to filename extension when needed. */
+export function normalizeGovernmentIdMime(
+  mimeType?: string | null,
+  filename?: string | null,
+): string {
+  const raw = (mimeType || '').trim().toLowerCase()
+  if (raw === 'image/pjpeg' || raw === 'image/jpg') {
+    return 'image/jpeg'
+  }
+  if (raw === 'image/x-png') {
+    return 'image/png'
+  }
+  if (raw && raw !== 'application/octet-stream') {
+    return raw
+  }
+
+  const ext = filename?.trim().split('.').pop()?.toLowerCase()
+  if (ext && GOVERNMENT_ID_EXT_MIME[ext]) {
+    return GOVERNMENT_ID_EXT_MIME[ext]
+  }
+
+  return raw
+}
+
+export const APPLICATION_IMAGE_NAMING =
+  'Name files with your full name plus a number or description (e.g., FirstnameLastname_SubmittedWork1 or FirstnameLastname_CareerPortfolio1).'
+
+export const APPLICATION_IMAGE_LIMITS =
   'Add several views of the same work in one upload and fill in the details once. To title a different work or a piece in a series, add another set. Images should have a white or neutral background. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.'
 
-export const PORTFOLIO_IMAGE_HELP =
+export const PORTFOLIO_IMAGE_LIMITS =
   'Representative works that highlight your artistic development. Optional. You can group several images of one work, or add a separate set for each piece. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.'
+
+/** Full help string for Payload admin descriptions (naming + limits). */
+export const APPLICATION_IMAGE_HELP = `${APPLICATION_IMAGE_NAMING} ${APPLICATION_IMAGE_LIMITS}`
+
+export const PORTFOLIO_IMAGE_HELP = `${APPLICATION_IMAGE_NAMING} ${PORTFOLIO_IMAGE_LIMITS}`
 
 export const APPLICATION_VIDEO_HELP =
   'Optional. Short video showing your work or process. MP4, maximum 90 seconds, maximum 10 MB.'
 
 type FileLike = {
   mimeType?: string | null
+  filename?: string | null
   filesize?: number | null
   width?: number | null
   height?: number | null
@@ -74,10 +116,15 @@ export function applicationVideoError(file: FileLike): string | true {
 }
 
 export function governmentIdError(file: FileLike): string | true {
-  const raw = file.mimeType || ''
-  const type = raw === 'image/pjpeg' ? 'image/jpeg' : raw
+  const type = normalizeGovernmentIdMime(file.mimeType, file.filename)
+  const allowed = new Set<string>([
+    ...GOVERNMENT_ID_TYPES,
+    'image/jpeg',
+    'image/png',
+    'application/pdf',
+  ])
 
-  if (type && !GOVERNMENT_ID_TYPES.includes(type as (typeof GOVERNMENT_ID_TYPES)[number])) {
+  if (type && !allowed.has(type)) {
     return 'Government ID must be JPG, PNG, or PDF.'
   }
 
@@ -86,6 +133,19 @@ export function governmentIdError(file: FileLike): string | true {
   }
 
   return true
+}
+
+/** Ensure Payload's mimeTypes check sees a real image/pdf type for ID uploads. */
+export function coerceGovernmentIdFile(file: File): File {
+  const normalized = normalizeGovernmentIdMime(file.type, file.name)
+  if (!normalized || normalized === file.type) {
+    return file
+  }
+
+  return new File([file], file.name, {
+    type: normalized,
+    lastModified: file.lastModified,
+  })
 }
 
 type SubmissionFileRef = {

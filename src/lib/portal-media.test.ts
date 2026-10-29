@@ -76,6 +76,19 @@ describe('governmentIdError', () => {
     expect(governmentIdError({ mimeType: 'application/pdf' })).toBe(true)
     expect(governmentIdError({ mimeType: 'image/webp' })).toBe(true)
   })
+
+  it('accepts png when the browser only sends octet-stream', () => {
+    expect(
+      governmentIdError({
+        mimeType: 'application/octet-stream',
+        filename: 'passport.png',
+      }),
+    ).toBe(true)
+  })
+
+  it('accepts legacy image/x-png', () => {
+    expect(governmentIdError({ mimeType: 'image/x-png' })).toBe(true)
+  })
 })
 
 describe('submissionFileUrl', () => {

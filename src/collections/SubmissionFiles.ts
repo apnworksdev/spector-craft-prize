@@ -35,7 +35,13 @@ export const SubmissionFiles: CollectionConfig = {
   },
   upload: {
     staticDir: path.resolve(dirname, '../../submission-files'),
-    mimeTypes: [...APPLICATION_IMAGE_TYPES, ...APPLICATION_VIDEO_TYPES, ...GOVERNMENT_ID_TYPES],
+    mimeTypes: [
+      ...APPLICATION_IMAGE_TYPES,
+      ...APPLICATION_VIDEO_TYPES,
+      ...GOVERNMENT_ID_TYPES,
+      // Some browsers send this for PNG/JPG; kind hooks still enforce real types.
+      'application/octet-stream',
+    ],
     filesRequiredOnCreate: true,
   },
   fields: [

@@ -155,13 +155,17 @@ export function ApplicationReview({
                 <Field label="Dimensions" value={application.workDimensions} wide />
               </div>
               <div className={styles.fieldGridFull}>
-                <Field label="Statement of practice" value={application.artistStatement} wide />
+                <Field label="Statement of Practice" value={application.artistStatement} wide />
                 <Field
-                  label="Process of submitted work"
+                  label="Process of Submitted Work"
                   value={application.workDescription}
                   wide
                 />
-                <Field label="Significance of submitted work" value={application.workSignificance} wide />
+                <Field
+                  label="Significance of Submitted Work"
+                  value={application.workSignificance}
+                  wide
+                />
                 <Field label="Why the Spector Craft Prize?" value={application.whyPrize} wide />
               </div>
             </div>
@@ -218,8 +222,9 @@ export function ApplicationReview({
                       : ''
                 }
               />
+              <Field label="Month and year practice began" value={application.practiceBegan} />
               <Field
-                label="Practice start / timeline"
+                label="Practice timeline explanation"
                 value={application.practiceBeganDetails}
                 wide
               />

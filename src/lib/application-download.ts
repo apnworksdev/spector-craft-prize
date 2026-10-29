@@ -283,7 +283,8 @@ export async function buildApplicationPdf(application: Application): Promise<Uin
 
   drawSection(writer, 'Eligibility confirmation')
   drawField(writer, 'Years of practice', application.yearsOfPractice)
-  drawField(writer, 'Practice start / timeline', application.practiceBeganDetails)
+  drawField(writer, 'Month and year practice began', application.practiceBegan)
+  drawField(writer, 'Practice timeline explanation', application.practiceBeganDetails)
   drawField(writer, 'Educational/training background', application.trainingBackground)
   drawField(writer, 'Primary craft discipline', application.primaryCraftDiscipline)
   drawField(writer, 'United States citizen or resident', citizen)
@@ -305,9 +306,9 @@ export async function buildApplicationPdf(application: Application): Promise<Uin
     { label: 'Dimensions', value: application.workDimensions },
     { label: 'Materials', value: application.workMaterials },
   )
-  drawField(writer, 'Statement of practice', application.artistStatement)
-  drawField(writer, 'Process of submitted work', application.workDescription)
-  drawField(writer, 'Significance of submitted work', application.workSignificance)
+  drawField(writer, 'Statement of Practice', application.artistStatement)
+  drawField(writer, 'Process of Submitted Work', application.workDescription)
+  drawField(writer, 'Significance of Submitted Work', application.workSignificance)
   drawField(writer, 'Why the Spector Craft Prize?', application.whyPrize)
 
   return pdf.save()

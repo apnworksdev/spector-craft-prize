@@ -1,5 +1,14 @@
 export { Button } from './Button'
-export { Checkbox, FileField, Input, Select, SelectField, TextArea, TextField } from './Fields'
+export {
+  Checkbox,
+  FileField,
+  Input,
+  Select,
+  SelectField,
+  TextArea,
+  TextField,
+  type FileFieldPreview,
+} from './Fields'
 export {
   Actions,
   FieldRow,

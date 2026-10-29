@@ -16,6 +16,7 @@ import { Programs } from './collections/Programs'
 import { SubmissionFiles } from './collections/SubmissionFiles'
 import { Users } from './collections/Users'
 import { About } from './globals/About'
+import { AnnouncementBar } from './globals/AnnouncementBar'
 import { EmergingArtistsPrize } from './globals/EmergingArtistsPrize'
 import { Home } from './globals/Home'
 import { Navigation } from './globals/Navigation'
@@ -78,7 +79,17 @@ export default buildConfig({
     Editions,
     PrizeRecipients,
   ],
-  globals: [Home, About, Press, EmergingArtistsPrize, Summit, Terms, Privacy, Navigation],
+  globals: [
+    Home,
+    About,
+    Press,
+    EmergingArtistsPrize,
+    Summit,
+    Terms,
+    Privacy,
+    Navigation,
+    AnnouncementBar,
+  ],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures.filter((feature) => feature.key !== 'link'),

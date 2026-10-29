@@ -21,6 +21,7 @@ describe('tagsForGlobal', () => {
     expect(tagsForGlobal('terms')).toEqual([CMS_TAGS.terms])
     expect(tagsForGlobal('privacy')).toEqual([CMS_TAGS.privacy])
     expect(tagsForGlobal('navigation')).toEqual([CMS_TAGS.navigation, CMS_TAGS.documents])
+    expect(tagsForGlobal('announcement-bar')).toEqual([CMS_TAGS.announcementBar])
   })
 
   it('includes the media tag for press so image edits refresh the list', () => {
@@ -57,6 +58,10 @@ describe('pathsForGlobal', () => {
 
   it('busts the whole site layout when navigation changes', () => {
     expect(pathsForGlobal('navigation')).toEqual([{ path: '/', type: 'layout' }])
+  })
+
+  it('busts the whole site layout when the announcement bar changes', () => {
+    expect(pathsForGlobal('announcement-bar')).toEqual([{ path: '/', type: 'layout' }])
   })
 })
 

@@ -275,10 +275,22 @@ export const Applications: CollectionConfig = {
           fields: [
             { name: 'yearsOfPractice', type: 'text' },
             {
+              name: 'practiceBegan',
+              type: 'text',
+              label: 'Month and year practice began',
+              admin: {
+                description:
+                  'State the month and year when your professional craft practice began (e.g. March 2021).',
+              },
+            },
+            {
               name: 'practiceBeganDetails',
               type: 'textarea',
-              label:
-                'State the month and year when your professional craft practice began. If your professional practice began more than seven years ago (before February 2020) due to a significant life interruption or career shift, please explain these circumstances and provide a clear timeline of your practice.',
+              label: 'Practice timeline explanation (optional)',
+              admin: {
+                description:
+                  'If your professional practice began more than seven years ago (before February 2020) due to a significant life interruption or career shift, explain these circumstances and provide a clear timeline of your practice.',
+              },
             },
             { name: 'trainingBackground', type: 'textarea' },
             { name: 'primaryCraftDiscipline', type: 'text' },
@@ -336,33 +348,37 @@ export const Applications: CollectionConfig = {
             {
               name: 'artistStatement',
               type: 'textarea',
+              label: 'Statement of Practice',
               validate: (value) => wordCountError(value, ARTIST_STATEMENT_MAX_WORDS),
               admin: {
-                description: `Statement of practice. ${ARTIST_STATEMENT_MAX_WORDS} words maximum.`,
+                description: `${ARTIST_STATEMENT_MAX_WORDS} words maximum. How does your work contribute to craft's role in contemporary American culture?`,
               },
             },
             {
               name: 'workDescription',
               type: 'textarea',
+              label: 'Process of Submitted Work',
               validate: (value) => wordCountError(value, WORK_DESCRIPTION_MAX_WORDS),
               admin: {
-                description: `Process. ${WORK_DESCRIPTION_MAX_WORDS} words maximum.`,
+                description: `${WORK_DESCRIPTION_MAX_WORDS} words maximum. Process, materials, and techniques for the submitted work.`,
               },
             },
             {
               name: 'workSignificance',
               type: 'textarea',
+              label: 'Significance of Submitted Work',
               validate: (value) => wordCountError(value, WORK_SIGNIFICANCE_MAX_WORDS),
               admin: {
-                description: `${WORK_SIGNIFICANCE_MAX_WORDS} words maximum.`,
+                description: `${WORK_SIGNIFICANCE_MAX_WORDS} words maximum. Distinct artistic voice and place in the broader practice.`,
               },
             },
             {
               name: 'whyPrize',
               type: 'textarea',
+              label: 'Why the Spector Craft Prize?',
               validate: (value) => wordCountError(value, WHY_PRIZE_MAX_WORDS),
               admin: {
-                description: `${WHY_PRIZE_MAX_WORDS} words maximum.`,
+                description: `${WHY_PRIZE_MAX_WORDS} words maximum. How the Prize would support practice and professional development.`,
               },
             },
             workImageArray('workImages', APPLICATION_IMAGE_HELP),

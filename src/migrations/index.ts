@@ -14,6 +14,9 @@ import * as migration_20260916_141800_banner_vimeo_mobile from './20260916_14180
 import * as migration_20260916_173400_quote_richtext from './20260916_173400_quote_richtext';
 import * as migration_20261016_110000_press_intro from './20261016_110000_press_intro';
 import * as migration_20261027_130000_practice_began_details from './20261027_130000_practice_began_details';
+import * as migration_20261029_120000_program_welcome_fields from './20261029_120000_program_welcome_fields';
+import * as migration_20261029_121000_practice_began from './20261029_121000_practice_began';
+import * as migration_20261029_140000_announcement_bar from './20261029_140000_announcement_bar';
 
 export const migrations = [
   {
@@ -95,5 +98,20 @@ export const migrations = [
     up: migration_20261027_130000_practice_began_details.up,
     down: migration_20261027_130000_practice_began_details.down,
     name: '20261027_130000_practice_began_details',
+  },
+  {
+    up: migration_20261029_120000_program_welcome_fields.up,
+    down: migration_20261029_120000_program_welcome_fields.down,
+    name: '20261029_120000_program_welcome_fields',
+  },
+  {
+    up: migration_20261029_121000_practice_began.up,
+    down: migration_20261029_121000_practice_began.down,
+    name: '20261029_121000_practice_began',
+  },
+  {
+    up: migration_20261029_140000_announcement_bar.up,
+    down: migration_20261029_140000_announcement_bar.down,
+    name: '20261029_140000_announcement_bar',
   },
 ];

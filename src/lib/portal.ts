@@ -267,19 +267,35 @@ export const INFO_EMAIL = 'info@spectorcraftprize.org'
 
 export const SELECTION_CRITERIA = [
   {
-    title: 'Artistic excellence',
+    title: 'Artistic Excellence',
     body: 'We look for a clear demonstration of technical skill and artistic vision, with the hand of the artist evident in the work.',
   },
   {
-    title: 'Cultural significance',
-    body: 'We look for a unique artistic perspective rooted in a meaningful connection to community, place, or personal identity, and in an intentional engagement with tradition.',
+    title: 'Cultural Significance',
+    body: 'We look for a unique artistic perspective that contributes to the evolving landscape of American craft, drawing on community, place, personal experience, or through innovative approaches to materials, techniques, and processes, with an intentional engagement with tradition.',
   },
   {
-    title: 'Growth potential',
-    body: 'We look for artists with a strong foundation who are still early in their development, whose practice remains open to new directions, and whose careers would be meaningfully accelerated by the Prize at this moment.',
+    title: 'Growth Potential',
+    body: 'We look for artists with a strong foundation whose practice continues to develop, who have not yet received widespread recognition, and whose careers could be meaningfully advanced by the Prize at this moment.',
   },
   {
-    title: 'Mission alignment',
-    body: 'We look for work that combines tradition and innovation and helps shape what American craft means today, elevating new voices that have not yet had a major platform.',
+    title: 'Mission Alignment',
+    body: 'We look for artists whose work brings fresh perspectives and expands the possibilities of craft, combining tradition and innovation in ways that help shape what American craft means today.',
   },
 ] as const
+
+export const DEFAULT_WELCOME_TITLE =
+  'Welcome to The Spector Craft Prize for Emerging Artists Submissions Portal'
+
+export const EMERGING_ARTISTS_PRIZE_PATH = '/emerging-artists-prize'
+
+/** Prefer Program Rules PDF; otherwise the public Emerging Artists Prize page. */
+export function programRulesHref(
+  rulesDocument: { url?: string | null } | number | null | undefined,
+): string {
+  if (rulesDocument && typeof rulesDocument === 'object' && rulesDocument.url) {
+    return rulesDocument.url
+  }
+
+  return EMERGING_ARTISTS_PRIZE_PATH
+}

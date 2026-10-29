@@ -106,6 +106,7 @@ export function validateWizardStep(
   if (step === 'eligibility') {
     if (requireComplete) {
       requireText(errors, application.yearsOfPractice, 'yearsOfPractice')
+      requireText(errors, application.practiceBegan, 'practiceBegan')
       requireText(errors, application.trainingBackground, 'trainingBackground')
       requireText(errors, application.primaryCraftDiscipline, 'primaryCraftDiscipline')
       if (
@@ -199,6 +200,7 @@ const FIELD_STEP: Record<string, WizardStep> = {
   email: 'personal',
   website: 'personal',
   yearsOfPractice: 'eligibility',
+  practiceBegan: 'eligibility',
   trainingBackground: 'eligibility',
   primaryCraftDiscipline: 'eligibility',
   usCitizenOrResident: 'eligibility',

@@ -107,6 +107,7 @@ function EligibilityFields({
   readOnly: boolean
 }) {
   const yearsError = useWizardFieldError('yearsOfPractice')
+  const practiceBeganError = useWizardFieldError('practiceBegan')
   const trainingError = useWizardFieldError('trainingBackground')
   const disciplineError = useWizardFieldError('primaryCraftDiscipline')
   const citizenError = useWizardFieldError('usCitizenOrResident')
@@ -130,9 +131,16 @@ function EligibilityFields({
           </option>
         ))}
       </SelectField>
+      <TextField
+        defaultValue={application.practiceBegan ?? ''}
+        error={practiceBeganError}
+        label="State the month and year when your professional craft practice began*"
+        name="practiceBegan"
+        readOnly={readOnly}
+      />
       <TextArea
         defaultValue={application.practiceBeganDetails ?? ''}
-        label="State the month and year when your professional craft practice began. If your professional practice began more than seven years ago (before February 2020) due to a significant life interruption or career shift, please explain these circumstances and provide a clear timeline of your practice."
+        label="If your professional practice began more than seven years ago (before February 2020) due to a significant life interruption or career shift, please explain these circumstances and provide a clear timeline of your practice."
         name="practiceBeganDetails"
         readOnly={readOnly}
       />
@@ -190,6 +198,7 @@ export function EligibilityStepForm({
         const citizenship = valueOf(form, 'usCitizenOrResident')
         return {
           yearsOfPractice: valueOf(form, 'yearsOfPractice'),
+          practiceBegan: valueOf(form, 'practiceBegan'),
           practiceBeganDetails: valueOf(form, 'practiceBeganDetails'),
           trainingBackground: resolveSelectWithOther(
             valueOf(form, 'trainingBackgroundChoice'),

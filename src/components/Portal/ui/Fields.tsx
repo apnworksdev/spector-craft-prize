@@ -190,19 +190,30 @@ export function SelectField({
   )
 }
 
+export type FileFieldPreview = {
+  kind: 'image' | 'pdf'
+  src?: string | null
+  name?: string | null
+}
+
 export function FileField({
   label,
   hint,
   note,
   error,
   fileStatus,
+  preview,
   children,
   className,
   onChange,
   multiple,
   ...input
 }: FieldChrome &
-  InputHTMLAttributes<HTMLInputElement> & { children?: ReactNode; fileStatus?: string | null }) {
+  InputHTMLAttributes<HTMLInputElement> & {
+    children?: ReactNode
+    fileStatus?: string | null
+    preview?: FileFieldPreview | null
+  }) {
   const id = useId()
   const hintId = hint ? `${id}-hint` : undefined
   const noteId = note ? `${id}-note` : undefined
@@ -220,12 +231,17 @@ export function FileField({
     styles.dropzone,
     dragging ? styles.dropzoneActive : null,
     error ? styles.controlInvalid : null,
+    preview ? styles.dropzoneHasPreview : null,
     className,
   ]
     .filter(Boolean)
     .join(' ')
 
   const prompt = multiple ? 'Drop images here or browse' : 'Drop a file here or browse'
+  const previewLabel =
+    preview?.kind === 'pdf'
+      ? preview.name?.trim() || 'PDF on file'
+      : preview?.name?.trim() || selectionLabel
 
   return (
     <Field error={error} errorId={errorId} hint={hint} hintId={hintId} label={label} note={note} noteId={noteId}>
@@ -266,9 +282,18 @@ export function FileField({
           }}
           type="file"
         />
-        <span className={styles.dropzonePrompt}>{prompt}</span>
+        {preview?.kind === 'image' && preview.src ? (
+          <img alt="" className={styles.dropzonePreviewImage} decoding="async" src={preview.src} />
+        ) : null}
+        {preview?.kind === 'pdf' ? (
+          <span className={styles.dropzonePreviewPdf}>PDF on file</span>
+        ) : null}
+        {!preview ? <span className={styles.dropzonePrompt}>{prompt}</span> : null}
+        {preview && previewLabel ? (
+          <span className={styles.dropzonePreviewName}>{previewLabel}</span>
+        ) : null}
       </div>
-      {selectionLabel ? <span className={styles.hint}>{selectionLabel}</span> : null}
+      {!preview && selectionLabel ? <span className={styles.hint}>{selectionLabel}</span> : null}
       {children}
     </Field>
   )

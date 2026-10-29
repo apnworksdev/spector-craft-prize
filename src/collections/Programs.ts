@@ -84,48 +84,95 @@ export const Programs: CollectionConfig = {
       },
     },
     {
-      name: 'rulesDocument',
-      type: 'upload',
-      relationTo: 'documents',
-      admin: {
-        description: 'Optional Rules of Entry PDF linked from the application.',
-      },
-    },
-    {
-      name: 'welcomeMessage',
-      type: 'textarea',
-      required: true,
-    },
-    {
-      name: 'helpMessage',
-      type: 'textarea',
-      required: true,
-    },
-    {
-      name: 'incompleteMessage',
-      type: 'textarea',
-      required: true,
-    },
-    {
-      name: 'readyToSubmitMessage',
-      type: 'textarea',
-      required: true,
-    },
-    {
-      name: 'confirmationEmailBody',
-      type: 'textarea',
-      required: true,
-    },
-    {
-      name: 'declarations',
-      type: 'array',
-      required: true,
-      minRows: 1,
-      fields: [
+      type: 'tabs',
+      tabs: [
         {
-          name: 'text',
-          type: 'textarea',
-          required: true,
+          label: 'Welcome page',
+          description: 'Copy shown on the applicant welcome screen for this program.',
+          fields: [
+            {
+              name: 'welcomeTitle',
+              type: 'text',
+              label: 'Welcome title',
+            },
+            {
+              name: 'welcomeMessage',
+              type: 'textarea',
+              required: true,
+              label: 'Welcome intro',
+              admin: {
+                description: 'Intro paragraphs. Separate paragraphs with a blank line.',
+              },
+            },
+            {
+              name: 'selectionCriteria',
+              type: 'array',
+              labels: {
+                singular: 'Criterion',
+                plural: 'Selection criteria',
+              },
+              fields: [
+                {
+                  name: 'title',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'body',
+                  type: 'textarea',
+                  required: true,
+                },
+              ],
+            },
+            {
+              name: 'rulesDocument',
+              type: 'upload',
+              relationTo: 'documents',
+              label: 'Rules of Entry PDF',
+              admin: {
+                description:
+                  'PDF linked as “Rules of Entry” on the welcome page and application wizard. Upload under Documents first, then select it here.',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Messages & declarations',
+          fields: [
+            {
+              name: 'helpMessage',
+              type: 'textarea',
+              required: true,
+            },
+            {
+              name: 'incompleteMessage',
+              type: 'textarea',
+              required: true,
+            },
+            {
+              name: 'readyToSubmitMessage',
+              type: 'textarea',
+              required: true,
+            },
+            {
+              name: 'confirmationEmailBody',
+              type: 'textarea',
+              required: true,
+            },
+            {
+              name: 'declarations',
+              type: 'array',
+              required: true,
+              minRows: 1,
+              fields: [
+                {
+                  name: 'text',
+                  type: 'textarea',
+                  required: true,
+                },
+              ],
+            },
+          ],
         },
       ],
     },

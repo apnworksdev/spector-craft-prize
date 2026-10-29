@@ -117,6 +117,7 @@ export interface Config {
     terms: Term;
     privacy: Privacy;
     navigation: Navigation;
+    'announcement-bar': AnnouncementBar;
   };
   globalsSelect: {
     home: HomeSelect<false> | HomeSelect<true>;
@@ -127,6 +128,7 @@ export interface Config {
     terms: TermsSelect<false> | TermsSelect<true>;
     privacy: PrivacySelect<false> | PrivacySelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
+    'announcement-bar': AnnouncementBarSelect<false> | AnnouncementBarSelect<true>;
   };
   locale: null;
   widgets: {
@@ -267,11 +269,22 @@ export interface Program {
    * Applicants can sign up and submit only when Live.
    */
   status: 'draft' | 'live' | 'closed';
+  welcomeTitle?: string | null;
   /**
-   * Optional Rules of Entry PDF linked from the application.
+   * Intro paragraphs. Separate paragraphs with a blank line.
+   */
+  welcomeMessage: string;
+  selectionCriteria?:
+    | {
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * PDF linked as “Rules of Entry” on the welcome page and application wizard. Upload under Documents first, then select it here.
    */
   rulesDocument?: (number | null) | Document;
-  welcomeMessage: string;
   helpMessage: string;
   incompleteMessage: string;
   readyToSubmitMessage: string;
@@ -352,6 +365,13 @@ export interface Application {
   socialMedia?: string | null;
   personalNotes?: string | null;
   yearsOfPractice?: string | null;
+  /**
+   * State the month and year when your professional craft practice began (e.g. March 2021).
+   */
+  practiceBegan?: string | null;
+  /**
+   * If your professional practice began more than seven years ago (before February 2020) due to a significant life interruption or career shift, explain these circumstances and provide a clear timeline of your practice.
+   */
   practiceBeganDetails?: string | null;
   trainingBackground?: string | null;
   primaryCraftDiscipline?: string | null;
@@ -372,23 +392,23 @@ export interface Application {
   workDimensions?: string | null;
   workMaterials?: string | null;
   /**
-   * Statement of practice. 200 words maximum.
+   * 200 words maximum. How does your work contribute to craft's role in contemporary American culture?
    */
   artistStatement?: string | null;
   /**
-   * Process. 100 words maximum.
+   * 100 words maximum. Process, materials, and techniques for the submitted work.
    */
   workDescription?: string | null;
   /**
-   * 100 words maximum.
+   * 100 words maximum. Distinct artistic voice and place in the broader practice.
    */
   workSignificance?: string | null;
   /**
-   * 125 words maximum.
+   * 125 words maximum. How the Prize would support practice and professional development.
    */
   whyPrize?: string | null;
   /**
-   * Add several views of the same work in one upload and fill in the details once. To title a different work or a piece in a series, add another set. Images should have a white or neutral background. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.
+   * Name files with your full name plus a number or description (e.g., FirstnameLastname_SubmittedWork1 or FirstnameLastname_CareerPortfolio1). Add several views of the same work in one upload and fill in the details once. To title a different work or a piece in a series, add another set. Images should have a white or neutral background. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.
    */
   workImages?:
     | {
@@ -406,7 +426,7 @@ export interface Application {
       }[]
     | null;
   /**
-   * Representative works that highlight your artistic development. Optional. You can group several images of one work, or add a separate set for each piece. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.
+   * Name files with your full name plus a number or description (e.g., FirstnameLastname_SubmittedWork1 or FirstnameLastname_CareerPortfolio1). Representative works that highlight your artistic development. Optional. You can group several images of one work, or add a separate set for each piece. Maximum 5 images. JPEG, PNG, or WebP, max 2 MB each.
    */
   portfolioImages?:
     | {
@@ -456,19 +476,19 @@ export interface Evaluation {
   application: number | Application;
   juror: number | User;
   /**
-   * Artistic excellence. 1–5.
+   * Artistic Excellence. 1–5.
    */
   artisticExcellence: number;
   /**
-   * Cultural significance. 1–5.
+   * Cultural Significance. 1–5.
    */
   culturalSignificance: number;
   /**
-   * Growth potential. 1–5.
+   * Growth Potential. 1–5.
    */
   growthPotential: number;
   /**
-   * Mission alignment. 1–5.
+   * Mission Alignment. 1–5.
    */
   missionAlignment: number;
   /**
@@ -1022,8 +1042,16 @@ export interface ProgramsSelect<T extends boolean = true> {
   code?: T;
   deadline?: T;
   status?: T;
-  rulesDocument?: T;
+  welcomeTitle?: T;
   welcomeMessage?: T;
+  selectionCriteria?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  rulesDocument?: T;
   helpMessage?: T;
   incompleteMessage?: T;
   readyToSubmitMessage?: T;
@@ -1067,6 +1095,7 @@ export interface ApplicationsSelect<T extends boolean = true> {
   socialMedia?: T;
   personalNotes?: T;
   yearsOfPractice?: T;
+  practiceBegan?: T;
   practiceBeganDetails?: T;
   trainingBackground?: T;
   primaryCraftDiscipline?: T;
@@ -1857,6 +1886,37 @@ export interface Navigation {
   createdAt?: string | null;
 }
 /**
+ * Optional site-wide banner above the header. Toggle Active to show or hide it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcement-bar".
+ */
+export interface AnnouncementBar {
+  id: number;
+  /**
+   * Show the announcement bar on the public site.
+   */
+  active?: boolean | null;
+  /**
+   * Message shown in the bar. Typically uppercase on the site.
+   */
+  text?: string | null;
+  /**
+   * Optional. Site path or full URL when the bar is clicked. Examples: /emerging-artists-prize, https://…
+   */
+  link?: string | null;
+  /**
+   * Hex color for the bar background, e.g. #F0F0F0.
+   */
+  backgroundColor?: string | null;
+  /**
+   * Hex color for the announcement text, e.g. #666666.
+   */
+  textColor?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home_select".
  */
@@ -2032,6 +2092,20 @@ export interface NavigationSelect<T extends boolean = true> {
         id?: T;
       };
   footerCredits?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcement-bar_select".
+ */
+export interface AnnouncementBarSelect<T extends boolean = true> {
+  active?: T;
+  text?: T;
+  link?: T;
+  backgroundColor?: T;
+  textColor?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

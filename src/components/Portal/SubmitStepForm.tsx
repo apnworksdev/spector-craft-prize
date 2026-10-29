@@ -1,19 +1,19 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { applicationSectionsComplete } from '@/lib/application-progress'
 import type { FieldErrors } from '@/lib/application-validation'
 import { GOVERNMENT_ID_ACCEPT } from '@/lib/portal-media'
 import { enqueueApplicationSave } from '@/lib/application-save-queue'
 import { uploadSubmissionFile } from '@/lib/portal-upload'
-import type { Application, Program } from '@/payload-types'
+import type { Application, Program, SubmissionFile } from '@/payload-types'
 import { PORTAL_PATHS, type WizardStep } from '@/lib/portal'
 
 import { ApplicationWizard } from './ApplicationWizard'
 import { SubmitStep } from './SubmitStep'
-import { FileField, Text } from './ui'
+import { FileField, type FileFieldPreview, Text } from './ui'
 
 type SubmitStepFormProps = {
   application: Application
@@ -28,6 +28,34 @@ type SubmitStepFormProps = {
   onGoToMissingField?: (errors: FieldErrors) => void
   initialFieldErrors?: FieldErrors
   focusToken?: number
+}
+
+function previewFromFile(
+  file: SubmissionFile | number | null | undefined,
+  local?: FileFieldPreview | null,
+): FileFieldPreview | null {
+  if (local) {
+    return local
+  }
+
+  if (!file || typeof file !== 'object') {
+    return null
+  }
+
+  const mime = file.mimeType || ''
+  if (mime.startsWith('image/') && file.url) {
+    return { kind: 'image', src: file.url, name: file.filename }
+  }
+
+  if (mime === 'application/pdf' || file.filename?.toLowerCase().endsWith('.pdf')) {
+    return { kind: 'pdf', name: file.filename || 'PDF on file' }
+  }
+
+  if (file.url) {
+    return { kind: 'image', src: file.url, name: file.filename }
+  }
+
+  return file.filename ? { kind: 'pdf', name: file.filename } : null
 }
 
 export function SubmitStepForm({
@@ -47,8 +75,21 @@ export function SubmitStepForm({
   const router = useRouter()
   const [uploadError, setUploadError] = useState('')
   const [governmentIdError, setGovernmentIdError] = useState('')
+  const [localPreview, setLocalPreview] = useState<FileFieldPreview | null>(null)
   const sectionsReady = readOnly || applicationSectionsComplete(application)
   const hasGovernmentId = Boolean(application.governmentId)
+  const preview = previewFromFile(
+    typeof application.governmentId === 'object' ? application.governmentId : null,
+    localPreview,
+  )
+
+  useEffect(() => {
+    return () => {
+      if (localPreview?.src?.startsWith('blob:')) {
+        URL.revokeObjectURL(localPreview.src)
+      }
+    }
+  }, [localPreview])
 
   return (
     <ApplicationWizard
@@ -98,9 +139,10 @@ export function SubmitStepForm({
             accept={GOVERNMENT_ID_ACCEPT}
             hint="JPG, PNG, or PDF."
             error={governmentIdError || uploadError || undefined}
-            fileStatus={hasGovernmentId ? 'File on file' : null}
+            fileStatus={hasGovernmentId && !preview ? 'File on file' : null}
             label="Upload government issued ID"
             name="governmentId"
+            preview={preview}
             onChange={async (event) => {
               const file = event.target.files?.[0]
               if (!file) {
@@ -110,9 +152,21 @@ export function SubmitStepForm({
               setUploadError('')
               setGovernmentIdError('')
 
+              if (localPreview?.src?.startsWith('blob:')) {
+                URL.revokeObjectURL(localPreview.src)
+              }
+
+              const isPdf =
+                file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+              const nextPreview: FileFieldPreview = isPdf
+                ? { kind: 'pdf', name: file.name }
+                : { kind: 'image', src: URL.createObjectURL(file), name: file.name }
+              setLocalPreview(nextPreview)
+
               const uploaded = await uploadSubmissionFile(file, 'id')
               if ('error' in uploaded) {
                 setUploadError(uploaded.error)
+                setLocalPreview(null)
                 return
               }
 
@@ -121,7 +175,15 @@ export function SubmitStepForm({
               })
               if (!result.ok) {
                 setUploadError(result.error)
+                setLocalPreview(null)
                 return
+              }
+
+              if (uploaded.url && nextPreview.kind === 'image') {
+                if (nextPreview.src?.startsWith('blob:')) {
+                  URL.revokeObjectURL(nextPreview.src)
+                }
+                setLocalPreview({ kind: 'image', src: uploaded.url, name: file.name })
               }
 
               onApplicationPatch?.({ governmentId: uploaded.id })

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { AnnouncementBar } from '@/components/AnnouncementBar/AnnouncementBar'
 import { NewsletterPopup } from '@/components/NewsletterPopup/NewsletterPopup'
 import { SiteFooter } from '@/components/SiteFooter/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader/SiteHeader'
@@ -34,7 +35,10 @@ export const viewport = {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const navigation = await getCachedGlobal('navigation', 1)
+  const [navigation, announcement] = await Promise.all([
+    getCachedGlobal('navigation', 1),
+    getCachedGlobal('announcement-bar', 0),
+  ])
   const header = normalizeNavLinks(navigation.header, DEFAULT_HEADER_NAV)
   const footerPrimary = normalizeNavLinks(navigation.footerPrimary, DEFAULT_FOOTER_PRIMARY_NAV)
   const footerLegal = normalizeNavLinks(navigation.footerLegal, DEFAULT_FOOTER_LEGAL_NAV)
@@ -42,6 +46,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang="en">
       <body>
+        {announcement.active && announcement.text?.trim() ? (
+          <AnnouncementBar
+            backgroundColor={announcement.backgroundColor}
+            link={announcement.link}
+            text={announcement.text}
+            textColor={announcement.textColor}
+          />
+        ) : null}
         <SiteHeader items={header} />
         <main>{children}</main>
         <SiteFooter credits={navigation.footerCredits} legal={footerLegal} primary={footerPrimary} />

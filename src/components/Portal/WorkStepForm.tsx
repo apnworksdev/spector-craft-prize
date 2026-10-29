@@ -86,7 +86,7 @@ function WorkFields({ application, readOnly }: { application: Application; readO
         defaultValue={application.artistStatement ?? ''}
         error={artistStatementError}
         hint="How does your work contribute to craft's role in contemporary American culture? Describe your practice's relationship to traditional methods, materials, or lineages (if applicable), and how it combines tradition with innovation. How do your experiences, community, or cultural context shape your artistic perspective and the ideas you explore through your work?"
-        label={`Statement of practice (${ARTIST_STATEMENT_MAX_WORDS} words maximum)*`}
+        label={`Statement of Practice (${ARTIST_STATEMENT_MAX_WORDS} words maximum)*`}
         name="artistStatement"
         readOnly={readOnly}
       />
@@ -94,7 +94,7 @@ function WorkFields({ application, readOnly }: { application: Application; readO
         defaultValue={application.workDescription ?? ''}
         error={workDescriptionError}
         hint="Describe the process, materials, and techniques used to create the submitted work. How does the work demonstrate your expertise and technical skill? If assistants, fabricators, or industrial processes were involved, describe your own role in the making."
-        label={`Process of submitted work (${WORK_DESCRIPTION_MAX_WORDS} words maximum)*`}
+        label={`Process of Submitted Work (${WORK_DESCRIPTION_MAX_WORDS} words maximum)*`}
         name="workDescription"
         readOnly={readOnly}
       />
@@ -102,7 +102,7 @@ function WorkFields({ application, readOnly }: { application: Application; readO
         defaultValue={application.workSignificance ?? ''}
         error={workSignificanceError}
         hint="How does the submitted work reflect your distinct artistic voice? What significance does it hold within your broader practice?"
-        label={`Significance of submitted work (${WORK_SIGNIFICANCE_MAX_WORDS} words maximum)*`}
+        label={`Significance of Submitted Work (${WORK_SIGNIFICANCE_MAX_WORDS} words maximum)*`}
         name="workSignificance"
         readOnly={readOnly}
       />

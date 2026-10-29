@@ -22,10 +22,14 @@ export const validateSubmissionFileRules: CollectionBeforeValidateHook = ({ data
   const kind = data?.kind
   const filesize = data?.filesize ?? req.file?.size
   const mimeType = data?.mimeType ?? req.file?.mimetype
+  const filename =
+    (typeof data?.filename === 'string' && data.filename) ||
+    req.file?.name ||
+    null
   const width = data?.width
   const height = data?.height
 
-  const file = { kind, filesize, mimeType, width, height }
+  const file = { kind, filesize, mimeType, filename, width, height }
 
   if (kind === 'image') {
     const error = applicationImageError(file)
