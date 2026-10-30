@@ -4,6 +4,10 @@ import { Panel, Text, Title } from '@/components/Portal/ui'
 import { getLiveProgram } from '@/lib/portal-data'
 import { PORTAL_PATHS } from '@/lib/portal'
 
+// Program status is edited in the CMS after deploy. A static page would keep
+// the "not open yet" message from build time.
+export const dynamic = 'force-dynamic'
+
 export default async function ApplySignupPage() {
   const program = await getLiveProgram()
 
