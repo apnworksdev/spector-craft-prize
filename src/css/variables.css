@@ -21,8 +21,6 @@
   --teal: #3A6573;
   --bg-color: var(--white);
   --fg-color: var(--teal);
-  --selection-background-color: var(--fg-color);
-  --selection-foreground-color: var(--bg-color);
 
   --side-margin: 30px;
   --max-width-rich-text: 950px;

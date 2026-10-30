@@ -13,6 +13,7 @@ import * as migration_20260915_170800_footer_credits from './20260915_170800_foo
 import * as migration_20260916_141800_banner_vimeo_mobile from './20260916_141800_banner_vimeo_mobile';
 import * as migration_20260916_173400_quote_richtext from './20260916_173400_quote_richtext';
 import * as migration_20261016_110000_press_intro from './20261016_110000_press_intro';
+import * as migration_20261026_120000_portal_schema from './20261026_120000_portal_schema';
 import * as migration_20261027_130000_practice_began_details from './20261027_130000_practice_began_details';
 import * as migration_20261029_120000_program_welcome_fields from './20261029_120000_program_welcome_fields';
 import * as migration_20261029_121000_practice_began from './20261029_121000_practice_began';
@@ -93,6 +94,11 @@ export const migrations = [
     up: migration_20261016_110000_press_intro.up,
     down: migration_20261016_110000_press_intro.down,
     name: '20261016_110000_press_intro',
+  },
+  {
+    up: migration_20261026_120000_portal_schema.up,
+    down: migration_20261026_120000_portal_schema.down,
+    name: '20261026_120000_portal_schema',
   },
   {
     up: migration_20261027_130000_practice_began_details.up,
